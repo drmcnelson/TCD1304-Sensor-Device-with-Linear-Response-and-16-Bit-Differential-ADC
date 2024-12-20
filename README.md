@@ -10,7 +10,6 @@ For a controller, please see the [T4 controller](https://github.com/drmcnelson/S
 Caveat: this is a design only, I have not built the first one yet.  Sponsors are welcome.
 Firmware and python user interace are usually available within a few weeks after making the first boards.
 
-![TCD1304_SPI-top](https://github.com/user-attachments/assets/e5373592-98bc-4a55-981c-375c9b74fb9c)
+![TCD1304_SPI-top](https://github.com/user-attachments/assets/4fea5117-14e4-4347-977d-2b3c1a141d37)
 
-![TCD1304_SPI-bottom](https://github.com/user-attachments/assets/13bd9f52-42ec-4389-bae1-15f339367556)
-
+![TCD1304_SPI-bottom](https://github.com/user-attachments/assets/2eb67573-8f06-4756-9436-cd7115682c00)
