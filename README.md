@@ -1,7 +1,7 @@
 # TCD1304-SPI
-TCD1304 with 16biit 1MHZ ADC MCP33131D for SPI
+TCD1304 with 16biit 1MHZ ADC for SPI
 
-This repository provides gerbers, schematic and BOM for a simple TCD1304 board with a 16bit 1MHZ ADC, the MCP33131D.
+This repository provides gerbers, schematic and BOM for a simple TCD1304 board with a 16bit 1MHZ ADC.
 The SPI side can be 3.3 or 5V logic, meaning it should run with Teensy or Arduino type boards.
 The Teensy 4 or 4.1 are good choices since they have the fast 480 MHz USB.
 
