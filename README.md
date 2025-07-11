@@ -15,7 +15,7 @@ The following are fluorescent lamp spectra collected with one of the most popula
 <p align="center">
 <img src="Images/Seabreeze_linearity.png" alt="Commercial Spectrometer" width="30%" height="auto">
 <img src="Images/Seabreeze_linearity_zoom550nm.png" alt="Commercial Spectrometer, 550nm" width="30%" height="auto">
-<img src="Images/Seabreeze_ratios.png" alt="Commercial Spectrometer, ratios" width="30%" height="auto">
+<img src="Images/Seaeabreeze_ratios.png" alt="Commercial Spectrometer, ratios" width="30%" height="auto">
 </p>
 
 ### The new linear response TCD1304
