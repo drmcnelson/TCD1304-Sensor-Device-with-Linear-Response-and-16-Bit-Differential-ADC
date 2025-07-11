@@ -40,3 +40,15 @@ As you can see, the curves now do lay over each other, except where it saturates
 This repository at present contains the preliminary gerbers, schematic and BOM.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular how we identified and solbed the linearity problem.
 
 If you have questions in the meantime, please feel free to contact me.
+
+Meanwhile, here is a picture of the first board set (sensor and controller), and assembly of the spectrometer.  As can be seen in the above, the spectrometer has similar resolution to the expensivie commercial instrument but with the advantage of good linear response and less than 1/10 of the cost.  There are some minor updates since the first boards. Those will be added to this repo soon along with firmware, a header only library for teensy arduino, and a python user app and library.
+
+<p align="center">
+<img src="Images/IMG_20250502_172441168.cropped.jpg" alt="Commercial Spectrometer" width="25%" height="auto">
+</p>
+
+<p align="center">
+<img src="Images/IMG_20250506_094350586.p1200.jpg" alt="Commercial Spectrometer" width="30%" height="auto">
+<img src="Images/IMG_20250507_133058238.p1200.jpg" alt="Commercial Spectrometer" width="30%" height="auto">
+</p>
+
