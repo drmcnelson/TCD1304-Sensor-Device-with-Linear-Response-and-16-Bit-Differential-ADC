@@ -1,13 +1,14 @@
 # TCD1304-SPI
-TCD1304 with reproducible, linear response, 16 bit for SPI
+TCD1304 with reproducible, linear response, 16 bit, SPI
 
 <p align="center">
-<img src="Images/TCD1304_SPI_3Dtop_cropped.jpg" alt="Linear response TCD1304 for SPI" width="40%" height="auto">
+<img src="Images/TCD1304_SPI_3Dtop_cropped.jpg" alt="Linear response TCD1304 for SPI" width="40%" height="auto">  
 </p>
 
-Reproducibility is one of the vital elements of scientific measurements.  For a spectrometer, that generally means that the instrument needs to have a linear response to light intensity.   When you double the light intensity or the exposure time, all of the peaks in your spectrum should double in height, unless of course one of them saturate.   That is a basic and critical requirement for obtaining reporoducible and meaningful results with a spectrometer.
+## Introduction
+Reproducibility is one of the vital elements of scientific measurements.  For a spectrometer, that generally means linearity.   When you double the light intensity or the exposure time, all of the peaks in your spectrum should double in height.   That is a basic and critical requirement for obtaining reporoducible and meaningful results with a spectrometer.   Here we provide designed files and firmware for a linear CCD system that is linear and gives you reproducible results.
 
-As it turns out, some commercial spectrometers are not very linear in their response.   Here we are going to provide you with design files and firmwware for a linear CCD sensor board that to the best oour ability to teste it, really is linear.   But first, let's demonstrate what the problem looks like.
+As it turns out, some commercial spectrometers are actually not very linear (despite cost, popularity and citation numbers).  As it turns out, desinging for spectroscopy with a linear CCD presents special challenges.   The present design was devloped by instrumentation physicists specifically to address these issues.    But first, let's demonstrate what the problem looks like.
 
 ### The commerical instrument
 The following are fluorescent lamp spectra collected with one of the most popular commercial CCD spectrometers at different exposure times. We divide intensity by exposure time. So, all of those curves should lay on top of each other. To make things more clear, the third graph shows the ratios of the heights of three of the peaks from the spectra. The peaks heights are not proportional to the exposure time, and even the height of one peak compared to another changes when you change the exposure time.
