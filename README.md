@@ -13,8 +13,8 @@ As it turns out, some commercial spectrometers are not very linear in their resp
 The following are fluorescent lamp spectra collected with one of the most popular commercial CCD spectrometers at different exposure times. We divide intensity by exposure time. So, all of those curves should lay on top of each other. To make things more clear, the third graph shows the ratios of the heights of three of the peaks from the spectra. The peaks heights are not proportional to the exposure time, and even the height of one peak compared to another changes when you change the exposure time.
 
 <p align="center">
-<img src="Images/Seabreeze_linearity.png" alt="Commercial Spectrometer" width="30%" height="auto">
-<img src="Images/Seabreeze_linearity_zoom550nm.png" alt="Commercial Spectrometer, 550nm" width="30%" height="auto">
+<img src="Images/Seabreeze_linearity.png" alt="Commercial Spectrometer" width="40%" height="auto">
+<img src="Images/Seabreeze_linearity_zoom550nm.png" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
 </p>
 <p align="center">
 <img src="Images/Seaeabreeze_ratios.png" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
@@ -26,8 +26,8 @@ Here is similar data to the above, but no collected with the TCD1304 system from
 As you can see, the curves now do lay over each other, except where it saturates at longer exposure times. And the relative peak heights are pretty flat, again until one of the peaks saturates. That is what you want if you want to be report spectra when you publish your research.
 
 <p align="center">
-<img src="Images/TCD1304_nd9_linearity.png" alt="Commercial Spectrometer" width="30%" height="auto">
-<img src="Images/TCD1304_nd9_linearity550nm.png" alt="Commercial Spectrometer, 550nm" width="30%" height="auto">
+<img src="Images/TCD1304_nd9_linearity.png" alt="Commercial Spectrometer" width="40%" height="auto">
+<img src="Images/TCD1304_nd9_linearity550nm.png" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
 </p>
 <p align="center">
 <img src="Images/NDFilter_9oclock_all.ratios.png" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
