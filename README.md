@@ -15,7 +15,9 @@ The following are fluorescent lamp spectra collected with one of the most popula
 <p align="center">
 <img src="Images/Seabreeze_linearity.png" alt="Commercial Spectrometer" width="30%" height="auto">
 <img src="Images/Seabreeze_linearity_zoom550nm.png" alt="Commercial Spectrometer, 550nm" width="30%" height="auto">
-<img src="Images/Seaeabreeze_ratios.png" alt="Commercial Spectrometer, ratios" width="30%" height="auto">
+</p>
+<p align="center">
+<img src="Images/Seaeabreeze_ratios.png" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
 </p>
 
 ### The new linear response TCD1304
@@ -26,7 +28,9 @@ As you can see, the curves now do lay over each other, except where it saturates
 <p align="center">
 <img src="Images/TCD1304_nd9_linearity.png" alt="Commercial Spectrometer" width="30%" height="auto">
 <img src="Images/TCD1304_nd9_linearity550nm.png" alt="Commercial Spectrometer, 550nm" width="30%" height="auto">
-<img src="Images/NDFilter_9oclock_all.ratios.png" alt="Commercial Spectrometer, ratios" width="30%" height="auto">
+</p>
+<p align="center">
+<img src="Images/NDFilter_9oclock_all.ratios.png" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
 </p>
 
 ### Contents of this repo
