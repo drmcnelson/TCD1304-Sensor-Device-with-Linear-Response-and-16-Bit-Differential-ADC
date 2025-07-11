@@ -2,7 +2,7 @@
 TCD1304 with reproducible, linear response, 16 bit for SPI
 
 <p align="center">
-<img src="Images/TCD1304_SPI_3Dtop.png" alt="Linear response TCD1304 for SPI" width="40%" height="auto">
+<img src="Images/TCD1304_SPI_3Dtop_cropped.jpg" alt="Linear response TCD1304 for SPI" width="40%" height="auto">
 </p>
 
 Reproducibility is one of the vital elements of scientific measurements.  For a spectrometer, that generally means that the instrument needs to have a linear response to light intensity.   When you double the light intensity or the exposure time, all of the peaks in your spectrum should double in height, unless of course one of them saturate.   That is a basic and critical requirement for obtaining reporoducible and meaningful results with a spectrometer.
