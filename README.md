@@ -8,7 +8,7 @@ TCD1304 with reproducible, linear response, 16 bit, SPI
 ## Introduction
 We are constructing this repo now, stay tuned for updated files.
 
-Reproducibility is one of the vital elements of scientific measurements.  For a spectrometer, that reproducibility in a practical sense means linearity.  Here we will provide designe files and firmware for a linear CCD system that has linear response and provides reproducible results. 
+Reproducibility is one of the vital elements of scientific measurements.  For a spectrometer, reproducibility in a practical sense means linearity.  Here we will provide designe files and firmware for a linear CCD system that has linear response and provides reproducible results. 
 
 The challenges to achieving linearity and reproducibility in a linear CCD sensor include aspects of both device physics and electrical design, the latter being related to the characteristics of signals that correspond to sharp spectral line.  The present design was devloped specifically to address these issues.    But first, let's demonstrate what the problem looks like.
 
