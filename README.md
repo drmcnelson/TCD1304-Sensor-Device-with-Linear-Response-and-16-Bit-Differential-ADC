@@ -73,16 +73,16 @@ The instrument when well aligned should image the slit onto the sensor, when the
 
 The optics have a magnification factor equal to the ratio of the focal lengths of the lenses.  Our pixel size is 8μmx200μm, so at 1:1 a 200μm slit makes good use of the pixel height but we give up some resolution. Our resolution limited line width works out to be about 3nm.
 
-The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately $4,000 to $6,000). The [commercial produced spectrum is found here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.png).
+The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately $4,000 to $6,000). The [commercial produced spectrum is found here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.jpg).
 
 Notice that we have slightly better resolution and there are some differences in peak heights.  Our grating has better efficiency in the blue, but notice that the Ocean Optics instrument is attenuating strong narrow lines, perhaps consistent with our description of dV/dt effects that need to be avoided in the signal acquisition circuitry.
 
 And of course another important differences is that our cost is under $400, i.e., 1/10 of the cost of the commercial instrument.
 
 <p align="center">
-<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.png" alt="Fluorescent lamp spectrum" width="40%">
+<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="Fluorescent lamp spectrum" width="40%">
 &nbsp;
-<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.png" alt="Fluorescent lamp spectrum" width="40%">
+<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Fluorescent lamp spectrum" width="40%">
 </p>
 
 
@@ -109,18 +109,18 @@ In this first figure we have a lot of attenuation to be able to span a wide rang
 At the short exposure settings there may be some aberration from noise.  Otherwise we see that the data is monotonic and even without carefully treating the noise it seems pretty close to  linear over alomost all of the range.
 
 <p align="center">
-<img src="Images/NDFilter_12oclock_all.responses.png" alt="Linearity over wide range in exposure" width="40%" height="auto">
+<img src="Images/NDFilter_12oclock_all.responses.jpg" alt="Linearity over wide range in exposure" width="40%" height="auto">
 </p>
 
 
 Now lets look more closely at how the devices preserves the appearance of spectra and relative peak heights.  Here we use less attenuation to get above noise.  Notice that some of the peaks are clipped at longer exposure.  Nonetheless, the result is very reproducible, spectra overlay each other to well within noise, and peak height ratios are very flat except where one peak reaches saturation.
 
 <p align="center">
-<img src="Images/TCD1304_nd9_linearity.png" alt="Commercial Spectrometer" width="40%" height="auto">
-<img src="Images/TCD1304_nd9_linearity550nm.png" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
+<img src="Images/TCD1304_nd9_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
+<img src="Images/TCD1304_nd9_linearity550nm.jpg" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
 </p>
 <p align="center">
-<img src="Images/NDFilter_9oclock_all.ratios.png" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
+<img src="Images/NDFilter_9oclock_all.ratios.jpg" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
 </p>
 
 
@@ -133,11 +133,11 @@ We might note also that the correction requires that the signal at each pixel is
 In the folling it is easy to see that (a) the peak heights are not proportional to exposure time, and (b) relative peak hights vary with exposure time.  Looking at the data closely we also see that the response is not monotonic. 
 
 <p align="center">
-<img src="Images/Seabreeze_linearity.png" alt="Commercial Spectrometer" width="40%" height="auto">
-<img src="Images/Seabreeze_linearity_zoom550nm.png" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
+<img src="Images/Seabreeze_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
+<img src="Images/Seabreeze_linearity_zoom550nm.jpg" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
 </p>
 <p align="center">
-<img src="Images/Seaeabreeze_ratios.png" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
+<img src="Images/Seaeabreeze_ratios.jpg" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
 </p>
 
 ### Contents of this repo
