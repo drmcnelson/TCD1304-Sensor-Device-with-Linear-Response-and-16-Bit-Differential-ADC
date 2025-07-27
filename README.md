@@ -150,6 +150,6 @@ In the following it is easy to see that (a) the peak heights are not proportiona
 </p>
 
 ### Contents of this repo
-This repository at present contains the preliminary gerbers, schematic and BOM.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular some insights about the novel issues in achieving linearity for a CCD device used in spectroscopy and scientific imaging.
+This repository at present contains the preliminary gerbers and the data that you see here in the readme.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular some insights about the novel issues in achieving linearity.
 
 If you have questions in the meantime, please feel free to contact me.
