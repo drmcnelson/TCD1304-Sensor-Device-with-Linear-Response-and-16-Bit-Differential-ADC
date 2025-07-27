@@ -75,12 +75,13 @@ The instrument when well aligned should image the slit onto the sensor, when the
 
 The optics have a magnification factor equal to the ratio of the focal lengths of the lenses.  Our pixel size is 8μmx200μm, so at 1:1 a 200μm slit makes good use of the pixel height but we give up some resolution. Our resolution limited line width works out to be about 3nm.
 
-The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately $4,000 to $6,000). The spectrum produced by the commercial instrument can be found [here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.svg).
+The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately
+\$4,000 to \$6,000). The spectrum produced by the commercial instrument [can be found here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.svg).
 
-Notice that (a) we have slightly better resolution, (b) there are some differences in peak heights and (c) we have a flatter baseline between groups of spectral lines.  It looks like the Ocean Optics instrument is attenuating strong narrow lines (see the relative height of peak 12 and peaks 6-11, peaks 4 and 5, and again all of these to peak 3).  That might be consistent with our description of dV/dt effects that need to be avoided in the signal acquisition circuitry.
-The poor baseline requires some further investigation, but we see that in a well designed instrument the baseline can be nearly flat.
+Notice that (a) we have slightly better resolution, (b) there are some differences in peak heights and (c) we have a flatter baseline throughout the spectrum.  It seems that the Ocean Optics instrument is attenuating strong narrow lines (see for example, the relative height of peak 12 to peaks 6-11, peak 4 to 5, and all of these to peak 3).  That behavior in the Ocean Optics instrument might be consistent with a combination of low pass filtering and the dV/dt effect that we mentioned in the introduction and which will be described later.
+The poor baseline requires some further investigation, but we see that in a well designed instrument (spectrum on the left) the baseline can be nearly flat.
 The reader might also notice that we have better resolution and better sensitivity in the blue, perhaps related to the higher density grating and better optical design.
-Of course another important difference in the two spectrometers is that our cost is under $400, i.e., 1/10 of the cost of the commercial instrument.
+Of course another important difference in the two spectrometers is that the cost for the spectrometr on the let can be under $400, i.e., 1/10 of the cost of the commercial instrument.
 
 <p align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="45%">
@@ -102,21 +103,24 @@ The equipment list for our linearity study is as follows.  Construction of the s
 <li> Miscellaneous mechanicals to hold the lamp, ND filter and fiber in a fixed positions.
 </ol>
 
-Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed settting throughout a set of exposure setttings.  The instrument has two timing modes. For short exposures, the gates and readouts are all operated by a FlexPWM module of the Teensy 4 microcontroller.  The FlexPWM can support frame intervals to 50msec, for longer frame times or exposures, timing has to be supplied by a system level timer or a roll-your-own timer based on a spare timer module in the MCU.
+<p align="center">
+<img src="Images/FluoresdentLinearityMeasurements.jpg" alt="Linearity Measurements" width="60%">
+</p>
+
+Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed settting throughout a set of exposure setttings.  
 
 ### Results for the instrument based on the new TCDS1304DG sensor.
 
-Lets start with the response of our instrument at three peaks, the smaller broader peak at 487nm, and the pair of strong peaks at 542nm and 546nm.   In the following note that the y axis is intensity divided by exposure time.  We expect that to be constant.
-
-In this first figure we have a lot of attenuation to be able to span a wide range of exposure settings.
-At the short exposure settings there may be some aberration from noise.  Otherwise we see that the data is monotonic and even without carefully treating the noise it seems pretty close to  linear over alomost all of the range.
+Lets start with the response of our instrument at three peaks, (a) the smaller broader peak at 487nm, and (b,c) the pair of strong peaks at 542nm and 546nm.  In the following note that the y axis is intensity divided by exposure time.  For linear response, the intensities divided by exposure time should be nearly constant once the signal is sufficiently above noise.  We see that in fact the curves are nearly flat apart from the first few points at the shortest exposure times.
 
 <p align="center">
 <img src="Images/NDFilter_12oclock_all.responses.jpg" alt="Linearity over wide range in exposure" width="40%" height="auto">
 </p>
 
+<br>
 
-Now lets look more closely at how the devices preserves the appearance of spectra and relative peak heights.  Here we use less attenuation to get above noise.  Notice that some of the peaks are clipped at longer exposure.  Nonetheless, the result is very reproducible, spectra overlay each other to well within noise, and peak height ratios are very flat except where one peak reaches saturation.
+#### Appearance and Relative peak heights are constant until near saturation:
+Now lets look more closely at how the new sensor device preserves the appearance of spectra and relative peak heights.  Here we use less attenuation, the signal is stronger and we can see how the instrument performs near saturation. Some of the peaks are actually clipped at the longer exposure times. Nonetheless, the result is very reproducible, spectra overlay each other to well within noise, and peak height ratios are very flat except where one of the peaks reaches saturation.
 
 <p align="center">
 <img src="Images/TCD1304_nd9_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
@@ -128,12 +132,14 @@ Now lets look more closely at how the devices preserves the appearance of spectr
 
 
 ### Results for a widely used commercial instrument.
-The following are fluorescent lamp spectra collected with a popular commercial CCD spectrometer. While this is not  a model that is currently offered by the manufacturer, it is widely availabe on ebay and it is still cited in in reports involving quantitative results. One recent example compares the effectiveness of sun screens.
+The following are fluorescent lamp spectra collected with another popular commercial CCD spectrometer, the Flame-S. While this is not  a model that is currently offered by the manufacturer, it is widely availabe on ebay and it is still cited in in reports involving quantitative results. One recent publication uses this instrument to compare the effectiveness of sun screens.
 
-The manufacturer of this instrument claims a "corrected linearity" of better than 99.8%.  The correction is a simple  polynomial in intensity with user specified order and coefficients, i.e. the correct intensity at pixel "*p*" is I<sub>p</sub>' = a<sub>0</sub> + a<sub>1</sub>I<sub>p</sub> + a<sub>2</sub>I<sub>p</sub><sup>2</sup> +  ...  
-We might note also that the correction requires that the signal at each pixel is independent of other pixels and monotonically increasing with increasing light intensity.  Therefore, it remains to be determined whether the correction is valid and accordingly we do not apply the correction in this study.
+The manufacturer claims a "corrected linearity" of better than 99.8%.  The correction is a simple  polynomial in intensity with user specified order and coefficients, i.e. the correct intensity at pixel "*p*" is I<sub>p,c</sub> = a<sub>0</sub> + a<sub>1</sub>I<sub>p</sub> + a<sub>2</sub>I<sub>p</sub><sup>2</sup> +  ...  
 
-In the folling it is easy to see that (a) the peak heights are not proportional to exposure time, and (b) relative peak hights vary with exposure time.  Looking at the data closely we also see that the response is not monotonic. 
+We might note that the correction requires that the signal at each pixel is independent of other pixels and monotonically increasing with increasing light intensity. Therefore, it remains to be determined whether the correction is effective or valid.
+Therefore we need to look at the raw output.
+
+In the following it is easy to see that (a) the peak heights are not proportional to exposure time, and (b) relative peak hights vary with exposure time.  And, looking at the data closely it seems the response might not be monotonic.
 
 <p align="center">
 <img src="Images/Seabreeze_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
@@ -147,4 +153,3 @@ In the folling it is easy to see that (a) the peak heights are not proportional 
 This repository at present contains the preliminary gerbers, schematic and BOM.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular some insights about the novel issues in achieving linearity for a CCD device used in spectroscopy and scientific imaging.
 
 If you have questions in the meantime, please feel free to contact me.
-
