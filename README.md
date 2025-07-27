@@ -22,12 +22,12 @@ And we further propose that the correct solution is to design the hardware to pr
 
 While we want to "emphasize the positive", we feel some responsibility to comment on one thing.
 It is certainly true, and easy to see, that the sorts of behaviors described above, some involving attenuation as a function of line width or steepness, some involving charge redistribution, and etc, are not amenable to a simple correction applied one pixel at a time.
-Moreoever, finding a general solution to this (think of the inverse problem for example) would be quite challenging.
-Meanwhile readers are advised to be wary of terms like "corrected linearity".
-The far easier and perhaps the only correct approach, is to design the hardware to provide the required linearity.
+If the situation were only that sharp peaks were being attentuated by an inappropriate low pass filter, then there is a mathematical inverse and the data might be correctable.
+But behaviors related to large dV/dt, inadequately driven gates or too fast a readout are another matter and not easily inverted to recover the "true" signal.
+It is far easier, and we feel more likely to yield reproducible results that you can rely on, to work with hardware that is designed at the outset to provide the required linearity.
 
 In the following we will show you that the present instrument, based on the TCD1304DG, is in fact pretty linear, and can be used to produce reproducible results. 
-This shows that the sensor itself is linear, and that achieving end to end linearity is a matter of circuit design and firmware.
+That we are able to achieve linear results, demonstrates that the sensor itself is linear, and that achieving end to end linearity is a matter of good circuit design and firmware.
 
 The present sensor device as noted, is based on the TCD1304DG. The firmware includes a header only library that leverages the FlexPWM of the NXP iMXRT1062 crossover MCU to drive the gates in a reliable controlled way. And the 600MHz ARM7 MCU with 480MHz USB as implemented in the Teensy 4, is able to support frame rates to 100fps for the 3,694 pixel frames produced by the TCD1304DG.
 
@@ -134,10 +134,10 @@ Now lets look more closely at how the new sensor device preserves the appearance
 ### Results for a widely used commercial instrument.
 The following are fluorescent lamp spectra collected with another popular commercial CCD spectrometer, the Flame-S. While this is not  a model that is currently offered by the manufacturer, it is widely availabe on ebay and it is still cited in in reports involving quantitative results. One recent publication uses this instrument to compare the effectiveness of sun screens.
 
-The manufacturer claims a "corrected linearity" of better than 99.8%.  The correction is a simple  polynomial in intensity with user specified order and coefficients, i.e. the correct intensity at pixel "*p*" is I<sub>p,c</sub> = a<sub>0</sub> + a<sub>1</sub>I<sub>p</sub> + a<sub>2</sub>I<sub>p</sub><sup>2</sup> +  ...  
+The manufacturer claims a "corrected linearity" of better than 99.8%.  The correction is a simple  polynomial in intensity with user specified order and coefficients, i.e., at pixel "*p*" the "corrected" intensity becomes I<sub>p,c</sub> = a<sub>0</sub> + a<sub>1</sub>I<sub>p</sub> + a<sub>2</sub>I<sub>p</sub><sup>2</sup> +  ...  
 
 We might note that the correction requires that the signal at each pixel is independent of other pixels and monotonically increasing with increasing light intensity. Therefore, it remains to be determined whether the correction is effective or valid.
-Therefore we need to look at the raw output.
+For this study, we need to look at the raw output.
 
 In the following it is easy to see that (a) the peak heights are not proportional to exposure time, and (b) relative peak hights vary with exposure time.  And, looking at the data closely it seems the response might not be monotonic.
 
