@@ -77,13 +77,14 @@ The optics have a magnification factor equal to the ratio of the focal lengths o
 
 The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately $4,000 to $6,000). The [commercial produced spectrum is found here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.jpg).
 
-Notice that we have slightly better resolution and there are some differences in peak heights.  Our grating has better efficiency in the blue, but notice that the Ocean Optics instrument is attenuating strong narrow lines (see the relative height of peak 12 and peaks 6-11, peaks 4 and 5, and again all of these to peak 3).  This seems consistent with our description of dV/dt effects that need to be avoided in the signal acquisition circuitry.
+Notice that (aa) we have slightly better resolution, (b) there are some differences in peak heights and we have a flatter baseline between groups of spectral lines.  It looks like the Ocean Optics instrument is attenuating strong narrow lines (see the relative height of peak 12 and peaks 6-11, peaks 4 and 5, and again all of these to peak 3) and intensity is piling up from one side of the spectrum towards the other.  The former seems consistent with our description of dV/dt effects that need to be avoided in the signal acquisition circuitry.
+The reader might also notice that we have better resolution and better sensitivity in the blue, that may be do to both the higher density grating and better optical design.
 Of course another important difference in the two spectrometers is that our cost is under $400, i.e., 1/10 of the cost of the commercial instrument.
 
 <p align="center">
-<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="Fluorescent lamp spectrum" width="40%">
+<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="45%">
 &nbsp;
-<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Fluorescent lamp spectrum" width="40%">
+<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="40%">
 </p>
 
 
