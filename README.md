@@ -6,9 +6,11 @@ TCD1304 sensor device with reproducible, linear response and 16 bit ADC, interfa
 </p>
 
 ## Introduction
-This repo will provide design files, gerbers, firmware, and host pc software in Python, for a linear CCD detector device designed specifically for radiometic linear response and reproducibility.  
+This repo currently hosts gerbers for the new TCD1304 sensor board, a linear CCD detector device designed specifically for radiometic linear response and reproducibility.   We will be adding design files, gerbers, firmware, and host pc software in Python in the next week or two.
 
-The repo at this moment is under construction. But the results of our testing are exciting and we would like to share some of them with you.  The design files and codes will be added soon. In the meantime, please pardon our typos.
+Meawnwhiule, the results testing the board are very exciting and we would like to share some of them with you while we are working on updating the repo.
+
+To us this board, you will most likely want the new controller, you can [get the gerbers for the controller here](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).  If you want a pre-assembled sensor board or controller, please contact me by direct messaging or email.
 
 As is well known, scientific measurements have to be reproducible; in a practical sense you as well as other scientists should be able to repeat your measurements and obtain similar results.
 This turns out to be a non trivial challenge for an instrument based on a linear CCD.
