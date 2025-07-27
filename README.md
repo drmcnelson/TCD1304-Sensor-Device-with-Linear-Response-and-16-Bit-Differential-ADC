@@ -109,7 +109,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed settting throughout a set of exposure setttings.  
 
-### Results for the instrument based on the new TCDS1304DG sensor.
+### Results for the instrument based on the new TCD1304DG sensor.
 
 Lets start with the response of our instrument at three peaks, (a) the smaller broader peak at 487nm, and (b,c) the pair of strong peaks at 542nm and 546nm.  In the following note that the y axis is intensity divided by exposure time.  For linear response, the intensities divided by exposure time should be nearly constant once the signal is sufficiently above noise.  We see that in fact the curves are nearly flat apart from the first few points at the shortest exposure times.
 
