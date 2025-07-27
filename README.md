@@ -75,7 +75,7 @@ The instrument when well aligned should image the slit onto the sensor, when the
 
 The optics have a magnification factor equal to the ratio of the focal lengths of the lenses.  Our pixel size is 8μmx200μm, so at 1:1 a 200μm slit makes good use of the pixel height but we give up some resolution. Our resolution limited line width works out to be about 3nm.
 
-The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately $4,000 to $6,000). [The spectrum produced by the commercial instrument can be found here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.svg).
+The following shows the spectra produced with our spectrometer comapre to that produced by a popular commercial instrument, reportedly an Ocean Optics HR2000 (list price approximately $4,000 to $6,000). The spectrum produced by the commercial instrument can be found [here](https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.svg).
 
 Notice that (a) we have slightly better resolution, (b) there are some differences in peak heights and (c) we have a flatter baseline between groups of spectral lines.  It looks like the Ocean Optics instrument is attenuating strong narrow lines (see the relative height of peak 12 and peaks 6-11, peaks 4 and 5, and again all of these to peak 3).  That might be consistent with our description of dV/dt effects that need to be avoided in the signal acquisition circuitry.
 The poor baseline requires some further investigation, but we see that in a well designed instrument the baseline can be nearly flat.
