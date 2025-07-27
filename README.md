@@ -142,7 +142,7 @@ In the folling it is easy to see that (a) the peak heights are not proportional 
 </p>
 
 ### Contents of this repo
-This repository at present contains the preliminary gerbers, schematic and BOM.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular how we identified and solbed the linearity problem.
+This repository at present contains the preliminary gerbers, schematic and BOM.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular some insights about the novel issues in achieving linearity for a CCD device used in spectroscopy and scientific imaging.
 
 If you have questions in the meantime, please feel free to contact me.
 
