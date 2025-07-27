@@ -21,10 +21,8 @@ We maintain that these non linearities originate in electrical design and to som
 And we further propose that the correct solution is to design the hardware to provide the required linearity to produce reproducible outputs.
 
 While we want to "emphasize the positive", we feel some responsibility to comment on one thing.
-It is certainly true, and easy to see, that the sorts of behaviors described above, some involving attenuation as a function of line width or steepness, some involving charge redistribution, and etc, are not amenable to a simple correction applied one pixel at a time.
-If the situation were only that sharp peaks were being attentuated by an inappropriate low pass filter, then there is a mathematical inverse and the data might be correctable.
-But behaviors related to large dV/dt, inadequately driven gates or too fast a readout are another matter and not easily inverted to recover the "true" signal.
-It is far easier, and we feel more likely to yield reproducible results that you can rely on, to work with hardware that is designed at the outset to provide the required linearity.
+It is certainly true, and easy to see, that the sorts of behaviors described above, some involving attenuation as a function of line width or steepness, some involving charge redistribution, and etc, are not amenable to a simple correction applied one pixel at a time and for some of the behaviors it is not clear that a solution to the inverse problem (i.e., a correction) would exist.
+It is far easier, and we feel it is more likely to yield reliable, reproducible results, to work with hardware that is designed at the outset to provide the required linearity.
 
 In the following we will show you that the present instrument, based on the TCD1304DG, is in fact pretty linear, and can be used to produce reproducible results. 
 That we are able to achieve linear results, demonstrates that the sensor itself is linear, and that achieving end to end linearity is a matter of good circuit design and firmware.
@@ -109,7 +107,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed settting throughout a set of exposure setttings.  
 
-### Results for the instrument based on the new TCD1304DG sensor.
+### Results for the instrument based on the new TCDS1304DG sensor.
 
 Lets start with the response of our instrument at three peaks, (a) the smaller broader peak at 487nm, and (b,c) the pair of strong peaks at 542nm and 546nm.  In the following note that the y axis is intensity divided by exposure time.  For linear response, the intensities divided by exposure time should be nearly constant once the signal is sufficiently above noise.  We see that in fact the curves are nearly flat apart from the first few points at the shortest exposure times.
 
@@ -150,6 +148,6 @@ In the following it is easy to see that (a) the peak heights are not proportiona
 </p>
 
 ### Contents of this repo
-This repository at present contains the preliminary gerbers and the data that you see here in the readme.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular some insights about the novel issues in achieving linearity.
+This repository at present contains the preliminary gerbers, schematic and BOM.  We will be adding updated design files, firmware, python code and a detailed explanation of how this works and in particular some insights about the novel issues in achieving linearity for a CCD device used in spectroscopy and scientific imaging.
 
 If you have questions in the meantime, please feel free to contact me.
