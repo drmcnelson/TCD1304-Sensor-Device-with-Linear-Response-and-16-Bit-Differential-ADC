@@ -81,7 +81,7 @@ The poor baseline requires some further investigation, but we see that in a well
 The reader might also notice that we have better resolution and better sensitivity in the blue, perhaps related to the higher density grating and better optical design.
 Of course another important difference in the two spectrometers is that the cost for the spectrometr on the let can be under $400, i.e., 1/10 of the cost of the commercial instrument.
 
-<p float="center">
+<p align="center">
   <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="45%">
   &nbsp;
   <img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="40%">
