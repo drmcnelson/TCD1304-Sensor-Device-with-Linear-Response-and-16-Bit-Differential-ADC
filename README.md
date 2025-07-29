@@ -81,11 +81,15 @@ The poor baseline requires some further investigation, but we see that in a well
 The reader might also notice that we have better resolution and better sensitivity in the blue, perhaps related to the higher density grating and better optical design.
 Of course another important difference in the two spectrometers is that the cost for the spectrometr on the let can be under $400, i.e., 1/10 of the cost of the commercial instrument.
 
-<p>
+<p align="center">
 <figure align="center">
-<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="45%">
-<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="35%">
-<figcaption><i>Fluorescent lamp spectra with the new TCD1304DG device and a HR2000 (src wikipedia). In the new linear design, sharp peaks are stronger and the baseline is more flat.</i></figcaption>
+  <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="40%">
+  <img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="35%">
+  <figcaption>
+    <i>
+      Fluorescent lamp spectra with the new TCD1304DG device and a HR2000 (src wikipedia). In the new linear design, sharp peaks are stronger and the baseline is more flat.
+    </i>
+  </figcaption>
 </figure>
 </p>
 
