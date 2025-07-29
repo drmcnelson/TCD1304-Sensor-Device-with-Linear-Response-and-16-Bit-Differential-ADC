@@ -118,7 +118,7 @@ Lets start with the response of our instrument at three peaks, (a) the smaller b
 <br>
 
 #### Appearance and relative peak heights are constant until near saturation:
-Now lets look more closely at how the new sensor device preserves the appearance of spectra and relative peak heights.  Here we use less attenuation, the signal is stronger (relative to noise) and we can see how the instrument performs near saturation. Some of the peaks are clipped at the longer exposure times. Nonetheless, the result is very reproducible, spectra overlay each other to well within noise, and peak height ratios are very flat except where one of the peaks reaches saturation.
+Now lets look more closely at how the new sensor device preserves the appearance of spectra and relative peak heights.  Here we use less attenuation, the signal is stronger and we can see how the instrument performs near saturation. Some of the peaks are clipped at the longer exposure times. Nonetheless, the result is very reproducible, spectra overlay each other to well within noise, and peak height ratios are very flat except where one of the peaks reaches saturation.
 
 <p align="center">
 <img src="Images/TCD1304_nd9_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
