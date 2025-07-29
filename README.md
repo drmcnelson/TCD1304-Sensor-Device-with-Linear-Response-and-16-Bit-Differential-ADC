@@ -83,9 +83,9 @@ Of course another important difference in the two spectrometers is that the cost
 
 <p>
 <figure align="center">
-<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="40%">
+<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="45%">
 <img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="35%">
-<figcaption><i>Fluorescent lamp spectra with the new TCD1304DG device and a HR2000 (src wikipedia). Notice that compared to the new linear design, in the spectrum produced by the commercial instrument, the sharp peaks seems to be attenuated and there seems to be anomalous intensity in the base line especially to the left of 650nm.</i></figcaption>
+<figcaption><i>Fluorescent lamp spectra with the new TCD1304DG device and a HR2000 (src wikipedia). In the new linear design, sharp peaks are stronger and the baseline is more flat.</i></figcaption>
 </figure>
 </p>
 
