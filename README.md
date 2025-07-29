@@ -81,17 +81,12 @@ The poor baseline requires some further investigation, but we see that in a well
 The reader might also notice that we have better resolution and better sensitivity in the blue, perhaps related to the higher density grating and better optical design.
 Of course another important difference in the two spectrometers is that the cost for the spectrometr on the let can be under $400, i.e., 1/10 of the cost of the commercial instrument.
 
-<p align="center">
-<figure align="center">
-  <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="40%">
-  <img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="35%">
-  <figcaption>
-    <i>
-      Fluorescent lamp spectra with the new TCD1304DG device and a HR2000 (src wikipedia). In the new linear design, sharp peaks are stronger and the baseline is more flat.
-    </i>
-  </figcaption>
-</figure>
+<p float="center">
+  <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.jpg" alt="New Fluorescent lamp spectrum" width="45%">
+  &nbsp;
+  <img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Old Fluorescent lamp spectrum" width="40%">
 </p>
+
 
 
 
@@ -117,11 +112,8 @@ Once set up and aligned, the mechanical configuration remains fixed through the 
 
 Lets start with the response of our instrument at three peaks, (a) the smaller broader peak at 487nm, and (b,c) the pair of strong peaks at 542nm and 546nm.  In the following note that the y axis is intensity divided by exposure time.  For linear response, the intensities divided by exposure time should be nearly constant once the signal is sufficiently above noise.  The detector has a noise floor at 0.2mV.  We see that in fact the curves are nearly flat apart from the first few points at the shortest exposure times.
 
-<p>
-<figure align="center">
+<p align="center">
 <img src="Images/NDFilter_12oclock_all.responses.jpg" alt="Linearity over wide range in exposure" width="50%" height="auto">
-<figcaption><i>Intensity normalized to exposure time at three wavelengths for exposure times from 10msec to 500msec at constant source intensity.  The sensor's noise floor at 0.2mv becomes more significant at shorter exposure times.</i>
-</figure>
 </p>
 <br>
 
@@ -129,14 +121,13 @@ Lets start with the response of our instrument at three peaks, (a) the smaller b
 Now lets look more closely at how the new sensor device preserves the appearance of spectra and relative peak heights.  Here we use less attenuation, the signal is stronger (relative to noise) and we can see how the instrument performs near saturation. Some of the peaks are clipped at the longer exposure times. Nonetheless, the result is very reproducible, spectra overlay each other to well within noise, and peak height ratios are very flat except where one of the peaks reaches saturation.
 
 <p align="center">
-<figure align="center">
 <img src="Images/TCD1304_nd9_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
+&nbsp;
 <img src="Images/TCD1304_nd9_linearity550nm.jpg" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
 </p>
+
 <p align="center">
 <img src="Images/NDFilter_9oclock_all.ratios.jpg" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
-<figcaption><i>Spectra normalized to exposure time overlay each other very well until within about 5% of saturation.  Relative peak heights are nearly constant.  The new detector system seems to exhibit linear response.</i></figcaption>
-</figure>
 </p>
 
 
@@ -151,14 +142,14 @@ For this study, we need to look at the raw output.
 In the following it is easy to see that (a) the peak heights are not proportional to exposure time, and (b) relative peak hights vary with exposure time.  And, looking at the data closely the response seems non-monotonic.
 
 <p align="center">
-<figure align="center">
 <img src="Images/Seabreeze_linearity.jpg" alt="Commercial Spectrometer" width="40%" height="auto">
+&nbsp;
 <img src="Images/Seabreeze_linearity_zoom550nm.jpg" alt="Commercial Spectrometer, 550nm" width="40%" height="auto">
 </p>
+
 <p align="center">
 <img src="Images/Seaeabreeze_ratios.jpg" alt="Commercial Spectrometer, ratios" width="45%" height="auto">
 <figcaption><i>Commercial insturment spectra normalized to exposure time, exhibit significant differences and relative peak heights seem to change with changes in exposure time.  The response seems non-linear and non-monotonic.</i></figcaption>
-</figure>
 </p>
 
 ### Contents of this repo
