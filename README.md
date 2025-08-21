@@ -1,4 +1,4 @@
-# TCD1304 Sensor Device Designed for Linear Response and Reproducibility
+# TCD1304 Sensor with Linear Response and 16 Bit ADC
 TCD1304 sensor device with reproducible, linear response and 16 bit ADC, interface by SPI.
 
 <p align="center">
