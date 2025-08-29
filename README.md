@@ -77,11 +77,11 @@ If you want to assemble your boards, and this is your first time assembling an S
 Here are some notes on how we do assembly in our shop.
 We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about $200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
-#### USB connectiion
-We recommend using a powered USB hub with switches to turn individual USB devices off and on. Make sure it has at least 1A or 2A.
+#### USB connection
+We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.
 
 #### Loading the firmware
-After the boards are assembled, you will need to install the Teensy board in the controller, and load the code into the Teensy.  You will most likely want to use the Arduino IDE for this.  Teensy is well integrated into the IDE. [See here for setup instructions.](https://www.pjrc.com/teensy/td_download.html)   The Teensy needs to be connected by USB to your host computer for this step.
+After the boards are assembled, you will need to install the Teensy board in the controller, and compile and load the code into the Teensy.  You will most likely want to use the Arduino IDE for this.  Teensy is well integrated into the IDE. [See here for setup instructions.](https://www.pjrc.com/teensy/td_download.html)   The Teensy needs to be connected by USB to your host computer for this step.
 
 The firmware codes are found in the repo in the Firmware/ subdirectory,
 
@@ -97,7 +97,7 @@ The Arduino IDE requires that the "ino" file and directory have the same name.
 
 If you want to customize the firmware, it is recommended to create a new directory, copy the files to that directory and rename the ino file per the above.
 
-After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session.
+After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session, or start the IDE and navigate to the directory and open the file.
 
 #### Setting up and running the Python codes
 
@@ -109,7 +109,9 @@ The command to install the Python environment and libraries used by the codes is
 
     $ sudo dnf install python python-numpy python-scipy python-matplotlib
 
-Unpack or download the files from the Python subdirectory to a directory on your Linux machine, something under your personal user directory works just fine.  And, set the permissions to allow execute  (chmod a+x *.py, and chmod a+x *.sh).
+  
+
+To setup the Python codes from this repo, unpack or download the files from the repo's Python subdirectory to a directory on your Linux machine; somewhere under your personal user directory works just fine.  And, set the permissions to allow execute  (chmod a+x *.py, and chmod a+x *.sh).
 
 Here is a list of the files provided in the Python directory
 
@@ -148,7 +150,7 @@ The controller should open a grahics window.  The desktop will look something li
 <img src="Images/TCD1304_desktop.jpg" width="60%">
 </p>
 
-Notice that in the console window, you have prompt.  This is the command line interface to running the sensor.  Enter the command "help" to get a listing of the commands.
+Notice that in the console window, you have a prompt.  This is the command line interface to running the sensor device.  Enter the command "help" to get a listing of the commands.
 
 Some of the commands are implemented in the Python code, the remainder are passed through to the sensor device.  The CLI also supports scripting and can execute shell commands.
 
@@ -158,9 +160,9 @@ The firmware is tested but we are adding some features to build up a more intuit
 
 Data collection is run in two or three steps depending on the mode of operation. For frameset, the clock is built into the timing configuration for the gates. For clocked exposures we can run the commands **setup frameset...** and **start frameset**, or **setup single**, **setup timer...** and **start timer**. For triggered operation, we can follow any of the setup commands by **setup trigger...** and **start trigger**.  After data collection is complete, we can use the command **save filespec**.   The data is buffered in a queue and the queue is cleared when the data is retrieved and saved to disk.  There is a clear command, or one can save to a file called temp or junk to clear it.
 
-## Linearity and reproducibility in CCD spectrometers (data)
+## On Linearity and reproducibility in CCD spectrometers (with data)
 
-In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers.  We show data to compare the performance of the present design and popular commercial instruments.
+In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers using data collected with the present design sensor as a reference and comparison for data collected with  commercial instruments.
 
 In a CCD type detector, photons produce charge carriers and typically a voltage amplifier converts the quantity of charge to a voltage.  Linearity means that the measured response changes proportionally to the number of impinging photons.
 Efficiency varies with wavelength. So linearity is on a pixel by pixel basis; S = S1 + S2 represents the total number of photons detected if S1 and S2 represent numbers of photons detected at the same pixel (and the response at that pixel is linear).
@@ -249,10 +251,10 @@ The following shows a perhaps more intuitive way to look at this, by graphing th
 The ability to support a large dV/dt is suggestive in that it corresponds  directly to a selection parameter for OPAMPs, the maximum slew.  We will show some detail about how this works in the following section.
 
 <p align="center">
-<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.dvdt-tscaled.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="35%">
+<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.dvdt-tscaled.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
 </p>
 
-Note that attenuation by a low pass filter varies with line width but for a given line width the response is still linear in amplitude.  But dV/dt is greater when the spectral line is both sharp and strong. Thus an attenuation or any effect related to dV/dt tends to be non-linear in amplitude.
+Note that attenuation by a low pass filter varies with line width but for a given line width the response is still linear.  But dV/dt driven attenuation is greater when the spectral line is both sharp and strong. Thus any effect related to dV/dt tends to be non-linear.
 
 Before leaving this topic, we should mention another effect.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  There can be a similar effect on a frame to frame basis.  At typical transfer efficiency 99.99%, this should be a small effect even after order 1K pixels, but data are suggestive of these effects is common.
@@ -278,7 +280,7 @@ And finally, here is what happens when the circuit is not able to respond to lar
 <img src="Images/Spectrum_Flip_Shift_SlowOPAMP_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
 </p>
 
-## Linearity testing and comparison
+## Setup for linearity testing and comparison
 
 The equipment list for our linearity study is as follows.  Construction of the spectrometer is described [here](#spectrometer-construction)
 
@@ -469,13 +471,15 @@ ADC model with ideal voltage source.<br> Green = input, blue = sampling capacito
 </figure>
 
 ##### Factors effecting precision
-For n bits of precision and full scale range Vfs, the voltage on C1 at the end of the sampling window, has to be within 1 part in 2<sup>n</sup> of Vfs.
+For n bits of precision and full scale range Vfs, the voltage on C1 at the end of the sampling window has to be within 1 part in 2<sup>n</sup> of Vfs.
 The input always has some series resistance, in this case Ron.
-Therefore the sampling window has to be at least as long as n x ln(2) x Ron C1.  
+Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1.  
 
 Voltage noise of a capacitor is <i>v<sub>c</sub></i> = √(kT/C). 
 For n bits of precision, we need <i>v<sub>c</sub></i> < Vfs/2<sup>n</sup>.
 The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV/
+
+When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit for the input in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
 
 #### ADC kickback
 In the following we drive the S-H from a voltage follower. instead of the ideal voltage source.  Now when S1 opens or closes we see spikes (circled) on both voltages and in the current through R1. This is called  ***"<u>ADC kickback</u>"*** and it arises in the current needed by C1.
