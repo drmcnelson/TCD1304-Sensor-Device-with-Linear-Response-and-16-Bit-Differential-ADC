@@ -439,14 +439,14 @@ The following shows a reasonable approach for the front end circuit. We use a du
 </figure>
 
 ##### Low noise differential signal conditioning
-We use the following approach for 16 bit precision.  Similar to the above, the first unit is configured as a follower but the second is configured for unity gain and we the two outputs provide differential signal.  In implementation we follow this with a fully differential amplifier and a differential input ADC.  For gain we get a factor of 2 for free and cancellation between the differential pair improves noise performance in our mixed signal environment.
+We use the following approach for 16 bit precision.  Similar to the above, the first unit is configured as a follower but the second is configured for unity gain and the two outputs together provide a differential signal.  In implementation we follow this with a fully differential amplifier and a differential input ADC.  For gain we get a factor of 2 for free and cancellation between the differential pair improves noise performance in our mixed signal environment.
 
 <figure align="center">
 <img src="Images/CCD_differential_sketch.jpg" alt="CCD signal conditioning" width="70%">
 </figure>
 
 ##### A don't-do DIY circuit
-The following shows a design that appears from time to time in DIY postings.  The inverter typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
+The following shows a design that appears from time to time in DIY postings.  The inventor typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
 
 <figure align="center">
 <img src="Images/CCD_singleopamp_problems.jpg" alt="CCD signal conditioning" width="50%">
@@ -461,7 +461,7 @@ The present application requires analog to digital conversion at rates from 200K
 ##### S-H spice model
 The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.
 
-The following models the sample and hold as a switched capacitor network. For illustration, we use an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The during which S1 is closed, is called the sampling window.
+The following models the sample and hold as a switched capacitor network. For illustration, we use an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
 <figure align="center">
 <img src="Images/Sampling_ADC_Bare_circuit.jpg" width="65%">
 <img src="Images/Sampling_ADC_Bare_traces.jpg" width="65%">
@@ -477,12 +477,12 @@ Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1
 
 Voltage noise of a capacitor is <i>v<sub>c</sub></i> = √(kT/C). 
 For n bits of precision, we need <i>v<sub>c</sub></i> < Vfs/2<sup>n</sup>.
-The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV/
+The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV.
 
 When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit for the input in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
 
 #### ADC kickback
-In the following we drive the S-H from a voltage follower. instead of the ideal voltage source.  Now when S1 opens or closes we see spikes (circled) on both voltages and in the current through R1. This is called  ***"<u>ADC kickback</u>"*** and it arises in the current needed by C1.
+In the following we drive the S-H from a voltage follower instead of the ideal voltage source.  Now when S1 opens or closes we see spikes (circled) on both voltages and in the current through R1. This is called  ***"<u>ADC kickback</u>"*** and it arises in the current needed by C1 with the sudden change in voltage when the switch closes.
 
 <figure align="center">
 <img src="Images/Sampling_ADC_circuit.jpg" width="65%">
@@ -492,7 +492,7 @@ ADC model driven by OPAMP follower.<br> Green = out, blue = sar cap, grey = samp
 </figcaption>
 </figure>
  
- #### Introducing the charge reservoir, the recommended method
+ #### Introducing the charge reservoir
 The following shows the recommended method for driving an ADC. A cap C2 is added in front of the ADC to act as a charge reservoir for C1.  As can be seen, charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
 
 <figure align="center">
@@ -508,7 +508,7 @@ We need C2 needs to be large compared to C1 and R1 needs to be tuned between the
 
 #### dV/dt versus charge reservoir
 
-You may recall dV/dt near the top of the README.  Here is what happens when a large dV/dt meets the charge reservoir that we added to support the sampling capacitor in the ADC.   The circuit in this example is a "full feature" single ended model from CCD to ADC.  The input is a pulse, and a little bit extreme with a 2ns rise time.
+You may recall our discussion about dV/dt and sharp spectra lines near the top of the README.  Here is what happens when a large dV/dt meets the charge reservoir that we added to support the sampling capacitor in the ADC.   The circuit in this example is a "full feature" single ended model from CCD to ADC.  The input is a pulse, and a little bit extreme with a 2ns rise time.
 
 Notice that we now have a large current through R1 coincident with the leading and trailing edge of the pulse.  The current through C2 is as before.  So, large dV/dt meets cap serving as charge reservoir and produces a new kind of kickback.
 
