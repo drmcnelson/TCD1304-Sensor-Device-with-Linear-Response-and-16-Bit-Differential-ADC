@@ -44,13 +44,13 @@ If you would like to sponsor and receive boards for sponsoring, please contact m
 Permission is hereby granted for you to build and use these boards and codes in your lab and for your personal use.
 Please cite appropriately if you use these in your published work.
 
-Please contact me for:
+Please contact me if you need/want:
 <ul>
 <li>
 Pre-assembled boards
 </li>
 <li>
-Custom design or consultation
+Customization, advice, etc.
 </li>
 <li>  
 Permission for use in a product or other commercial effort
@@ -60,7 +60,7 @@ Permission for use in a product or other commercial effort
 And of course, no warranty or guarantee is given whatsoever.  We did our best.
 
 ### Contents of this repo
-This repository at present contains the preliminary gerbers, schematic and BOM, plus preliminary firmware and python code.  We plan to add SPICE models, an update for the firmware and the KiCAD files.  The README (this file) provides results of testing and some explanation for how things work.
+This repository at present contains the preliminary gerbers, schematic and BOM, plus preliminary firmware and python code and selected SPICE files.  We plan at least one update for the firmware and we plan to add KiCAD files.  The README (this file) provides results of testing and some explanation of how things work.
 
 If you have questions in the meantime, please feel free to contact me.
 
