@@ -62,7 +62,7 @@ And of course, no warranty or guarantee is given whatsoever.  We did our best.
 ### Contents of this repo
 This repository at present contains the preliminary gerbers, schematic and BOM, plus preliminary firmware and python code and selected SPICE files.  We plan at least one update for the firmware and we plan to add KiCAD files.  The README (this file) provides results of testing and some explanation of how things work.
 
-If you have questions in the meantime, please feel free to contact me.
+If you have questions, please feel free to contact me.
 
 
 ### Getting it all up and running
