@@ -1,0 +1,36 @@
+
+
+*******************************************************************************
+Sun Aug 17 15:38:05 2025
+
+
+FIT:    data read from 'Calibration.txt' u 1:2
+        format = x:z
+        #datapoints = 6
+        residuals are weighted equally (unit weight)
+
+function used for fitting: f(x)
+	f(x) = m*x +b
+fitted parameters initialized with current variable values
+
+iter      chisq       delta/lim  lambda   b             m            
+   0 1.4382250180e+07   0.00e+00  1.46e+03    1.000000e+00   1.000000e+00
+   8 1.5207457537e-01   0.00e+00  1.46e+03    2.880329e+02   1.230510e-01
+
+After 8 iterations the fit converged.
+final sum of squares of residuals : 0.152075
+rel. change during last iteration : 0
+
+degrees of freedom    (FIT_NDF)                        : 4
+rms of residuals      (FIT_STDFIT) = sqrt(WSSR/ndf)    : 0.194984
+variance of residuals (reduced chisquare) = WSSR/ndf   : 0.0380186
+
+Final set of parameters            Asymptotic Standard Error
+=======================            ==========================
+b               = 288.033          +/- 0.2437       (0.08462%)
+m               = 0.123051         +/- 0.0001177    (0.09561%)
+
+correlation matrix of the fit parameters:
+                b      m      
+b               1.000 
+m              -0.945  1.000 

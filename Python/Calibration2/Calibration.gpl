@@ -1,0 +1,19 @@
+#!/usr/bin/gnuplot
+
+f(x) = m*x +b
+
+fit f(x) 'Calibration.txt' u 1:2 via b,m
+
+set out "Calibration.png" ; set term png
+
+set xlabel "pixel number"
+set ylabel "wavelength"
+
+plot "Calibration.txt" u 1:2 with points t "", f(x) w l t sprintf("b=%.4g(%.4g),m=%.4g(%.4g)",b,b_err,m,m_err)
+
+set out
+
+set print "Calibration.cfg"
+print sprintf( "wavelength_coefficient = %f", m )
+print sprintf( "wavelength_offset = %f", b )       
+set print

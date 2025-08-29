@@ -1,0 +1,677 @@
+setup .01 1E-6 .01 2
+start
+setup .01 1E-6 .01 2
+start
+setup .01 1E-6 .02 2
+start
+q
+setup .01 1E-6 .02 2
+start
+sw setup .01 1E-6 .02 2
+sw setup .5 1E-6 .5 2
+start
+setup .01 1E-6 .02 2
+start
+sw setup .5 1E-6 .5 2
+start
+pins
+set pin 5 low
+set pin 5 output
+set pin 5 pullup
+set pin 5 output
+set pin 5 low
+set pin 10 high
+set pin 10 low
+q
+set pin 10 high
+set pin 10 hi
+q
+set pin 10 hi
+q
+set pin 10 hi
+set pin 10 lo
+setup .01 1E-6 .02 2
+start
+sw setup .5 1E-6 .5 2
+start
+set pin 4 h
+set pin 5 lo
+set pin 5 hi
+set pin 6 lo
+setup .01 1E-6 .02 2
+start
+sw setup .5 1E-6 .5 2
+start
+q
+setup .01 1E-6 .02 2
+start
+q
+setup .01 1E-6 .02 2
+start
+sw setup .5 1E-6 .5 2
+start
+setup .01 1E-6 .02 2
+start
+sw setup .5 1E-6 .5 2
+start
+setup .01 1E-6 .02 2
+start
+sw setup .1 1E-6 .1 2
+start
+sw setup .02 1E-6 .02 2
+start
+setup .01 1E-6 .02 2
+start
+sw setup .02 1E-6 .02 2
+start
+q
+sw setup .02 1E-6 .02 2
+start
+sw setup .1 1E-6 .1 2
+start
+sw setup .1 1E-6 .1 2
+start
+sw setup .1 1E-6 .1 2
+start
+setup .01 1E-6 .01 2
+q
+sw setup .1 1E-6 .1 2
+start
+q
+sw setup .1 1E-6 .1 2
+start
+q
+sw setup .1 1E-6 .1 2
+start
+q
+sw setup .1 1E-6 .1 2
+setup .02 1E-6 .02 2
+setup .021 1E-6 .021 2
+setup .01 1E-6 .01 2
+setup .03 1E-6 .03 2
+set clock period 64
+setup .02 1E-6 .02 2
+start
+sw setup .1 1E-6 .1 2
+start
+start 10
+setup .02 1E-6 .02 2
+start
+sw setup .1 1E-6 .1 2
+start
+sw setup .04 1E-6 .04 2
+start
+sw setup .04 1E-6 .04 2
+start
+sw setup .06 1E-6 .06 2
+start
+stop
+sw setup .06 1E-6 .06 2
+start
+stop
+q
+setup .02 1E-6 .02 2
+q
+set clock period 64
+setup .02 1E-6 .02 2
+start
+sw setup .06 1E-6 .06 2
+start
+stop
+q
+set 0.01 1u .01 10
+setup 0.01 1u .01 10
+start
+setup 0.01 1u .01 1000
+start
+q
+setup 0.01 1u .01 100
+start
+setup 0.001 1u .01 100
+start
+setup 0.0001 1u .01 100
+start
+setup 0.0004 1u .01 100
+start
+setup 0.0003 1u .01 100
+start
+setup 0.0006 1u .01 100
+start
+setup 0.0008 1u .01 100
+start
+setup 0.001 1u .01 100
+start
+setup 0.0009 1u .01 100
+start
+setup 0.00095 1u .01 100
+start
+setup 0.00098 1u .01 100
+start
+setup 0.00099 1u .01 100
+start
+setup 0.001 1u .02 100
+setup 0.001 2u .02 100
+start
+setup 0.0005 1u .02 100
+start
+setup 0.002 1u .02 100 add
+start
+setup 0.004 1u .02 100 add
+start
+clear
+q
+clear
+setup 0.004 1u .02 100 add
+start
+clear
+setup 0.004 1u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.004_1u_0.02_N100
+setup 0.004 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.004_2u_0.02_N100
+setup 0.005 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.005_2u_0.02_N100
+setup 0.006 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.006_2u_0.02_N100
+setup 0.002 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.002_2u_0.02_N100
+setup 0.001 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.001_2u_0.02_N100
+setup 0.0001 2u .02 100 add
+start
+set master clock period 64
+setup 0.0001 2u .02 100 add
+setup 0.0002 2u .02 100 add
+set master clock period 64
+setup 0.0002 2u .02 100 add
+help
+set clock period 64
+setup 0.0002 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.0002_2u_0.02_clk64_N100
+set clock period 128
+setup 0.0002 2u .02 100 add
+start
+setup 0.0002 2u .04 100 add
+clear
+start
+save FluorescentDeskLamp/Fluorescent_0.0002_2u_0.04_clk128_N100
+set clock period 64
+setup 0.0005 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.0005_2u_0.02_clk64_N100
+setup 0.0001 2u .02 100 add
+start
+save FluorescentDeskLamp/Fluorescent_0.0001_2u_0.02_clk64_N100
+setup 0.00001 2u .02 100 add
+start
+setup 0.00001 2u .03 100 add
+start
+setup 0.00002 2u .03 100 add
+setup 0.00002 2u .02 100 add
+start
+setup 0.00002 2u .03 100 add
+setup 0.00002 2u .04 100 add
+set clock period 128
+setup 0.00002 2u .04 100 add
+start
+setup 0.00002 2u .04 100 add
+start
+setup 0.00002 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_0.00002_2u_0.04_clk128_N1000
+q
+set clock period 128
+start
+setup 0.00002 2u .04 1000 add
+start
+q
+set clock period 128
+setup 0.00002 2u .04 1000 add
+start
+stop
+start
+stp
+stop
+set clock period 128
+setup 0.00002 2u .04 1000 add
+start
+STOP
+stop
+clear
+setup 0.00002 2u .04 1000 add
+clear
+start
+save Background_Voff2.400V
+start
+stop
+setup 0.00002 2u .04 1000 add
+start
+save Background_Voff2.447V
+setup 0.00002 2u .04 300 add
+start
+stop
+start
+stop
+clear
+start
+clear
+setup 0.00002 2u .04 1000 add
+start
+save Background_Voff2.603V
+start
+stop
+clear
+setup 0.00002 2u .04 1000 add
+start
+save Background_Voff2.203V
+reset
+q
+help
+setup for interrupt 2u 10 add
+clock 0.1
+set clock period 64
+setup for interrupt 2u 10 add
+clock 0.1
+clock 0.001
+setup for interrupt 2u 10 add
+clock 0.02
+stop
+setup for interrupt 2u 10 add
+clock 0.02
+setup for interrupt 2u 10 add
+clock 0.02
+setup for interrupt 1u 10 add
+clock 0.02
+setup for interrupt 1u 100 add
+clock 0.04
+clear
+clock 0.04
+save FluorescentDeskLamp/Fluorescent_clocked_0.1_1u_clk64_N100
+setup for interrupt 1u 100 add
+clock 0.04
+setup for interrupt 1u 100 add
+clear
+setup for interrupt 1u 100 add
+clock 0.04
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.04_1u_clk64_N100
+clock 0.1
+clear
+setup for interrupt 1u 100 add
+clock 0.1
+clear
+clock 0.1
+clear
+setup for interrupt 1u 100 add
+clock 0.1
+clear
+clock 0.1
+setup for interrupt 1u 100 add
+clock 0.1
+q
+setup for interrupt 1u 100 add
+clock 0.1
+setup for interrupt 1u 100 add
+clock 0.1
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.1_1u_clk96_N100
+clear
+clock 0.2
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.2_1u_clk96_N100
+clock 0.5
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.5_1u_clk96_N100
+clock 0.05
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.05_1u_clk96_N100
+clock 0.05
+clear
+clock 0.05
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.05_1u_clk96_N100
+clock 0.1
+clear
+clock 0.1
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.1_1u_clk96_N100
+clock 0.2
+clear
+clock 0.2
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.2_1u_clk96_N100
+clock 0.5
+save FluorescentDeskLamp/Fluorescent_NDwheel_clocked_0.5_1u_clk96_N100
+set clock period 64
+setup 0.00002 2u .04 1000 add
+set clock period 64
+setup 0.00002 2u .04 1000 add
+set clock period 128
+setup 0.00002 2u .04 1000 add
+start
+setup 0.02 2u .04 100 add
+start
+clear
+setup 0.02 2u .04 500 add
+clear
+start
+setup 0.01 2u .04 500 add
+setup 0.02 2u .04 100 add
+start
+clear
+start
+save FluorescentDeskLamp/Fluorescent_NDwheel_flexpwm_0.02_2u_0.04_clk128_N100
+setup 0.02 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_NDwheel_flexpwm_0.02_2u_0.04_clk128_N1000
+setup 0.01 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_NDwheel_flexpwm_0.01_2u_0.04_clk128_N1000
+setup 0.001 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_NDwheel_flexpwm_0.001_2u_0.04_clk128_N1000
+setup 0.005 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_NDwheel_flexpwm_0.005_2u_0.04_clk128_N1000
+save FluorescentDeskLamp/Fluorescent_NDwheel_flexpwm_0.005_2u_0.04_clk128_N100
+setup 0.005 2u .04 100 add
+start
+save FluorescentDeskLamp/Fluoresceny_flexpwm_0.005_2u_0.04_clk128_N100
+setup 0.001 2u .04 100 add
+start
+save FluorescentDeskLamp/Fluorescent_flexpwm_0.001_2u_0.04_clk128_N100
+setup 0.0005 2u .04 100 add
+start
+save FluorescentDeskLamp/Fluorescent_flexpwm_0.0005_2u_0.04_clk128_N100
+setup 0.0001 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_flexpwm_0.0001_2u_0.04_clk128_N1000
+setup 0.00005 2u .04 1000 add
+start
+save FluorescentDeskLamp/Fluorescent_flexpwm_0.00005_2u_0.04_clk128_N1000
+setup 0.00005 2u .04 1000
+start
+clear
+quit
+setup 0.00005 2u .04 1000
+set clock period 64
+setup 0.00005 2u .04 1000
+setup 0.00005 2u .04 100
+start
+setup 0.0001 2u .04 100
+setup 0.0001 2u .02 100
+start
+setup 0.0001 1u .02 100
+start
+setup 0.00001 1u .02 100
+start
+setup 0.001 1u .02 100
+start
+q
+set clock period 64
+setup 0.001 1u .02 100
+start
+save Noise
+debug on
+start
+set debug on
+enable debug
+start
+clear
+q
+start
+clear
+set clock period 64
+setup 0.001 1u .02 100
+start
+save Noise
+setup 0.001 1u .02 1000
+start
+save Noise
+setup 0.001 1u .02 100 add
+start
+save Noise
+q
+setup 0.001 1u .02 100 add
+start
+q
+setup 0.001 1u .02 100 add
+start
+save Fluorescent_cnvst_offset_1clk
+q
+setup 0.001 1u .02 100 add
+start
+save Fluorescent_cnvst_offset_2clk
+setup 0.001 1u .02 100 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_1msec
+save "DataSets/FluorescentDeskLamp/Fluorescent_%d"(shutter_usecs)
+save "DataSets/FluorescentDeskLamp/Fluorescent_%d"%(shutter_usecs)
+save "DataSets/FluorescentDeskLamp/Fluorescent_%d"%(tcd1304device.shutter_usecs)
+=
+setup 0.001 1u .02 100 add
+start
+=
+setup 0.002 1u .02 100 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_2msec
+setup 0.003 1u .02 100 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_3msec
+setup 0.004 1u .02 100 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_4msec
+setup 0.005 1u .02 100 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_5msec
+setup 0.0005 1u .02 100 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_0.5msec
+setup 0.0001 1u .02 1000 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_RoomLights_0.1msec
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_0.1msec
+setup 0.00005 1u .02 10000 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_0.05msec_N10000
+set clock period 128
+setup 0.00005 1u .02 10000 add
+start
+save DataSets/FluorescentDeskLamp/Fluorescent_0.05msec_clkperiod128_N10000
+q
+setup 0.00005 1u .02 10000 add
+q
+setup 0.00005 1u .02 10000 add
+q
+setup 0.00005 1u .02 10000 add
+q
+setup 0.00005 1u .02 10000 add
+=
+setup 0.00005 1u .02 100 add
+start
+=
+setup 0.00005 1u .02 100 add
+start
+q
+setup 0.00005 1u .02 100 add
+=
+q
+setup 0.00005 1u .02 100 add
+q
+setup 0.00005 1u .02 100 add
+=
+=flexpwm_icg_A
+=self.flexpwm_icg_A
+dump
+flexpwm dump
+=self.flexpwm_icg_A
+setup 0.00005 1u .02 100 add
+=__dict__
+=
+=TCD1304CONTROLLER.__dict__
+=print(TCD1304CONTROLLER.__dict__)
+=print(TCD1304CONTROLLER.__dict__[flexpwm_icg_A])
+start
+save junk
+q
+setup 0.00005 1u .02 100 add
+start
+save junk
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../DataSets/NoiseSensor03_250701/Bare
+save ../../Datasets/NoiseSensor03_250701/Bare
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+setup frameset 0.00005 1u 10 add
+start tcd1304
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+start tcd1304
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.00005 1u 10 add
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.00005 1u 1
+start tcd1304
+save ../../Datasets/NoiseSensor03_250701/Bare_50ohm_shunt
+q
+setup frameset 0.001 1u 1000
+start
+start tcd1304
+q
+setup frameset 0.0001 1u 100
+setup frameset 0.0001 1u 100 add
+start tcd1304
+q
+setup frameset 0.0001 1u 10000
+start
+start tcd1304
+stop tcd1304
+setup frameset 0.0001 1u 10000
+start tcd1304
+stop
+help
+q
+setup frameset 0.0001 1u 10000
+start tcd1304
+stop
+q
+setup frameset 0.0001 1u 1000
+setup frameset 0.0001 1u 10000 add
+start tcd1304
+stop
+q
+setup frameset 0.0001 1u 1000 add
+start tcd1304
+clear
+setup frameset 0.0001 1u 10
+start tcd1304
+setup frameset 0.0001 1u 10 add
+start tcd1304
+save junk
+q
+setup frameset 0.0001 1u 10 add
+start tcd1304
+q
+start tcd1304
+q
+start tcd1304
+q
+start tcd1304
+setup frameset 0.001 1u 10 add
+start tcd1304
+clear
+start tcd1304
+setup frameset 0.001 1u 1000 add
+start
+start tcd1304
+setup frameset 0.001 1u 1000
+start tcd1304
+setup frameset 0.001 1u 1000 add
+start tcd1304
+stop
+q
+setup frameset 0.001 1u 1000 add
+start tcd1304
+stop
+start tcd1304
+setup frameset 0.0001 1u 1000 add
+start tcd1304
+q
+start tcd1304
+stop
+setup frameset 0.0001 1u 1000
+start tcd1304
+stop
+setup frameset 0.0001 1u 1000 add
+start tcd1304
+stop
+q
+setup frameset 0.0001 1u 1000 add
+start tcd1304
+stop
+start tcd1304
+stop
+clear accumulator
+q
+clear accumulator
+start tcd1304
+setup frameset 0.0001 1u 1000 add
+start tcd1304
+q
+setup frameset 0.0001 1u 1000 add
+start tcd1304
+setup frameset 0.0001 1u 1000
+start tcd1304
+stop
+clear
+q
+clear
+start tcd1304
+setup frameset 0.00001 1u 1000
+start tcd1304
+setup frameset 0.005 1u 1000
+start tcd1304
+q
+setup single 64 2u 10
+setup timer 0.1
+start timer
+setup timer 0.2
+start timer
+setup timer 0.4
+start timer
+clear
+start timer
+setup timer 0.2 add
+setup timer 0.4
+start timer
+help
+start timer
+!clear
+start timer
