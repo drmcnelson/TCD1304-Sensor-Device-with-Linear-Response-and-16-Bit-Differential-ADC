@@ -181,7 +181,7 @@ The following are fluorescent lamp spectra, the present design and from a commer
 <img src="Images/DeskLamp_ND12oclock_0.05secs.seabreeze.raw.jpg" alt="Fl Lamp Spectrum, Oc. Opt. Flame-S" width="40%">
 <figcaption>
 <i>
-Fluorescent lamp spectrum, new sensor (left) and commercial instrument (right).
+Fluorescent lamp spectrum, new sensor (left or top) and commercial instrument (right or bottom	).
 </i>
 </figcaption>
 </figure>
@@ -195,12 +195,12 @@ As noted above, for data to be meaningful the response curves should at least be
 <img src="Images/Flame-S_ND3oclock_all.responses.jpg" alt="Response  Oc. Opt. Flame-S" width="38%">
 <figcaption>
 <i>
-Normalized response for the present design (left) and the commercial instrument (right) versus exposure time.
+Normalized response for the present design (left or top) and the commercial instrument (right or bottom) versus exposure time.
 </i>
 </figcaption>
 </figure>
 The present design shows approximately linear response - apart from the first points were the SNR is low and the last point where the two strongest peaks have reached saturation.
-The response of the commercial instrument (right) depends on line shape, and for the sharper lines is neither linear nor monotonic even where far below saturation.
+The response of the commercial instrument (right or bottom) depends on line shape, and for the sharper lines is neither linear nor monotonic even where far below saturation.
 
 #### Self-consistency (peak height ratios)
 The following shows ratios of peak heights derived from the above data. The data is displayed as fractional change relative to the maximum of each curve.  We quite reasonably expect that for a reliable instrument, ratios of peak heights should normally, not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios (within noise).  The commercial instrument shows strong non-monotonic changes in ratios of peak heights.
@@ -210,7 +210,7 @@ The following shows ratios of peak heights derived from the above data. The data
 <img src="Images/Flame-S_ND3oclock_all.ratios_normalized.png" alt="Response  Oc. Opt. Flame-S" width="38%">
 <figcaption>
 <i>
-Peak height ratios (normalized) for the present design (left) and the commercial instrument (right) versus exposure time
+Peak height ratios (normalized) for the present design (left or top) and the commercial instrument (right or bottom) versus exposure time
 </i>
 </figcaption>
 </figure>
