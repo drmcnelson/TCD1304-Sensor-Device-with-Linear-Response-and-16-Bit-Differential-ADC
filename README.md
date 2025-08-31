@@ -10,7 +10,7 @@
 	- [USB connection](#usb-connection)
 	- [Loading the firmware](#loading-the-firmware)
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
-- [On Linearity and reproducibility in CCD spectrometers](on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
+- [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
 - [Setup for testing](#setup-for-linearity-testing-and-comparison)
 - [Spectrometer construction](#spectrometer-construction)
 - [Electrical design (a tutorial)](#electrical-design)
