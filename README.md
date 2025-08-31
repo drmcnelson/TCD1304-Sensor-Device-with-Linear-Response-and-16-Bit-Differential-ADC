@@ -11,6 +11,8 @@
 	- [Loading the firmware](#loading-the-firmware)
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
 - [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
+	- [Explanation and electrical characteristics of CCD spectrometers](#explanation-and-electrical-characteristics-of-ccd-spectrometers)
+	- [Circuit models with filtering and effects of large dV/dt ](#circuit-models-with-filtering-and-effects-of-large-dvdt)
 - [Setup for testing](#setup-for-linearity-testing-and-comparison)
 - [Spectrometer construction](#spectrometer-construction)
 - [Electrical design (a tutorial)](#electrical-design)
@@ -275,7 +277,7 @@ Note that attenuation by a low pass filter varies with line width but for a give
 Before leaving this topic, we should mention another effect.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  There can be a similar effect on a frame to frame basis.  At typical transfer efficiency 99.99%, this should be a small effect even after order 1K pixels, but data are suggestive of these effects is common.
 
-#### Circuit models with filtering and dV/dt effects
+#### Circuit models with filtering and effects of large dV/dt
 We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  The circuit models are single ended for simplicity.  In our 16 bit board we use an all differential design.
 
 First, here is a circuit that produces good linear response. This is similar to the single ended design from our "All In One" sensor board.  The spectrum (green trace) is exactly overlaid by the voltage on the sampling capacitor (red trace).
@@ -363,7 +365,7 @@ G Δλ = cos(θ<sub>out</sub>) L<sub>D</sub>/L<sub>F</sub>
 where L<sub>D</sub> is the length of the active region along the detector and L<sub>F</sub> is the focal length. In our geometry (θ<sub>out</sub> = 0)
 with a 1,200 l/mm grating, 30mm detector and 55mm fl exit lens,  we expect should gives us a range of about 450nm.
 
-For setup and alignment, the slit and sensor should be positioned at the foci of the lenses and the sensor should parallel to the grating. (Note that the sensor is actually 0.7mm behind the face of its glass window.)
+For setup and alignment, the slit and sensor should be positioned at the foci of the lenses and the sensor should be parallel to the grating. (Note that the sensor is actually 0.7mm behind the face of its glass window.)
 You can use a flashlight and fiber as input to align the device. It should look like a well focused rainbow on the face of the sensor.
 An important concept is that the instrument in a sense, images the slit onto the detector.
 
