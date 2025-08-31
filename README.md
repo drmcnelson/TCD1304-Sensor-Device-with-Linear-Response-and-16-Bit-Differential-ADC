@@ -185,7 +185,6 @@ In this section we illustrate some of the challenges in linearity and reproducib
 In a CCD type detector, photons produce charge carriers and typically an amplifier converts the quantity of charge to a voltage.  Linearity means that the measured response changes proportionally to the number of impinging photons.
 But, efficiency varies with wavelength. So linearity is on a pixel by pixel basis; S = S1 + S2 represents the total number of photons detected if S1 and S2 represent numbers of photons detected at the same pixel (and the response at that pixel is linear).
 In the TCD1304DG, spectral response is smoothly varying over wavelength.
-
 Linearity can be seen as an essential requirement for measurements to be considered meaningful.
 However, in a broader sense a measurement may be "linearizable" if there is at least a unique relationship between the measured signal and number of photons.  Therefore at a minimum, an instrument's response should be monotonic and strictly increasing.
 
@@ -278,7 +277,7 @@ Before leaving this topic, we should mention another effect.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  There can be a similar effect on a frame to frame basis.  At typical transfer efficiency 99.99%, this should be a small effect even after order 1K pixels, but data are suggestive of these effects is common.
 
 #### Circuit models with filtering and effects of large dV/dt
-We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  The circuit models are single ended for simplicity.  In our 16 bit board we use an all differential design.
+We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  These are single ended to simplify the presentation. (Our 16 bit board is differential with a differential input ADC.)
 
 First, here is a circuit that produces good linear response. This is similar to the single ended design from our "All In One" sensor board.  The spectrum (green trace) is exactly overlaid by the voltage on the sampling capacitor (red trace).
 
@@ -317,7 +316,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed settting throughout a set of exposure setttings.  
 
 ## Spectrometer Construction
-The following describes the instrument that we used to test the new sensor device.  The following pictures show the (a) optical "bench", (b) housing, (c) sensor board, and (d) controller.  We have a center wavelength of about 520nm and cover the range from about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
+The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench", (b) housing, (c) sensor board, and (d) the controller.  We have a center wavelength of about 520nm and cover the range from about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="30%" height="auto">  
