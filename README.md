@@ -1,5 +1,21 @@
 # TCD1304 Sensor with Linear Response and 16 Bit Differential ADC
 
+#### Table of Contents
+- [Introduction](#introduction)
+	- [SPI Instrumentation Project](#-the-spi-instrumentation-project---open-instruments-for-open-science)
+	- [Permissions](#-permissions-no-warranty-or-guarantee-and-etc)
+- [Contents of this repo](#contents-of-this-repo) 
+- [Getting it all up and running](#getting-it-all-up-and-running)
+	- [Assembling or obtaining boards](#assembling-or-obtaining-boards)
+	- [USB connection](#usb-connection)
+	- [Loading the firmware](#loading-the-firmware)
+	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
+- [On Linearity and reproducibility in CCD spectrometers](on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
+- [Setup for testing](#setup-for-linearity-testing-and-comparison)
+- [Spectrometer construction](#spectrometer-construction)
+- [Electrical design (a tutorial)](#electrical-design)
+
+
 ## Introduction
 
 This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG designed specifically for linear response and reproducibility in spectroscopy and scientific imaging.  We provide (a) files for fabrication including gerbers and BOM, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models that we used to develop and test the design. (KiCAD files will be added after the initial roll out.)
