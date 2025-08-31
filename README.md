@@ -183,7 +183,7 @@ Data collection is run in two or three steps depending on the mode of operation.
 In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers using data collected with the present design sensor as a reference and comparison for data collected with  commercial instruments.
 
 In a CCD type detector, photons produce charge carriers and typically a voltage amplifier converts the quantity of charge to a voltage.  Linearity means that the measured response changes proportionally to the number of impinging photons.
-Efficiency varies with wavelength. So linearity is on a pixel by pixel basis; S = S1 + S2 represents the total number of photons detected if S1 and S2 represent numbers of photons detected at the same pixel (and the response at that pixel is linear).
+But, efficiency varies with wavelength. So linearity is on a pixel by pixel basis; S = S1 + S2 represents the total number of photons detected if S1 and S2 represent numbers of photons detected at the same pixel (and the response at that pixel is linear).
 In the TCD1304DG, spectral response is smoothly varying over wavelength, and hence we expect the response of a spectrometer using this sensor to be smoothly varying over pixel number.
 
 Linearity can be seen as an essential requirement for measurements to be considered meaningful.
