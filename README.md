@@ -16,6 +16,21 @@
 - [Setup for testing](#setup-for-linearity-testing-and-comparison)
 - [Spectrometer construction](#spectrometer-construction)
 - [Electrical design (a tutorial)](#electrical-design)
+	- [TCD1304 electrical characteristics and operation](#tcd1304dg-electrical-characteristics-and-operation)
+	- [TCD1304G noise](#tcd1304dg-noise)
+	- [Signal conditioning](#signal-conditioning)
+		- [Single ended](#single-ended-signal-conditioning)
+		- [Low noise differential](#low-noise-differential-signal-conditioning)
+		- [A circuit to avoid, and analysis](#a-dont-do-diy-circuit)
+	- [Basic Concepts for interfacing to an ADC](#basic-concepts-for-interfacing-to-an-adc)
+		- [Sample hold input (S-H) input and SPICE model](#s-h-spice-model)
+		- [Factors effecting precision](#factors-effecting-precision)
+		- [ADC kickback](#adc-kickback)
+		- [Charge reservoir mitigates kickback](#introducing-the-charge-reservoir)
+		- [Signals with large dV/dt (spectrometers)](#dvdt-versus-charge-reservoir)
+	- [SPICE models for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
+		- [Differential signal path with ADC](#differential-signal-path-and-adc)
+		- [Gate drivers (and power rail)](#gate-drivers)
 
 
 ## Introduction
@@ -472,7 +487,7 @@ The following shows a design that appears from time to time in DIY postings.  Th
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz].  This creates a trade-off between bandwidth and precision.
 And with a very large R<sub>2</sub>, the pole formed with the input capacitance at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and may be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about $3 for leaving out the voltage-follower.  If you need intensity information, it might be best to avoid devices that take this approach.
 
-### Basics concepts for interfacing to an ADC
+### Basic concepts for interfacing to an ADC
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
 
 ##### S-H spice model
