@@ -471,7 +471,7 @@ The following shows a reasonable approach for the front end circuit. We use a du
 </figure>
 
 ##### Low noise differential signal conditioning
-We use the following approach for 16 bit precision.  Similar to the above, the first unit is configured as a follower but the second is configured for unity gain and the two outputs together provide a differential signal.  In implementation we follow this with a fully differential amplifier and a differential input ADC.  For gain we get a factor of 2 for free and cancellation between the differential pair improves noise performance in our mixed signal environment.
+We use the following approach for 16 bit precision.  Similar to the above, the first unit is configured as a follower but the second is configured as an inverter with offset and unity gain.  The two outputs together provide a differential signal.  In implementation we follow this with a fully differential amplifier (FDA) and a differential input ADC.  For gain we get a factor of 2 for free and make up the rest in the FDA.  Cancellation between the differential pair improves noise performance for our mixed signal environment.
 
 <figure align="center">
 <img src="Images/CCD_differential_sketch.jpg" alt="CCD signal conditioning" width="70%">
@@ -484,8 +484,8 @@ The following shows a design that appears from time to time in DIY postings.  Th
 <img src="Images/CCD_singleopamp_problems.jpg" alt="CCD signal conditioning" width="50%">
 </figure>
 
-With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz].  This creates a trade-off between bandwidth and precision.
-And with a very large R<sub>2</sub>, the pole formed with the input capacitance at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and may be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about $3 for leaving out the voltage-follower.  If you need intensity information, it might be best to avoid devices that take this approach.
+With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
+And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about $3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
 
 ### Basic concepts for interfacing to an ADC
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
