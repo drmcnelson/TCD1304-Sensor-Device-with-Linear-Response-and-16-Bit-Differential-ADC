@@ -451,6 +451,16 @@ class LCCDDATA( DATA ):
         except Exception as e:
             print( 'shutter_period', e )
 
+        try:
+            self.frame_exposures = list(self.getset('frame_exposure'))
+            print( self.frame_exposures)
+            s = list(set(self.frame_exposures))
+            if len(s) == 1:
+                self.exposure = float(s[0])
+                print( "set exposure from frame_exposure", self.exposure)
+        except Exception as e:
+            print( 'frame_exposures', e )
+            
         
     def trim( self, left = 0, right = -1 ):
 

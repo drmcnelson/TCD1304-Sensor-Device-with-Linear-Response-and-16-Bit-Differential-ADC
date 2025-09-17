@@ -58,6 +58,9 @@ from scipy.signal import savgol_filter as savgol
 
 import matplotlib.pyplot as plt
 
+import faulthandler
+faulthandler.enable()
+
 try:
     from TextWindow import TextWindow
     has_TextWindow = True
@@ -504,12 +507,14 @@ class TCD1304CONTROLLER:
             , frame_counts \
             , frameset_counter \
             , frameset_counts \
+            , trigger_counter \
+            , trigger_counts \
             , frame_elapsed \
-            , icg_elapsed \
             , timer_elapsed \
             , trigger_elapsed \
-            , sh_period \
-            , icg_period \
+            , frame_exposure \
+            , timer_difference \
+            , trigger_difference \
             , timer_period \
             , frameset_complete \
             , frame_mode \
@@ -610,12 +615,14 @@ class TCD1304CONTROLLER:
                                , frame_counts
                                , frameset_counter
                                , frameset_counts
-                               , frame_elapsed
-                               , icg_elapsed
-                               , timer_elapsed
-                               , trigger_elapsed
-                               , sh_period
-                               , icg_period
+                               , trigger_counter
+                               , trigger_counts
+                               , frame_elapsed \
+                               , timer_elapsed \
+                               , trigger_elapsed \
+                               , frame_exposure \
+                               , timer_difference \
+                               , trigger_difference \
                                , timer_period        
                                , frameset_complete
                                , frame_mode
@@ -652,12 +659,14 @@ class TCD1304CONTROLLER:
                            , frame_counts
                            , frameset_counter
                            , frameset_counts
-                           , frame_elapsed
-                           , icg_elapsed
-                           , timer_elapsed
-                           , trigger_elapsed
-                           , sh_period
-                           , icg_period
+                           , trigger_counter
+                           , trigger_counts
+                           , frame_elapsed \
+                           , timer_elapsed \
+                           , trigger_elapsed \
+                           , frame_exposure \
+                           , timer_difference \
+                           , trigger_difference \
                            , timer_period        
                            , frameset_complete
                            , frame_mode
@@ -688,12 +697,17 @@ class TCD1304CONTROLLER:
         frame_counts = 0
         frameset_counter = 0
         frameset_counts = 0
+
+        trigger_counter = 0
+        trigger_counts = 0
+        
         frame_elapsed = 0
-        icg_elapsed = 0
         timer_elapsed = 0
         trigger_elapsed = 0
-        sh_period = 0
-        icg_period = 0
+        frame_exposure = 0
+        timer_difference = 0
+        trigger_difference = 0
+        
         timer_period = 0        
         frameset_complete = False
         frame_mode = ""
@@ -711,12 +725,17 @@ class TCD1304CONTROLLER:
             nonlocal frame_counts
             nonlocal frameset_counter
             nonlocal frameset_counts
+
+            nonlocal trigger_counter
+            nonlocal trigger_counts
+            
             nonlocal frame_elapsed
-            nonlocal icg_elapsed
             nonlocal timer_elapsed
             nonlocal trigger_elapsed
-            nonlocal sh_period
-            nonlocal icg_period
+            nonlocal frame_exposure
+            nonlocal timer_difference
+            nonlocal trigger_difference
+
             nonlocal timer_period        
             nonlocal frameset_complete
             nonlocal frame_mode
@@ -727,12 +746,17 @@ class TCD1304CONTROLLER:
             frame_counts = 0
             frameset_counter = 0
             frameset_counts = 0
+
+            trigger_counter = 0
+            trigger_counts = 0
+            
             frame_elapsed = 0
-            icg_elapsed = 0
             timer_elapsed = 0
             trigger_elapsed = 0
-            sh_period = 0
-            icg_period = 0
+            frame_exposure = 0
+            timer_difference = 0
+            trigger_difference = 0
+            
             timer_period = 0        
             frameset_complete = False
             frame_mode = ""
@@ -992,10 +1016,28 @@ class TCD1304CONTROLLER:
                         self.errorflag.value += 1
                         self.textqueue.put( 'Error: ' + buffer )
 
+                elif buffer.startswith( "FRAME EXPOSURE" ):
+                    #print( buffer )
+                    try:
+                        frame_exposure = float(buffer[14:])
+                    except Exception as e:
+                        print( buffer, e )
+                        self.errorflag.value += 1
+                        self.textqueue.put( 'Error: ' + buffer )
+
                 elif buffer.startswith( "TIMER ELAPSED" ):
                     #print( buffer )
                     try:
                         timer_elapsed = float(buffer[13:])
+                    except Exception as e:
+                        print( buffer, e )
+                        self.errorflag.value += 1
+                        self.textqueue.put( 'Error: ' + buffer )
+                        
+                elif buffer.startswith( "TIMER DIFFERENCE" ):
+                    #print( buffer )
+                    try:
+                        timer_difference = float(buffer[16:])
                     except Exception as e:
                         print( buffer, e )
                         self.errorflag.value += 1
@@ -1010,24 +1052,24 @@ class TCD1304CONTROLLER:
                         self.errorflag.value += 1
                         self.textqueue.put( 'Error: ' + buffer )
                         
-                elif buffer.startswith( "SH PERIOD" ):
+                elif buffer.startswith( "TRIGGER DIFFERENCE" ):
                     #print( buffer )
                     try:
-                        sh_period = float(buffer[9:])
+                        trigger_difference = float(buffer[18:])
                     except Exception as e:
                         print( buffer, e )
                         self.errorflag.value += 1
                         self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "ICG PERIOD" ):
+                        
+                elif buffer.startswith( "TRIGGER COUNTER" ):
                     #print( buffer )
                     try:
-                        icg_period = float(buffer[10:])
+                        trigger_counter = int(buffer[15:])
                     except Exception as e:
                         print( buffer, e )
                         self.errorflag.value += 1
                         self.textqueue.put( 'Error: ' + buffer )
-
+                        
                 elif buffer.startswith( "TIMER PERIOD" ):
                     #print( buffer )
                     try:
@@ -1061,6 +1103,15 @@ class TCD1304CONTROLLER:
                         self.errorflag.value += 1
                         self.textqueue.put( 'Error: ' + buffer )
 
+                elif buffer.startswith( "TRIGGER COUNTS" ):
+                    #print( buffer )
+                    try:
+                        trigger_counts = int(buffer[14:])
+                    except Exception as e:
+                        print( buffer, e )
+                        self.errorflag.value += 1
+                        self.textqueue.put( 'Error: ' + buffer )
+                        
                 # ---------------------------------------
                 # Mode keywords
                 elif buffer.startswith( "START " ):
@@ -1177,6 +1228,8 @@ class TCD1304CONTROLLER:
             
         while not self.dataqueue.empty():
             self.dataqueue.get()
+
+        self.busyflag.value = 0
 
         return self.writeread("clear accumulator")
             
@@ -1309,12 +1362,14 @@ class TCD1304CONTROLLER:
                     , frame_counts \
                     , frameset_counter \
                     , frameset_counts \
+                    , trigger_counter \
+                    , trigger_counts \
                     , frame_elapsed \
-                    , icg_elapsed \
                     , timer_elapsed \
                     , trigger_elapsed \
-                    , sh_period \
-                    , icg_period \
+                    , frame_exposure \
+                    , timer_difference \
+                    , trigger_difference \
                     , timer_period \
                     , frameset_complete \
                     , frame_mode \
@@ -1329,12 +1384,14 @@ class TCD1304CONTROLLER:
                     , "frame_counts" \
                     , "frameset_counter" \
                     , "frameset_counts" \
+                    , "trigger_counter" \
+                    , "trigger_counts" \
                     , "frame_elapsed" \
-                    , "icg_elapsed" \
                     , "timer_elapsed" \
                     , "trigger_elapsed" \
-                    , "sh_period" \
-                    , "icg_period" \
+                    , "frame_exposure" \
+                    , "timer_difference" \
+                    , "trigger_difference" \
                     , "timer_period" \
                     , "frameset_complete" \
                     , "frame_mode" \
@@ -1454,6 +1511,9 @@ class TCD1304CONTROLLER:
                 if not self.wait( interruptible=True ):
                     return False
 
+        elif line.startswith( 'clear busy'):
+            self.busyflag.value = 0
+            
         elif line.startswith('clear'):
             self.clear()
             
@@ -1490,7 +1550,7 @@ class TCD1304CONTROLLER:
             
         elif line.startswith( 'accumulator clear' ):
             self.localaccumulatorflag.value = -1
-            
+
         elif line.startswith('@'):
 
             batchfile = line[1:].strip()
@@ -1506,6 +1566,8 @@ class TCD1304CONTROLLER:
                 line = line.strip()
                 status = True
 
+                print(batchfile, "read", line)
+                
                 # Protect the semicolons
                 if ';' in line:
                     line = line.replace( ';', '{\\semicolon}' )
@@ -1516,12 +1578,24 @@ class TCD1304CONTROLLER:
                     line_ = line_.replace( '{\\semicolon}', ';' )
                     line_ = line_.strip()
                     print( "command:", line_ )
+
+                    if not line_.startswith("wait") and \
+                       not line_.startswith("stop") and \
+                       not line_.startswith("clear") and \
+                       self.busyflag.value:
+                        print("device is busy, need to wait, clear or stop first")
+                        status = False
+                        break
                     
                     if not self.commandlineprocessor( line_, fileprefix ):
                         status = False
+                        print( "command failed:", line_ )
                         break
+                    print( "command finished:", line_ )
                 if not status:
                     break
+
+            print("completed",batchfile)
 
         elif line.startswith('!'):
             result = os.popen( line[1:] ).read()
