@@ -1,8 +1,0 @@
-setup new frameset
-start new frameset
-setup frameset
-start frameset
-q
-setup frameset
-setup frameset 0.001 0.010 5
-q
