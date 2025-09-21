@@ -434,12 +434,12 @@ As depicted, exposure begins and ends on the trailing end of pulses asserted on 
 
 A table of capacitances for these pins is found on page 5. Without going into the details of how CCDs are constructed [(see here](https://www.chronix.co.jp/chronixjp/material/pdf/chronix/CCD-Image-Sensor-English.pdf)), we can infer that the large capacitance of the SH and ICG pins are consistent with these playing an essentially direct role in harvesting charge in the device. The master clock capacitance is suggestive of an input to a logic network.  Four clock cycles per pixel readout further indicates a 4 cycle type CCD register.  This informs our design for the gate drivers.  However for now, we focus on the analog signal conditioning part of the design.
 
-<figure align="center">
+<p align="center">
 <img src="Images/TCD1304_gatecapacitance.jpg" alt="TCD1304 internal diagram" width="80%">
-<figcaption>
+<p align="center" style="margin-left:5em;margin-right:5em">
 TCD1304DG "gate capacitance", from page 5 of the datasheet.
-</figcaption>
-</figure>
+</p>
+</p>
 
 Electrical characteristics of the TCD1304 output are described on page 3 of the datasheet (excerpted here). We include the diagram from "Note 8" to indicate the origin and direction of the signal in volts.  The output is a negative going signal from fixed DC level V<sub>OS</sub> typically 2.5 volts (var 1.5V to 3.5V) to V<sub>OS</sub> -0.6V  at saturation (min -0.450V) and the output impedance is typically 500Ω (max 1kΩ).
 <p align="center">
