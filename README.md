@@ -223,7 +223,7 @@ The following data show the response of the instrument for three narrow spectral
 As noted above, for data to be meaningful the response curves should at least be monotonic and strictly increasing.
 
 <p align="center" >
-<img src="Images/LinearResponseComparison.jpg" width="80%">
+<img src="Images/LinearResponseComparison.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
