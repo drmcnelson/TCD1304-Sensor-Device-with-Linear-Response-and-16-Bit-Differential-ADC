@@ -262,7 +262,7 @@ A simple way to think of a CCD is as an array of photodectors that produce charg
 
 An important "takeaway" is that a CCD records a discrete spatial patten of light induced electric charge and on readout converts it to a discrete time series of voltages.  In this way, a sharp spectral line becomes a short pulse in time.  And that is what makes spectroscopy different from other signal acquisition scenarios.
 
-In designing circuits for acoustics or radio frequency work, we might think in terms of a Nyquist frequency and we might accept some small non-linearity for signals approaching this "cutoff". But in a CCD spectrometer (or imaging system) a full scale step in voltage from one sample to the next can be a legitimate feature that has to rendered to a meaningful digital representation. We can think of this in terms in terms of bandwidth or dV/dt.
+In designing circuits for acoustics or radio frequency work, we might think in terms of a Nyquist frequency and we might accept some small non-linearity for signals approaching this "cutoff". But in a CCD spectrometer (or imaging system) a full scale step in voltage from one sample to the next can be a legitimate feature that has to rendered to a meaningful digital representation. We can think of this in terms in of bandwidth or dV/dt.
 
 The following shows the Fourier transform of the above spectrum (blue), and on the second "y" axis we graph a response curve (orange) calculated for a simple low pass filter (single pole) with cutoff frequency at 1/2 of the sample rate much. As you can see, naive filtering produces about 10% attenuation for high frequency components that may be important for linear response to narrow spectral lines.
 
@@ -270,14 +270,11 @@ The following shows the Fourier transform of the above spectrum (blue), and on t
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.rfft-tscaled.jpg" alt="CCD Readout" width="40%">
 </p>
 
-The following shows a perhaps more intuitive way to look at this, by graphing the spectrum as its first derivative, dV/dt.   Now we can see clearly that anomalous attenuation in the commercial instrument seems to follow the amplitude of the first derivative dV/dt.
-The ability to support a large dV/dt is suggestive in that it corresponds  directly to a selection parameter for OPAMPs, the maximum slew.  We will show some detail about how this works in the following section.
+The following shows a perhaps more intuitive way to look at this, by graphing the spectrum as its first derivative, dV/dt.   Now we can see clearly that anomalous attenuation in the commercial instrument seems to follow dV/dt.  This is suggestive in that it corresponds  directly to a selection parameter for OPAMPs, the maximum slew.  We will show some detail about how this works in the following section.
 
 <p align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.dvdt-tscaled.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
 </p>
-
-Note that attenuation by a low pass filter varies with line width but for a given line width the response is still linear.  But dV/dt driven attenuation is greater when the spectral line is both sharp and strong. Thus any effect related to dV/dt tends to be non-linear.
 
 Before leaving this topic, we should mention another effect.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  There can be a similar effect on a frame to frame basis.  At typical transfer efficiency 99.99%, this should be a small effect even after order 1K pixels, but data are suggestive of these effects is common.
@@ -285,13 +282,13 @@ The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps 
 ### Circuit models with filtering and effects of large dV/dt
 We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  These are single ended to simplify the presentation. (Our 16 bit board is differential with a differential input ADC.)
 
-First, here is a circuit that produces good linear response. This is similar to the single ended design from our "All In One" sensor board.  The spectrum (green trace) is exactly overlaid by the voltage on the sampling capacitor (red trace).
+First, here is a circuit that produces good linear response. This is similar to the design from our single ended "All In One" sensor board.  The spectrum (green trace) is exactly overlaid by the voltage on the sampling capacitor (red trace).
 
 <p align="center">
 <img src="Images/Spectrum_Flip_Shift_RC_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
 </p>
 
-Now we introduce a low pass filter, we set this aggressively to produce an effect that is easy to see when graphed in this way.  The filter produces attenuation for the sharp lines, but the effects is similar for all of the sharp lines.
+Now we introduce a low pass filter. We set this aggressively to produce an effect that is easy to see when graphed in this way.  The filter produces attenuation for the sharp lines, but the effects is similar for all of the sharp lines.
 
 <p align="center">
 <img src="Images/Spectrum_Flip_Shift_Filter_RC_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
@@ -319,7 +316,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 <img src="Images/FluoresdentLinearityMeasurements.jpg" alt="Linearity Measurements" width="60%">
 </p>
 
-Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed settting throughout a set of exposure setttings.  
+Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Construction
 The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench", (b) housing, (c) sensor board, and (d) the controller.  We have a center wavelength of about 520nm and cover the range from about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
@@ -351,7 +348,7 @@ The parts list for the above is:
 Detailed discussions on designing a spectrometer are easily found by web search. We will mention a few important highlights.  Here is the geometry for reference.
 
 <p align="center">
-<img src="Images/SpectrometerTransmissionGeometry.jpg" width="40%">
+<img src="Images/SpectrometerTransmissionGeometry.jpg" width="60%">
 </p>
 
 
@@ -360,7 +357,7 @@ First, let's choose a center wavelength.  For a grating with line density G (in 
 λ<sub>0</sub> G = sin θ<sub>in</sub> + sin θ<sub>out</sub>. 
 </p>
 
-Setting the exit angle to zero (0), our 1200l/mm grating with a  center wavelength at 500 nm, gives us an incident angle of about 37 degrees. That happens to be the blaze angle for our grating, So, that works out very well.
+Setting the exit angle to zero (0), our 1200l/mm grating with a center wavelength at 500 nm gives us an incident angle of about 37 degrees. That happens to be the blaze angle for our grating, So, that works out very well.
 
 The range in wavelength is set by the size of the detector and the focal length of the second lens,
 
