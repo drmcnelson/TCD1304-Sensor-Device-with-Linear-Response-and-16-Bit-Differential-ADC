@@ -140,29 +140,27 @@ The codes have been used with the Fedora Cinnamon Spin, which you can [download 
 
 The command to install the Python environment and libraries used by the codes is as follows:
 
-    $ sudo dnf install python python-numpy python-scipy python-matplotlib
-
-  
+    $ sudo dnf install python python-numpy python-scipy python-matplotlib python-pyserial
+      
 
 To setup the Python codes from this repo, unpack or download the files from the repo's Python subdirectory to a directory on your Linux machine; somewhere under your personal user directory works just fine.  And, set the permissions to allow execute  (chmod a+x *.py, and chmod a+x *.sh).
 
 Here is a list of the files provided in the Python directory
 
     TCD1304Controller.py   - User interface and Class library
-    Accumulators.py        - Libraries used by the controller
+    
+    Accumulators.py        - Libraries used by TCD1304Controller.py
     GraphicsWindow.py
     GUIWindow.py
     TextWindow.py
 
-    DataReader.py          - Offline utility and library
+    DataReader.py          - Offline library and graphics utility
 
-    TCD1304.help           - help listing
+    TCD1304.help           - Output from the help command
     
-    lccdcontroller.history - command history file
-
-    SetupPATH.sh           - Adds directory to PATH
+    SetupPATH.sh           - Adds the code directory to PATH
         
-    GraphTCD130Spectrum.sh - Offline graphics
+    GraphTCD130Spectrum.sh - Offline graphics using DataReader.py
     
     Calibration2           - example wavelength calibration
 
@@ -193,19 +191,22 @@ The firmware is tested but we are adding some features to build up a more intuit
 
 Data collection is run in two or three steps depending on the mode of operation. For frameset, the clock is built into the timing configuration for the gates. For clocked exposures we can run the commands **setup frameset...** and **start frameset**, or **setup single**, **setup timer...** and **start timer**. For triggered operation, we can follow any of the setup commands by **setup trigger...** and **start trigger**.  After data collection is complete, we can use the command **save filespec**.   The data is buffered in a queue and the queue is cleared when the data is retrieved and saved to disk.  There is a clear command, or one can save to a file called temp or junk to clear it.
 
+The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
+
+A Python program, DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.
+
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
 In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers using data collected with the present design sensor as a reference and comparison for data collected with  commercial instruments.
 
-In a CCD type detector, photons produce charge carriers and typically an amplifier converts the quantity of charge to a voltage.  Linearity means that the measured response changes proportionally to the number of impinging photons.
-But, efficiency varies with wavelength. So linearity is on a pixel by pixel basis; S = S1 + S2 represents the total number of photons detected if S1 and S2 represent numbers of photons detected at the same pixel (and the response at that pixel is linear).
-In the TCD1304DG, spectral response is smoothly varying over wavelength.
-Linearity can be seen as an essential requirement for measurements to be considered meaningful.
-However, in a broader sense a measurement may be "linearizable" if there is at least a unique relationship between the measured signal and number of photons.  Therefore at a minimum, an instrument's response should be monotonic and strictly increasing.
+Linear response, for a spectrometer, means that the  measured response S is proportional to the number of photons P impinging on the detector, generally within a specified exposure time. For each pixel n, we expect that S<sub>n</sub> = c<sub>n</sub> P<sub>n</sub> + D<sub>n</sub>, and ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant and D<sub>n</sub> represents the dark signal for that pixel.
 
+When the instrument is linear, measurements can be related to intensity or number of photons, ratios of peak heights S<sub>1</sub>/S<sub>2</sub> remain constant and spectra can be added or subtracted meaningfully spectrum S = S<sub>a</sub> + S<sub>b</sub> with exposure times t<sub>a</sub> and t<sub>b</sub> provides the same result a single spectrum collected with exposure time t = t<sub>a</sub> + t<sub>b</sub>.   In other words, linear response is important in being able to report measurements that are both meaningful and that can be feasibly and reliably reproduced by other researchers.
+
+There are a few ways in which spectrometer response can be non-linear. The most important and most common are related to electrical limitations in bandwidth or slew (dV/dt) or to charge being held over to the next frame or from pixel to pixel during readout.  Where information is not lost or made ambiguous by the non-linearity, there might exist a numerical correction (in a mathematical sense).  Generally, it is far easier and far more reliable to simply use an instrument that is already linear.
 
 #### Spectral response
-The following are fluorescent lamp spectra, the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. And, the effect becomes especially salient at shorter wavelengths where the lines are naturally sharper for a gas phase lamp (δλ/λ broadening).
+The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
 
 <figure align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.raw.jpg" alt="Fl Lamp Spectrum New Sensor" width="40%">
@@ -247,7 +248,7 @@ Peak height ratios (normalized) for the present design (left or top) and the com
 </figcaption>
 </figure>
 
-#### Baseline subtraction
+#### Baseline integrity
 Baseline or background subtraction is often a necessary step in extracting intensity data from spectra.  There are a number of ways to do this, for example using dark spectra or regions of spectra where the experiment produces little intensity.  The former assumes the background is independent of the signal of interest and the latter assumes background is dominated by the dark noise of the detector rather than light.
 
 The following shows a fluorescent lamp spectrum, similar to the fluorescent spectra show above.  This one is published on [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/83/Fluorescent_lighting_spectrum_peaks_labelled.png) and is widely used as a reference for wavelength calibration. Notice that the baseline seems inconsistent with dark noise or any sort of room lighting.  Moreover, the height of the baseline seems to have some relationship to the intensity of proximal lines in the spectrum.  In other words, the baseline seems to not be independent of the spectrum.
@@ -259,7 +260,6 @@ Fluorescent lamp spectrum
 </figure>
 
 <a href="https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.png">Original:  Deglr6328 at English WikipediaDerivative work:  H Padleckas</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons
-
 
 #### Explanation and electrical characteristics of CCD spectrometers
 The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with how the signal is produced and retrieved from a CCD detector.
@@ -588,10 +588,12 @@ Red = sensor, Green = adc inp, turquoise = Cs+ (sar cap).
 
 #### Gate drivers
 
+Two issues that require careful attention in designing the gate drivers, include the fact of the very large capacitance of the SH gate, the role of this gate in collection charge from the photodectors into the readout CCD register, and then an electrical effect in the rest of the circuit wherein noise from the gate drivers appears on the power rails.
+
 The following shows a SPICE model for the gate drivers. These generate a pulse on their power rails, so we power these from a separate voltage regulator.  The model includes a current limited supply for the LDO with inductor, in place of the filtered current limited 5V supply on the actual board.
 
 <figure align="center">
-<img src="Images/GateDriversPowerRail_10uf_x1000.png" width="65%">
+<img src="Images/GateDriversPowerRail_10uf_x1000.jpg" width="65%">
 <figcaption>
 Gate drivers and pulse generation on the power rails.
 <br>
@@ -600,4 +602,16 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 </figure>
 
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  This puts us well within our power supply noise budget for the analog signal path.
+
+
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.
+
+Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000, which meets our goals.   In our case, our gate driver provides 25mA, so the time constant really is set by the RC. 
+
+<figure align="center">
+<img src="Images/CarryOverGraph.jpg" width="65%">
+<figcaption>
+Carry over decreases with SH pulse width.
+</figcaption>
+</figure>
 
