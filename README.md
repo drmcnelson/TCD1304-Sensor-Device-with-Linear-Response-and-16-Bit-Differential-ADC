@@ -11,7 +11,7 @@
 	- [Loading the firmware](#loading-the-firmware)
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
 - [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
-	- [Explanation and electrical characteristics of CCD spectrometers](#explanation-and-electrical-characteristics-of-ccd-spectrometers)
+	- [Sources of non-linearity and electrical characteristics of CCD spectrometers](#sources-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers)
 	- [Circuit models with filtering and effects of large dV/dt ](#circuit-models-with-filtering-and-effects-of-large-dvdt)
 - [Setup for testing](#setup-for-linearity-testing-and-comparison)
 - [Spectrometer construction](#spectrometer-construction)
@@ -263,7 +263,7 @@ Fluorescent lamp spectrum.<br>
 </p>
 
 
-#### Explanation and electrical characteristics of CCD spectrometers
+### Sources of non-linearity and electrical characteristics of CCD spectrometers
 The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with how the signal is produced and retrieved from a CCD detector.
 
 A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register in response to a clock signal. At the last such pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
@@ -293,7 +293,7 @@ Note that attenuation by a low pass filter varies with line width but for a give
 Before leaving this topic, we should mention another effect.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  There can be a similar effect on a frame to frame basis.  At typical transfer efficiency 99.99%, this should be a small effect even after order 1K pixels, but data are suggestive of these effects is common.
 
-#### Circuit models with filtering and effects of large dV/dt
+### Circuit models with filtering and effects of large dV/dt
 We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  These are single ended to simplify the presentation. (Our 16 bit board is differential with a differential input ADC.)
 
 First, here is a circuit that produces good linear response. This is similar to the single ended design from our "All In One" sensor board.  The spectrum (green trace) is exactly overlaid by the voltage on the sampling capacitor (red trace).
