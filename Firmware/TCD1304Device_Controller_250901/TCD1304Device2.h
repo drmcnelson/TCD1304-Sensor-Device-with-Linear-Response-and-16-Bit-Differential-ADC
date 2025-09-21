@@ -329,7 +329,6 @@ public:
   /* ================================================
      extra stuff for the old flexpwm frameset routines
   */
-  // For the frame timer
   inline static uint64_t frame_cyccnt64_start = 0;
   inline static uint64_t frame_cyccnt64_now = 0;
   inline static uint64_t frame_cyccnt64_prev = 0;
@@ -338,9 +337,9 @@ public:
   inline static uint64_t icg_cyccnt64_now = 0;
   inline static uint64_t icg_cyccnt64_prev = 0;
 
-
-
-  
+  inline static unsigned int sync_counter = 0;
+  inline static unsigned int sync_counts = 0;
+  // ==============================================
  
   // timing adjustment
 #ifdef  ALLINONEBOARD
@@ -359,11 +358,7 @@ public:
 
   // Sync pin management
   inline static bool synctoggled = false;
-  inline static unsigned int sync_counter = 0;
-  inline static unsigned int sync_counts = 0;
-  inline static bool sh_sync_enabled = true;
-  inline static bool timer_sync_enabled = false;
-  inline static bool timer_sync_toggle  = false;
+  inline static bool sync_enabled = true;
 
   // And now.... the submodules
   inline static IMXRT_FLEXPWM_t * const flexpwm = &IMXRT_FLEXPWM2;  
@@ -880,7 +875,7 @@ public:
     sh_cyccnt64_now  = cyccnt64_now;
     
     // sync toggles on trailing edge of SH
-    if (sh_sync_enabled) {
+    if (sync_enabled) {
       digitalToggleFast(SYNC_PIN);
       synctoggled = !synctoggled;
     }
@@ -1380,7 +1375,7 @@ public:
 
     // one test for both pulses beginning and ending the sampling interval
     if (remainder <= 1) {
-      if (sh_sync_enabled) {
+      if (sync_enabled) {
         digitalToggleFast(SYNC_PIN);
         synctoggled = !synctoggled;
       }
@@ -2849,7 +2844,7 @@ public:
     status = flexpwm->SM[ICG_SUBMODULE].STS;
     flexpwm->SM[ICG_SUBMODULE].STS = status;
     
-    if (sh_sync_enabled) {
+    if (sync_enabled) {
       flexpwm->SM[ICG_SUBMODULE].INTEN = ICG_CMPF_MASK;  // enable interrupt both A and B
     } else {
       flexpwm->SM[ICG_SUBMODULE].INTEN = CMPF_MASKA_OFF; // enable interrupt A only
