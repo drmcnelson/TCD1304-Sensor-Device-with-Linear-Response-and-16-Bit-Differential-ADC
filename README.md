@@ -581,23 +581,23 @@ The following are screens from two of the spice models that we used in designing
 This is the [SPICE model for the analog signal path with ADC](SPICE/TCD1304DifferentialBuffer.asc).
 The input is configured as a short pulse to stress the kickback management.  The second graph shows the voltage on the sampling capacitor converging to the input voltage within the sampling window.  Convergence is better than 16 bits.
 
-<figure align="center">
+<p align="center">
 <img src="Images/TCD1304DifferentialBuffer.jpg" width="65%">
-<figcaption>
+<p align="center" style="margin-left:5em;margin-right:5em">
 SPICE model for the 16 bit sensor board, analog section.
 <br>
 Red = sensor, Green = adc inp, turquoise = Cs+ (sar cap), blue = current through R11.
-</figcaption>
-</figure>
+</p>
+</p>
 
-<figure align="center">
+<p align="center">
 <img src="Images/TCD1304DifferentialBuffer_closeup.jpg" width="65%">
-<figcaption>
+<p align="center" style="margin-left:5em;margin-right:5em">
 Convergence of V(Cs+) to input voltage for the 16 bit sensor board.
 <br>
 Red = sensor, Green = adc inp, turquoise = Cs+ (sar cap).
-</figcaption>
-</figure>
+</p>
+</p>
 
 #### Gate drivers
 
@@ -605,14 +605,14 @@ Two issues that require careful attention in designing the gate drivers, include
 
 The following shows a SPICE model for the gate drivers. These generate a pulse on their power rails, so we power these from a separate voltage regulator.  The model includes a current limited supply for the LDO with inductor, in place of the filtered current limited 5V supply on the actual board.
 
-<figure align="center">
+<p align="center">
 <img src="Images/GateDriversPowerRail_10uf_x1000.jpg" width="65%">
-<figcaption>
+<p align="center" style="margin-left:5em;margin-right:5em">
 Gate drivers and pulse generation on the power rails.
 <br>
 Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
-</figcaption>
-</figure>
+</p>
+</p>
 
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  This puts us well within our power supply noise budget for the analog signal path.
 
@@ -621,10 +621,19 @@ Now lets take a look at another way in which the gate driver effects performance
 
 Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000, which meets our goals.   In our case, our gate driver provides 25mA, so the time constant really is set by the RC. 
 
-<figure align="center">
+<p align="center">
+<img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+LED spectrum, orange curve is with LED off.
+Carry-over appears with inadequate gate drive.
+</p>
+</p>
+<br>
+
+<p align="center">
 <img src="Images/CarryOverGraph.jpg" width="65%">
-<figcaption>
-Carry over decreases with SH pulse width.
-</figcaption>
-</figure>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Carry-over decreases with SH pulse width.
+</p>
+</p>
 
