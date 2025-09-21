@@ -252,9 +252,10 @@ Peak height ratios (normalized) for (a) the present design and (b) the commercia
 #### Baseline integrity
 Baseline or background subtraction is often a necessary step in extracting intensity data from spectra.  There are a number of ways to do this, for example using dark spectra or regions of spectra where the experiment produces little intensity.  The former assumes the background is independent of the signal of interest and the latter assumes background is dominated by the dark noise of the detector rather than light.
 
-The following shows a fluorescent lamp spectrum, similar to the fluorescent spectra show above.  This one is published on [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/83/Fluorescent_lighting_spectrum_peaks_labelled.png) and is widely used as a reference for wavelength calibration. Notice that the baseline seems inconsistent with dark noise or any sort of room lighting.  Moreover, the height of the baseline seems to have some relationship to the intensity of proximal lines in the spectrum.  In other words, the baseline seems to not be independent of the spectrum.
+The following shows a fluorescent lamp spectrum from [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/83/Fluorescent_lighting_spectrum_peaks_labelled.png).
+Notice the anomalous baseline to the blue side of the sharp peak at 631nm.  The shape is not like dark noise nor any sort of room lighting. We can speculate about its origin, but the important point is that it is not easily corrected.
 <p align="center">
-<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Fluorescent lamp spectrum, HR2000" width="60%" >
+<img src="Images/Fluorescent_lighting_spectrum_peaks_highlighted.jpg" alt="Fluorescent lamp spectrum, HR2000" width="70%" >
 <p align="center" style="margin-left:5em;margin-right:5em">
 Fluorescent lamp spectrum.<br>
 <a href="https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.png">Original:  Deglr6328 at English WikipediaDerivative work:  H Padleckas</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons
@@ -267,7 +268,7 @@ The following provides some insight into how the above phenomena emerge in   a C
 
 A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register in response to a clock signal. At the last such pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
 <p align="center">
-<img src="Images/ccdclockedreadout.jpg" alt="CCD Readout" width="60%">
+<img src="Images/ccdclockedreadout.jpg" alt="CCD Readout" width="85%">
 </p>
 
 An important "takeaway" is that a CCD records a discrete spatial patten of light induced electric charge and on readout converts it to a discrete time series of voltages.  In this way, a sharp spectral line becomes a short pulse in time.  And that is what makes spectroscopy different from other signal acquisition scenarios.
