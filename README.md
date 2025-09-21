@@ -209,7 +209,7 @@ There are a few ways in which spectrometer response can be non-linear. The most 
 The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
 
 <p align="center" >
-<img src="Images/SpectralResponseComparison.jpg" width="80%">
+<img src="Images/SpectralResponseComparison.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
@@ -253,14 +253,14 @@ Peak height ratios (normalized) for (a) the present design and (b) the commercia
 Baseline or background subtraction is often a necessary step in extracting intensity data from spectra.  There are a number of ways to do this, for example using dark spectra or regions of spectra where the experiment produces little intensity.  The former assumes the background is independent of the signal of interest and the latter assumes background is dominated by the dark noise of the detector rather than light.
 
 The following shows a fluorescent lamp spectrum, similar to the fluorescent spectra show above.  This one is published on [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/83/Fluorescent_lighting_spectrum_peaks_labelled.png) and is widely used as a reference for wavelength calibration. Notice that the baseline seems inconsistent with dark noise or any sort of room lighting.  Moreover, the height of the baseline seems to have some relationship to the intensity of proximal lines in the spectrum.  In other words, the baseline seems to not be independent of the spectrum.
-<figure align="center">
-<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Fluorescent lamp spectrum, HR2000" width="40%" >
-<figcaption>
-Fluorescent lamp spectrum
-</figcaption>
-</figure>
-
+<p align="center">
+<img src="Images/Fluorescent_lighting_spectrum_peaks_labelled.jpg" alt="Fluorescent lamp spectrum, HR2000" width="60%" >
+<p align="center" style="margin-left:5em;margin-right:5em">
+Fluorescent lamp spectrum.<br>
 <a href="https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.png">Original:  Deglr6328 at English WikipediaDerivative work:  H Padleckas</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons
+</p>
+</p>
+
 
 #### Explanation and electrical characteristics of CCD spectrometers
 The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with how the signal is produced and retrieved from a CCD detector.
