@@ -23,7 +23,9 @@ unsigned int wordLength( char *s );
 char *nextWord( char *s );
 
 unsigned int countWords( char *s );
-  
+
+bool strmatch(const char *s, const char *key);
+
 char *startsWith( char *s, const char *key );
 
 char *parseBool(char *s, bool *b);

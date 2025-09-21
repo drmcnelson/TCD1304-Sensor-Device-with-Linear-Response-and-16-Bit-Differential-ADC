@@ -1302,186 +1302,219 @@ char *parseSubModule(char *s)
 /* ===================================================================
    Help text
  */
-void help() {
+void help(const char *key) {
 
-  Serial.println("#Report device, version and configuration");
-  Serial.println("#  version           - report software version");
-  Serial.println("#  configuration     - report device configuration and data structure");
-  Serial.println("#  pins              - report digital i/o functions and pin numbers");
-  Serial.println("#  dump              - report all of the available settings and states");
-  Serial.println("#  stop              - stop everything");
-  Serial.println("#");
-  Serial.println("#Coefficients for pixel number to wavelength");
-  Serial.println("#  store coefficients <a0> <a1> <a2> <a3> (need 4 numbers)");
-  Serial.println("#  coefficients       - report");
-  Serial.println("#");
-  Serial.println("#  store units <string> (upto 6 characters, c.f. nm, um, mm)");
-  Serial.println("#  units              - report");
-  Serial.println("#");
-  Serial.println("#Identifier string (63 bytes)");
-  Serial.println("#  store identifier <identifier>");
-  Serial.println("#  identifier         - list identifier string");
-  Serial.println("#");
-  Serial.println("#Data format");
-  Serial.println("#  set ascii          - set data format to ascii");
-  Serial.println("#  set binary         - set data format to binary");
-  Serial.println("#  format             - report data form");
-  Serial.println("#");
-  Serial.println("#  set async          - data is sent asynchronously");
-  Serial.println("#  set synchronous    - READY DATA is sent, host responds send data");
-  Serial.println("#");
-  Serial.println("#  enable|disable crc - precede each data transfer with crc");
-  Serial.println("#  enable|disable sum - precede each data transfer with sum");
-  Serial.println("#");
-  Serial.println("#  crc | send crc     - send 8 bit crc calculated on the binary data");
-  Serial.println("#  sum | send sum     - send 32 bit sum calculated on the binary data");
-  Serial.println("#");
-  Serial.println("#  send test          - send test data");
-  Serial.println("#  send               - (re)send last data");
-  Serial.println("#");
-  Serial.println("#Microcontroller functions");
-  Serial.println("#  temperature        - report microcontroller temperature");
-  Serial.println("#  reboot             - reboots the entire board");
-  Serial.println("#");
-  Serial.println("#Read and average analog inputs");
-  Serial.println("#  adcs <navgs>        - read analog inputs and report");
-  Serial.println("#  set adcs <navgs>    - read ADCs at frame completion");
-  Serial.println("#  set adcs off");
-  Serial.println("#");
-  Serial.println("#LCCD commands:");
-  Serial.println("#");
-  Serial.println("#  1) Single pulse setup (time syntax: 1E-6, 0.000001 or 1u)");
-  Serial.println("#");
-  Serial.println("#    setup pulse [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)");
-  Serial.println("#");
-  Serial.println("#          defaults to 0.5u 1u 0.6u 2.6u 0.5u 1 1");
-  Serial.println("#");
-  Serial.println("#          Generally this command will be followed by \"setup timer\" or \"setup trigger\"");
-  Serial.println("#");
-  Serial.println("#      start pulse - launches a single pulse with readout");
-  Serial.println("#      stop pulse  - stops ongoing pulse");
-  Serial.println("#");
-  Serial.println("#      arm pulse   - re-arm for the next pulse, see set nframes and nframesets");
-  Serial.println("#      init pulse  - re-arms and sets frame counter to 0");
-  Serial.println("#");
-  Serial.println("#  2) Frameset setup - provides short exposure time (time syntax: 1E-6, 0.000001 or 1u)");
-  Serial.println("#");
-  Serial.println("#    setup frameset <exposure> <interval> <nframes> [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)");
-  Serial.println("#");
-  Serial.println("#          defaults to 100u 5E-3 10 0.5u 1u 0.6u 2.6u 0.5u");
-  Serial.println("#");
-  Serial.println("#          Generally this command will be followed by \"start frameset\" or \"setup trigger\"");
-  Serial.println("#");
-  Serial.println("#      start frameset - launches a single frameset with readout");
-  Serial.println("#      stop frameset  - stops ongoing frameset");
-  Serial.println("#");
-  Serial.println("#      arm frameset   - re-arm for the next frameset, see set nframes and nframesets");
-  Serial.println("#      init frameset  - re-arms and sets frame counter to 0");
-  Serial.println("#");
-  Serial.println("#  3) Timer setup, clocks pulses, implemented in the flexpwm, rounded to multiple of 5,10 or 20 msecs depending on readout time");
-  Serial.println("#");
-  Serial.println("#    setup timer <exposure> [<nframes> [<offset>]] - nframes defaults to previous setup, offset to 0");
-  Serial.println("#");
-  Serial.println("#          Generally this command will be followed by \"start timer\" or \"setup trigger\"");
-  Serial.println("#");
-  Serial.println("#      start timer - launches the timer");
-  Serial.println("#      stop timer  - stops the timer");
-  Serial.println("#");
-  Serial.println("#  4) Exrternal trigger setup - triggers pulse, timer or frameset per setup");
-  Serial.println("#");
-  Serial.println("#    setup trigger [ncounts]");
-  Serial.println("#");
-  Serial.println("#          Generally this command will be followed by \"start trigger\"");
-  Serial.println("#");
-  Serial.println("#      start trigger - arms the interrupt");
-  Serial.println("#      stop trigger  - disables the trigger");
-  Serial.println("#");
-  Serial.println("#    configure trigger [args ....] ");
-  Serial.println("#");
-  Serial.println("#      args:  pin <n>,  pullup | nopullup,  rising | falling | change");
-  Serial.println("#");
-  Serial.println("#  More commands");
-  Serial.println("#");
-  Serial.println("#       set sync on | off - enable or disable sync pin output");
-  Serial.println("#");
-  Serial.println("#       set frame counts nframes [nframesets]");
-  Serial.println("#       set frame counts nframesets");
-  Serial.println("#");
-  Serial.println("#       print pulse counters");
-  Serial.println("#");
-  Serial.println("#    System timer    - Clocks the pulse start function using standard timer calls (see setup pulse)");
-  Serial.println("#");
-  Serial.println("#      setup clock <period> [n] - defaults to number required by the tcd1304 setup");
-  Serial.println("#");
-  Serial.println("#        start clock");
-  Serial.println("#        stop clock");
-  Serial.println("#");
-  Serial.println("#    This is the obsoleted frameset setup:");
-  Serial.println("#");
-  Serial.println("#      setup old frameset <clkbase (64|128)> <exposure> <pulsewidth> <frame interval> <nframes> [add] (in secs)");
-  Serial.println("#");
-  Serial.println("#        start old tcd1304");
-  Serial.println("#        stop old tcd1304");
-  Serial.println("#");
-  Serial.println("#  Low level TCD1304 submodule setup, refer to flexpwm section of the processor manual");
-  Serial.println("#");
-  Serial.println("#    setup submodule <name> [arg val ...] [commands ....]");
-  Serial.println("#");
-  Serial.println("#      names:   clk sh icg cnvst timer");
-  Serial.println("#");
-  Serial.println("#      args:    prescale <n>, period <n>, onA|B <n>, offA|B <n>, [no]invertA|B , ctrl2 <n> ");
-  Serial.println("#               master, slave, sync, print, list, check, load");
-  Serial.println("#");
-  Serial.println("#  Low level TCD1304 FlexPWM Commands, refer to flexpwm section of the processor manual");
-  Serial.println("#");
-  Serial.println("#     All of the submodules:");
-  Serial.println("#");
-  Serial.println("#       flexpwm dump  - dump all of the flexpwm registers");
-  Serial.println("#");
-  Serial.println("#       flexpwm stop  - stop all of the flexpwm submodules");
-  Serial.println("#");
-  Serial.println("#     Single or group commands (submodule 0-3 or mask  0x1 - 0xF");
-  Serial.println("#");
-  Serial.println("#       flexpwm <submodule|mask> clear load ok  (cldok in mcu reference manual)");
-  Serial.println("#       flexpwm <submodule|mask> set load ok    (ldok in mcu ref manual)");
-  Serial.println("#");
-  Serial.println("#       flexpwm <submodule|mask> clear run    - stops the clock");
-  Serial.println("#       flexpwm <submodule|mask> set run      - starts the clock");
-  Serial.println("#");
-  Serial.println("#     Single submodule commands");
-  Serial.println("#");
-  Serial.println("#       flexpwm <submodule> set clock master  - clock runs independently");
-  Serial.println("#       flexpwm <submodule> set clock slave   - clock syncs and starts with 0");
-  Serial.println("#       flexpwm <submodule> set clock sync    - clock syncs with 0, starts independently");
-  Serial.println("#");
-  Serial.println("#       flexpwm <submodule> force  -  force counter to reload to init");
-  Serial.println("#");
-  Serial.println("#     Single submodule counters");
-  Serial.println("#");
-  Serial.println("#       flexpwm <submodule> set prescale <value>  - prescale, 0 to 7 for divider 1<<p");
-  Serial.println("#       flexpwm <submodule> set init <value>      - set counter init register to value (16 bits)");
-  Serial.println("#       flexpwm <submodule> set val<n> <value>    - set comparison register 0 to 5, to value");
-  Serial.println("#");
-  Serial.println("#  Processor reference manual:");
-  Serial.println("#");
-  Serial.println("#       i.MX RT1060 Processor Reference Manual");
-  Serial.println("#       https://www.nxp.com/products/i.MX-RT1060");
-  Serial.println("#");
-  Serial.println("#       Chapter 55 Enhanced Flex Pulse Width Modulator (eFlexPWM) page 3091");
-  Serial.println("#");
-  Serial.println("#  Pin controls - <pin> = sync | busy trigger | pin n | n");
-  Serial.println("#");
-  Serial.println("#     set <pin> hi|low|input|pullup|output");
-  Serial.println("#     pulse <pin>  [usecs]");
-  Serial.println("#     toggle <pin>");
-  Serial.println("#");  
-  Serial.println("#Preconfigured pins");
-  Serial.print("#  Trigger(input)" ); Serial.print( interruptPin );
-  Serial.print("  Busy " ); Serial.print( busyPin ); Serial.print("  Sync " ); Serial.print( syncPin );
+  bool all = !key || !(*key) || !strncmp(key,"all",3);
+  
+  if (all || strmatch(key,"report")) {
+      Serial.println("#Report device, version and configuration");
+      Serial.println("#  version           - report software version");
+      Serial.println("#  configuration     - report device configuration and data structure");
+      Serial.println("#  pins              - report digital i/o functions and pin numbers");
+      Serial.println("#  dump              - report all of the available settings and states");
+      Serial.println("#  stop              - stop everything");
+      Serial.println("#");
+  }
+  if (all || strmatch(key,"coefficients")) {
+    Serial.println("#Coefficients for pixel number to wavelength");
+    Serial.println("#  store coefficients <a0> <a1> <a2> <a3> (need 4 numbers)");
+    Serial.println("#  coefficients       - report");
+    Serial.println("#");
+    Serial.println("#  store units <string> (upto 6 characters, c.f. nm, um, mm)");
+    Serial.println("#  units              - report");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"identifier")) {
+    Serial.println("#Identifier string (63 bytes)");
+    Serial.println("#  store identifier <identifier>");
+    Serial.println("#  identifier         - list identifier string");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"data")) {
+    Serial.println("#Data format");
+    Serial.println("#  set ascii          - set data format to ascii");
+    Serial.println("#  set binary         - set data format to binary");
+    Serial.println("#  format             - report data form");
+    Serial.println("#");
+    Serial.println("#  set async          - data is sent asynchronously");
+    Serial.println("#  set synchronous    - READY DATA is sent, host responds send data");
+    Serial.println("#");
+    Serial.println("#  enable|disable crc - precede each data transfer with crc");
+    Serial.println("#  enable|disable sum - precede each data transfer with sum");
+    Serial.println("#");
+    Serial.println("#  crc | send crc     - send 8 bit crc calculated on the binary data");
+    Serial.println("#  sum | send sum     - send 32 bit sum calculated on the binary data");
+    Serial.println("#");
+    Serial.println("#  send test          - send test data");
+    Serial.println("#  send               - (re)send last data");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"microcontroller")) {
+    Serial.println("#Microcontroller functions");
+    Serial.println("#  temperature        - report microcontroller temperature");
+    Serial.println("#  reboot             - reboots the entire board");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"adcs")) {
+    Serial.println("#ADCs Read and average analog inputs");
+    Serial.println("#  adcs <navgs>        - read analog inputs and report");
+    Serial.println("#  set adcs <navgs>    - read ADCs at frame completion");
+    Serial.println("#  set adcs off");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"lccd")) {
+    Serial.println("#LCCD commands:");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"lccd") || strmatch(key,"pulse")) {
+    Serial.println("#  1) Single pulse setup (time syntax: 1E-6, 0.000001 or 1u)");
+    Serial.println("#");
+    Serial.println("#    setup pulse [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)");
+    Serial.println("#");
+    Serial.println("#          defaults to 0.5u 1u 0.6u 2.6u 0.5u 1 1");
+    Serial.println("#");
+    Serial.println("#          Generally this command will be followed by \"setup timer\" or \"setup trigger\"");
+    Serial.println("#");
+    Serial.println("#      start pulse - launches a single pulse with readout");
+    Serial.println("#      stop pulse  - stops ongoing pulse");
+    Serial.println("#");
+    Serial.println("#      arm pulse   - re-arm for the next pulse, see set nframes and nframesets");
+    Serial.println("#      init pulse  - re-arms and sets frame counter to 0");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"lccd")|| strmatch(key,"frameset")) {
+    Serial.println("#  2) Frameset setup - provides short exposure time (time syntax: 1E-6, 0.000001 or 1u)");
+    Serial.println("#");
+    Serial.println("#    setup frameset <exposure> <interval> <nframes> [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)");
+    Serial.println("#");
+    Serial.println("#          defaults to 100u 5E-3 10 0.5u 1u 0.6u 2.6u 0.5u");
+    Serial.println("#");
+    Serial.println("#          Generally this command will be followed by \"start frameset\" or \"setup trigger\"");
+    Serial.println("#");
+    Serial.println("#      start frameset - launches a single frameset with readout");
+    Serial.println("#      stop frameset  - stops ongoing frameset");
+    Serial.println("#");
+    Serial.println("#      arm frameset   - re-arm for the next frameset, see set nframes and nframesets");
+    Serial.println("#      init frameset  - re-arms and sets frame counter to 0");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"lccd")|| strmatch(key,"timer")) {
+    Serial.println("#  3) Timer setup, clocks pulses, implemented in the flexpwm, rounded to multiple of 5,10 or 20 msecs depending on readout time");
+    Serial.println("#");
+    Serial.println("#    setup timer <exposure> [<nframes> [<offset>]] - nframes defaults to previous setup, offset to 0");
+    Serial.println("#");
+    Serial.println("#          Generally this command will be followed by \"start timer\" or \"setup trigger\"");
+    Serial.println("#");
+    Serial.println("#      start timer - launches the timer");
+    Serial.println("#      stop timer  - stops the timer");
+    Serial.println("#");
+  }
+  if (all || strmatch(key,"lccd")|| strmatch(key,"trigger")) {
+    Serial.println("#  4) Exrternal trigger setup - triggers pulse, timer or frameset per setup");
+    Serial.println("#");
+    Serial.println("#    setup trigger [ncounts]");
+    Serial.println("#");
+    Serial.println("#          Generally this command will be followed by \"start trigger\"");
+    Serial.println("#");
+    Serial.println("#      start trigger - arms the interrupt");
+    Serial.println("#      stop trigger  - disables the trigger");
+    Serial.println("#");
+    Serial.println("#    configure trigger [args ....] ");
+    Serial.println("#");
+    Serial.println("#      args:  pin <n>,  pullup | nopullup,  rising | falling | change");
+    Serial.println("#");
+  }
+  if (all) {
+    Serial.println("#  More commands");
+    Serial.println("#");
+    Serial.println("#       set sync on | off - enable or disable sync pin output");
+    Serial.println("#");
+    Serial.println("#       set frame counts nframes [nframesets]");
+    Serial.println("#       set frame counts nframesets");
+    Serial.println("#");
+    Serial.println("#       print pulse counters");
+    Serial.println("#");
+    Serial.println("#    System timer    - Clocks the pulse start function using standard timer calls (see setup pulse)");
+    Serial.println("#");
+    Serial.println("#      setup clock <period> [n] - defaults to number required by the tcd1304 setup");
+    Serial.println("#");
+    Serial.println("#        start clock");
+    Serial.println("#        stop clock");
+    Serial.println("#");
+    Serial.println("#    This is the obsoleted frameset setup:");
+    Serial.println("#");
+    Serial.println("#      setup old frameset <clkbase (64|128)> <exposure> <pulsewidth> <frame interval> <nframes> [add] (in secs)");
+    Serial.println("#");
+    Serial.println("#        start old tcd1304");
+    Serial.println("#        stop old tcd1304");
+    Serial.println("#");
+    Serial.println("#  Low level TCD1304 submodule setup, refer to flexpwm section of the processor manual");
+    Serial.println("#");
+    Serial.println("#    setup submodule <name> [arg val ...] [commands ....]");
+    Serial.println("#");
+    Serial.println("#      names:   clk sh icg cnvst timer");
+    Serial.println("#");
+    Serial.println("#      args:    prescale <n>, period <n>, onA|B <n>, offA|B <n>, [no]invertA|B , ctrl2 <n> ");
+    Serial.println("#               master, slave, sync, print, list, check, load");
+    Serial.println("#");
+    Serial.println("#  Low level TCD1304 FlexPWM Commands, refer to flexpwm section of the processor manual");
+    Serial.println("#");
+    Serial.println("#     All of the submodules:");
+    Serial.println("#");
+    Serial.println("#       flexpwm dump  - dump all of the flexpwm registers");
+    Serial.println("#");
+    Serial.println("#       flexpwm stop  - stop all of the flexpwm submodules");
+    Serial.println("#");
+    Serial.println("#     Single or group commands (submodule 0-3 or mask  0x1 - 0xF");
+    Serial.println("#");
+    Serial.println("#       flexpwm <submodule|mask> clear load ok  (cldok in mcu reference manual)");
+    Serial.println("#       flexpwm <submodule|mask> set load ok    (ldok in mcu ref manual)");
+    Serial.println("#");
+    Serial.println("#       flexpwm <submodule|mask> clear run    - stops the clock");
+    Serial.println("#       flexpwm <submodule|mask> set run      - starts the clock");
+    Serial.println("#");
+    Serial.println("#     Single submodule commands");
+    Serial.println("#");
+    Serial.println("#       flexpwm <submodule> set clock master  - clock runs independently");
+    Serial.println("#       flexpwm <submodule> set clock slave   - clock syncs and starts with 0");
+    Serial.println("#       flexpwm <submodule> set clock sync    - clock syncs with 0, starts independently");
+    Serial.println("#");
+    Serial.println("#       flexpwm <submodule> force  -  force counter to reload to init");
+    Serial.println("#");
+    Serial.println("#     Single submodule counters");
+    Serial.println("#");
+    Serial.println("#       flexpwm <submodule> set prescale <value>  - prescale, 0 to 7 for divider 1<<p");
+    Serial.println("#       flexpwm <submodule> set init <value>      - set counter init register to value (16 bits)");
+    Serial.println("#       flexpwm <submodule> set val<n> <value>    - set comparison register 0 to 5, to value");
+    Serial.println("#");
+    Serial.println("#  Processor reference manual:");
+    Serial.println("#");
+    Serial.println("#       i.MX RT1060 Processor Reference Manual");
+    Serial.println("#       https://www.nxp.com/products/i.MX-RT1060");
+    Serial.println("#");
+    Serial.println("#       Chapter 55 Enhanced Flex Pulse Width Modulator (eFlexPWM) page 3091");
+    Serial.println("#");
+    Serial.println("#  Pin controls - <pin> = sync | busy trigger | pin n | n");
+    Serial.println("#");
+    Serial.println("#     set <pin> hi|low|input|pullup|output");
+    Serial.println("#     pulse <pin>  [usecs]");
+    Serial.println("#     toggle <pin>");
+    Serial.println("#");  
+    Serial.println("#Preconfigured pins");
+    Serial.print("#  Trigger(input)" ); Serial.print( interruptPin );
+    Serial.print("  Busy " ); Serial.print( busyPin ); Serial.print("  Sync " ); Serial.print( syncPin );
 #ifdef CONTROLLER_OCPIN
-  Serial.print("  ~OverCurrent " ); Serial.print( CONTROLLER_OCPIN );
+    Serial.print("  ~OverCurrent " ); Serial.print( CONTROLLER_OCPIN );
 #endif
-  Serial.println( "" );
+    Serial.println( "" );
+  }
+  if (all || strmatch(key,"help")) {
+    Serial.println( "#Help subcommands" );
+    Serial.println( "#" );
+    Serial.println( "#  help [all | report | coefficients | data | microcontroller | adcs" );
+    Serial.println( "#           lccd | pulse | frameset | trigger | help]" );
+    Serial.println( "#" );
+  }
 }
 
 
@@ -1637,7 +1670,10 @@ void loop() {
     }
 
     else if ( (pc = startsWith( rcvbuffer, "help" )) ) {
-      help();
+      if (pc && *pc) {
+	while (isspace(*pc)) pc++;
+      }
+      help(pc);
     }
 
     else if ( ((pc = startsWith( rcvbuffer, "stop" )) && !nextWord(pc)) ||

@@ -17,7 +17,12 @@
 
 #include "imxrt.h"
 
+// =========================================
+// All In One Board
+
 //#define ALLINONEBOARD
+
+// =========================================
 
 #ifdef  ALLINONEBOARD
 #include <ADC.h>
@@ -356,7 +361,9 @@ public:
   inline static bool synctoggled = false;
   inline static unsigned int sync_counter = 0;
   inline static unsigned int sync_counts = 0;
-  inline static  bool sync_enabled = true;
+  inline static bool sh_sync_enabled = true;
+  inline static bool timer_sync_enabled = false;
+  inline static bool timer_sync_toggle  = false;
 
   // And now.... the submodules
   inline static IMXRT_FLEXPWM_t * const flexpwm = &IMXRT_FLEXPWM2;  
@@ -873,7 +880,7 @@ public:
     sh_cyccnt64_now  = cyccnt64_now;
     
     // sync toggles on trailing edge of SH
-    if (sync_enabled) {
+    if (sh_sync_enabled) {
       digitalToggleFast(SYNC_PIN);
       synctoggled = !synctoggled;
     }
@@ -1373,7 +1380,7 @@ public:
 
     // one test for both pulses beginning and ending the sampling interval
     if (remainder <= 1) {
-      if (sync_enabled) {
+      if (sh_sync_enabled) {
         digitalToggleFast(SYNC_PIN);
         synctoggled = !synctoggled;
       }
@@ -1878,6 +1885,8 @@ public:
       
 #ifdef DEBUG_TCD1304_TIMER
     Serial.print("pulse timer isr status "); Serial.print(status,HEX);
+    Serial.print(" cyccnt "); Serial.print((float)cyccnt64_now/F_CPU,9);
+    Serial.print(" first flag "); Serial.print(timer_first_time_flag);
     print_counters();
 #endif
 
@@ -2023,8 +2032,9 @@ public:
     // ------------------------------------------------------
     // Exposure within one iteration of the counter
     if (exposure_secs <= COUNTER_MAX_SECS) {
-      timer_period_secs = exposure_secs;
+      timer_period_secs   = exposure_secs;
       timer_interval_secs = exposure_secs;
+      timer_inner_counts  = 1;
     }
 
     // Otherwise, multuple iterations over the counter, offset within one iteration
@@ -2038,6 +2048,7 @@ public:
       else {
         timer_period_secs = 0.010;
       }      
+      timer_inner_counts  = 0;
     }
 
     /* ======================================================
@@ -2060,12 +2071,17 @@ public:
     timer.period_counts = u32;
 
     timer_period_secs = (float) timer.period_counts * timer.divider / F_BUS_ACTUAL;
-    timer_inner_counts = ceil(exposure_secs/timer_period_secs);
 
+    // round to nearest multiple of timer_period_secs
+    if (!timer_inner_counts) {
+      timer_inner_counts = floor((exposure_secs+timer_period_secs/2)/timer_period_secs);
+    }
+    
     timer_interval_secs = timer_period_secs * timer_inner_counts;
     
     Serial.print("timer: timer inner period secs "); Serial.print(timer_period_secs,6);
-    Serial.print(" counts ") ; Serial.println(timer_inner_counts);
+    Serial.print(" counts ") ; Serial.print(timer_inner_counts);
+    Serial.print(" actual interval ") ; Serial.println(timer_interval_secs,6);
 
     timer.onA_counts    = 0;
     timer.offA_counts   = 0;
@@ -2833,7 +2849,7 @@ public:
     status = flexpwm->SM[ICG_SUBMODULE].STS;
     flexpwm->SM[ICG_SUBMODULE].STS = status;
     
-    if (sync_enabled) {
+    if (sh_sync_enabled) {
       flexpwm->SM[ICG_SUBMODULE].INTEN = ICG_CMPF_MASK;  // enable interrupt both A and B
     } else {
       flexpwm->SM[ICG_SUBMODULE].INTEN = CMPF_MASKA_OFF; // enable interrupt A only

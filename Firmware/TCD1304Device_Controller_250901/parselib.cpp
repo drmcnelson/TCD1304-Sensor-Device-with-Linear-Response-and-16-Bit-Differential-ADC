@@ -92,6 +92,22 @@ unsigned int countWords( char *s ) {
   return n;
 }
 
+bool strmatch(const char *s, const char *key) {
+  char *k = (char *)key;
+  if (!s || !(*s) ||
+      !key || !(*key) ||
+      isspace(*s) || isspace(*key) ||
+      (strlen(s) != strlen(key))
+      ) return  false;
+
+  while( *s && *k && (tolower(*s)==tolower(*k))) {
+    s++;
+    k++;
+  }
+
+  return ( tolower(*s) == tolower(*k) );
+}
+  
 char *startsWith( char *s, const char *key ) {
 
   int n = strlen(key);
