@@ -237,16 +237,17 @@ The response of the commercial instrument (right or bottom) depends on line shap
 
 #### Self-consistency (peak height ratios)
 The following shows ratios of peak heights derived from the above data. The data is displayed as fractional change relative to the maximum of each curve.  We quite reasonably expect that for a reliable instrument, ratios of peak heights should normally, not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios (within noise).  The commercial instrument shows strong non-monotonic changes in ratios of peak heights.
-<figure align="center">
-<img src="Images/TCD1304_ND12oclock_timer_all.ratios_normalized.png" alt="Ratios New Sensor" width="40%">
-&nbsp;&nbsp;&nbsp;
-<img src="Images/Flame-S_ND3oclock_all.ratios_normalized.png" alt="Response  Oc. Opt. Flame-S" width="38%">
-<figcaption>
+
+<p align="center" >
+<img src="Images/LinearResponseComparison.jpg" width="90%">
+<br>
+<p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Peak height ratios (normalized) for the present design (left or top) and the commercial instrument (right or bottom) versus exposure time
+Peak height ratios (normalized) for (a) the present design and (b) the commercial instrument versus exposure time
 </i>
-</figcaption>
-</figure>
+</p>
+</p>
+
 
 #### Baseline integrity
 Baseline or background subtraction is often a necessary step in extracting intensity data from spectra.  There are a number of ways to do this, for example using dark spectra or regions of spectra where the experiment produces little intensity.  The former assumes the background is independent of the signal of interest and the latter assumes background is dominated by the dark noise of the detector rather than light.
