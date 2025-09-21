@@ -416,18 +416,19 @@ The reader may also be interested in reading the description in our repo for the
 The TCD1304DG datasheet can be downloaded [here](https://toshiba.semicon-storage.com/us/semiconductor/product/linear-image-sensors/detail.TCD1304DG.html).
 The device architecture is shown in the following figure found on page 2 and labeled "Circuit Diagram".  We see a photodiode array, shift gate (SH), integration clear gate (ICG), CCD analog shift register and signal output buffer (OS), with pins SH, ICG, master clock ΦM, and OS plus power and ground.
 
-<figure align="center">
+<p align="center">
 <img src="Images/TCD1304_internaldiagram.jpg" alt="TCD1304 internal diagram" width="60%">
-<figcaption>
+<p align="center" style="margin-left:5em;margin-right:5em">
 TCD1304DG "circuit diagram", from page 2 of the datasheet.
-</figcaption>
-</figure>
+</p>
+</p>
 
 Operation of the device is shown in the following timing diagrams which can be found on pages 6 and 7,
 <p align="center">
-<img src="Images/TCD1304DG_E_250219-06.jpg" alt="TCD1304 internal diagram" width="40%">
-&nbsp;
-<img src="Images/TCD1304DG_E_250219-07.jpg" alt="TCD1304 timing diagram" width="40%">
+<img src="Images/TCD1304DG_TimingDiagrams.jpg" alt="TCD1304 internal diagram" width="90%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+TCD1304DG timing diagrams, (a) coherent shutter and exposure, (b) "electronic shutter function", from page 6 and 7 of the datasheet.
+</p>
 </p>
 
 As depicted, exposure begins and ends on the trailing end of pulses asserted on the SH pin, readout begins following assertion of SH and ICG together, and thereafter, data is clocked out at 1 pixel per four cycles of the master clock ΦM.
@@ -449,12 +450,20 @@ Electrical characteristics of the TCD1304 output are described on page 3 of the 
 </p>
 
 #### TCD1304DG noise
-The TCD1304DG datasheet reports dark noise as 2mV (typ, max 5mv) with 10 ms exposure. The following shows our measurement of the dark noise as a function of exposure time using our 16 bit sensor board.  As expected, dark noise is linear in exposure time. But there appears to be a floor for dark noise at 0.6mV which it approaches with exposure below 20ms. 
-Some have reported reductions in noise by a factor of 4 with modest cooling to around 4C.
+The TCD1304DG datasheet reports dark noise as 2mV (typ, max 5mv) with 10 ms exposure. The following shows our measurement of the dark noise as a function of exposure time using our 16 bit sensor board.  As expected, dark noise is linear in exposure time. But there appears to be a floor for dark noise at about 0.6mV, which it approaches for exposure times less than 20ms. 
 
-<figure align="center">
+<p align="center">
 <img src="Images/TCD1304_noise.jpg" alt="TCD1304 noise" width="50%">
-</figure>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Dark noise vs exposure time in the new sensor device.
+(Electrical noise with sensor removed is ~14uV)
+</p>
+</p>
+
+Removing the chip from the board, the electrical noise is about 14uV. So it seems that the dark noise signal at 0.6mV really does originate in sensor chip.
+
+Dark noise is known to be related to temperature with the usual Boltzmann dependence.
+Some have reported reductions in noise by a factor of 4 with modest cooling to around 4C.
 
 
 #### Signal conditioning
@@ -467,23 +476,23 @@ For best performance we want to match the output of the TCD1304DG to the input r
 ##### Single ended signal conditioning
 The following shows a reasonable approach for the front end circuit. We use a dual OPAMP, the ADA4807-2, slew 225μV/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.
 
-<figure align="center">
+<p align="center">
 <img src="Images/CCD_input_sketch.jpg" alt="CCD signal conditioning" width="80%">
-</figure>
+</p>
 
 ##### Low noise differential signal conditioning
 We use the following approach for 16 bit precision.  Similar to the above, the first unit is configured as a follower but the second is configured as an inverter with offset and unity gain.  The two outputs together provide a differential signal.  In implementation we follow this with a fully differential amplifier (FDA) and a differential input ADC.  For gain we get a factor of 2 for free and make up the rest in the FDA.  Cancellation between the differential pair improves noise performance for our mixed signal environment.
 
-<figure align="center">
+<p align="center">
 <img src="Images/CCD_differential_sketch.jpg" alt="CCD signal conditioning" width="70%">
-</figure>
+</p>
 
 ##### A don't-do DIY circuit
 The following shows a design that appears from time to time in DIY postings.  The inventor typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
 
-<figure align="center">
+<p align="center">
 <img src="Images/CCD_singleopamp_problems.jpg" alt="CCD signal conditioning" width="50%">
-</figure>
+</p>
 
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
 And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about $3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
@@ -495,13 +504,13 @@ The present application requires analog to digital conversion at rates from 200K
 The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.
 
 The following models the sample and hold as a switched capacitor network. For illustration, we use an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
-<figure align="center">
-<img src="Images/Sampling_ADC_Bare_circuit.jpg" width="65%">
-<img src="Images/Sampling_ADC_Bare_traces.jpg" width="65%">
-<figcaption>
+<p align="center">
+<img src="Images/Sampling_ADC_Bare_circuit.jpg" width="75%"><br>
+<img src="Images/Sampling_ADC_Bare_traces.jpg" width="75%">
+<p align="center" style="margin-left:5em;margin-right:5em">
 ADC model with ideal voltage source.<br> Green = input, blue = sampling capacitor, grey = sampling window.
-</figcaption>
-</figure>
+</p>
+</p>
 
 ##### Factors effecting precision
 For n bits of precision and full scale range Vfs, the voltage on C1 at the end of the sampling window has to be within 1 part in 2<sup>n</sup> of Vfs.
@@ -517,24 +526,25 @@ When you select an ADC, make sure to look for these parameters in the table of e
 #### ADC kickback
 In the following we drive the S-H from a voltage follower instead of the ideal voltage source.  Now when S1 opens or closes we see spikes (circled) on both voltages and in the current through R1. This is called  ***"<u>ADC kickback</u>"*** and it arises in the current needed by C1 with the sudden change in voltage when the switch closes.
 
-<figure align="center">
-<img src="Images/Sampling_ADC_circuit.jpg" width="65%">
-<img src="Images/Sampling_ADC_traces_circled.jpg" width="65%">
-<figcaption>
+<p align="center">
+<img src="Images/Sampling_ADC_circuit.jpg" width="75%"><br>
+<img src="Images/Sampling_ADC_traces_circled.jpg" width="75%">
+<p align="center" style="margin-left:5em;margin-right:5em">
 ADC model driven by OPAMP follower.<br> Green = out, blue = sar cap, grey = sampling window, red = current through R1.
-</figcaption>
-</figure>
+</p>
+</p>
  
  #### Introducing the charge reservoir
 The following shows the recommended method for driving an ADC. A cap C2 is added in front of the ADC to act as a charge reservoir for C1.  As can be seen, charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
 
-<figure align="center">
-<img src="Images/Sampling_ADC_RC_circuit.jpg" width="65%">
-<img src="Images/Sampling_ADC_RC_traces.jpg" width="65%">
-<figcaption>
+<p align="center">
+<img src="Images/Sampling_ADC_RC_circuit.jpg" width="75%">
+<br>
+<img src="Images/Sampling_ADC_RC_traces.jpg" width="75%">
+<p align="center" style="margin-left:5em;margin-right:5em">
 ADC model with recommended driver, charge reservoir C2.<br> Green = out, turquoise = adc in, blue = sar cap, grey = sampling window, red = current through R1, orange = current through C2.
-</figcaption>
-</figure>
+</p>
+</p>
 
 This looks like a low pass filter, but the components are chosen a little differently.
 We need C2 needs to be large compared to C1 and R1 needs to be tuned between the current capacity of the OPAMP and allowing C2 to track the input. We make extensive use of SPICE modeling to check designs for response and precision.
@@ -545,21 +555,22 @@ You may recall our discussion about dV/dt and sharp spectra lines near the top o
 
 Notice that we now have a large current through R1 coincident with the leading and trailing edge of the pulse.  The current through C2 is as before.  So, large dV/dt meets cap serving as charge reservoir and produces a new kind of kickback.
 
-<figure align="center">
-<img src="Images/Sampling_RC_dvdt_effect.jpg" width="65%">
-<figcaption>
+<p align="center">
+<img src="Images/Sampling_RC_dvdt_effect.jpg" width="75%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+TCD1304DG timing diagrams, (a) coherent shutter and exposure, (b) "electronic shutter function", from page 6 and 7 of the datasheet.
+</p>
 Effect of dV/dt in charge reservoir.<br> Green = out, turquoise = sar cap, blue = sar cap, grey = sampling window, maroon = current through C2, red = current through R1.
-</figcaption>
-</figure>
+</p>
+</p>
 
 The following shows a method for mitigating the new kickback.  We simply slow the pulse a little bit with a low pass filter in the feedback loop.  This has to be tuned somewhat to put the current within the capabilities of the OPAMP but still allow C2 to recover fast enough to meet the design requirements for precision.  We are able to get 18 bit precision in models. Real spectra are less demanding and our precision spec is 16 bits.
 
-<figure align="center">
-<img src="Images/Sampling_RC_dvdt_mitigated.jpg" width="65%">
-<figcaption>
-Effect of dV/dt in charge reservoir.<br> Green = out, turquoise = sar cap, blue = sar cap, grey = sampling window, maroon = current through C2, red = current through R1.
-</figcaption>
-</figure>
+<p align="center">
+<img src="Images/Sampling_RC_dvdt_mitigated.jpg" width="75%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+</p>
+</p>
  
 ### SPICE models for the 16 bit sensor board
 
