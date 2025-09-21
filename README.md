@@ -561,8 +561,6 @@ Notice that we now have a large current through R1 coincident with the leading a
 <p align="center">
 <img src="Images/Sampling_RC_dvdt_effect.jpg" width="75%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-TCD1304DG timing diagrams, (a) coherent shutter and exposure, (b) "electronic shutter function", from page 6 and 7 of the datasheet.
-</p>
 Effect of dV/dt in charge reservoir.<br> Green = out, turquoise = sar cap, blue = sar cap, grey = sampling window, maroon = current through C2, red = current through R1.
 </p>
 </p>
@@ -574,6 +572,7 @@ The following shows a method for mitigating the new kickback.  We simply slow th
 <p align="center" style="margin-left:5em;margin-right:5em">
 </p>
 </p>
+<br>
  
 ### SPICE models for the 16 bit sensor board
 
