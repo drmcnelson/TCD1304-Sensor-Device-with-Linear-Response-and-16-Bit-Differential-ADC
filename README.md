@@ -491,9 +491,14 @@ And with a very large R<sub>2</sub>, the pole formed with the input capacitance 
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
 
 #### Spice model for ADC input
-The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.
+The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.   In a simplified sense, it looks something like the following but with the switch driven by a clock.
 
-The following models the sample and hold as a switched capacitor network. For illustration, we use an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
+<p align="center">
+<img src="Images/SimpleSamplingSAR.jpg" width="50%"><br>
+</p>
+
+We can implement this in a SPICE model as follows. For purposes of illustration, we include an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
+(Values for the internal resistance (Ron) and capacitance (C1) for a given ADC are usually available in its datasheet.)
 <p align="center">
 <img src="Images/Sampling_ADC_Bare_circuit.jpg" width="75%"><br>
 <img src="Images/Sampling_ADC_Bare_traces.jpg" width="75%">
@@ -514,7 +519,9 @@ The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<
 When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit for the input in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
 
 #### ADC kickback
-In the following we drive the S-H from a voltage follower instead of the ideal voltage source.  Now when S1 opens or closes we see spikes (circled) on both voltages and in the current through R1. This is called  ***"<u>ADC kickback</u>"*** and it arises in the current needed by C1 with the sudden change in voltage when the switch closes.
+Kickback describes what happens when the switch closes to connect the input to the driving circuit.
+
+In the following we drive the S-H from a voltage follower instead of the ideal voltage source.  Now when S1 opens or closes we see spikes (circled) on both voltages and in the current through R1. This is the famous ***"<u>ADC kickback</u>"***. It arises in the current needed by C1 with the sudden change in voltage when the switch closes.
 
 <p align="center">
 <img src="Images/Sampling_ADC_circuit.jpg" width="75%"><br>
@@ -534,6 +541,12 @@ The following shows the recommended method for driving an ADC. A cap C2 is added
 <p align="center" style="margin-left:5em;margin-right:5em">
 ADC model with recommended driver, charge reservoir C2.<br> Green = out, turquoise = adc in, blue = sar cap, grey = sampling window, red = current through R1, orange = current through C2.
 </p>
+</p>
+
+A perhaps simpler way to illustrate the idea is as follows.  The arrows indicate the current flow to maintain the charge on the reservoir and what happens when the switch is closed.
+
+<p align="center">
+<img src="Images/SimpleSamplingDriver.jpg" width="50%"><br>
 </p>
 
 This looks like a low pass filter, but the components are chosen a little differently.
@@ -605,10 +618,11 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  This puts us well within our power supply noise budget for the analog signal path.
 
-
 Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.
 
-Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000, which meets our goals.   In our case, our gate driver provides 25mA, so the time constant really is set by the RC. 
+Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000 and so carry-over is small compared to dark noise.  In our case, our gate driver provides 25mA, so the time constant really is set by the RC.
+
+This is a caution that the gates should not be driven directly from low current sources where the time constant will be current limited, for example from the digital I/O pins of a microcontroller, but rather from a proper gate driver that can deliver enough current to achieve a sufficiently rapid charging curve on the SH pin.
 
 <p align="center">
 <img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
