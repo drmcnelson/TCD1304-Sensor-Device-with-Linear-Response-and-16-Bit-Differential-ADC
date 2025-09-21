@@ -221,16 +221,17 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 #### Linear response
 The following data show the response of the instrument for three narrow spectral lines and one broad spectral line, with exposure time varied from 10ms to 0.5sec.  The response is measured as volts divided by exposure time.  If an instrument is linear, these curves should be flat.
 As noted above, for data to be meaningful the response curves should at least be monotonic and strictly increasing.
-<figure align="center">
-<img src="Images/TCD1304_ND12oclock_timer_all.responses.jpg" alt="Response New Sensor" width="40%">
-&nbsp;&nbsp;&nbsp;
-<img src="Images/Flame-S_ND3oclock_all.responses.jpg" alt="Response  Oc. Opt. Flame-S" width="38%">
-<figcaption>
+
+<p align="center" >
+<img src="Images/LinearResponseComparison.jpg" width="80%">
+<br>
+<p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Normalized response for the present design (left or top) and the commercial instrument (right or bottom) versus exposure time.
+Normalized response for (a) the present design and (b) the commercial instrument versus exposure time.
 </i>
-</figcaption>
-</figure>
+</p>
+</p>
+
 The present design shows approximately linear response - apart from the first points were the SNR is low and the last point where the two strongest peaks have reached saturation.
 The response of the commercial instrument (right or bottom) depends on line shape, and for the sharper lines is neither linear nor monotonic even where far below saturation.
 
