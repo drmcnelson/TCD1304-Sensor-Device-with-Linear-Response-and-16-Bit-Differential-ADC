@@ -208,6 +208,7 @@ There are a few ways in which spectrometer response can be non-linear. The most 
 #### Spectral response
 The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
 
+<p align="center">
 <figure align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.raw.jpg" alt="Fl Lamp Spectrum New Sensor" width="40%">
 &nbsp;&nbsp;&nbsp;
@@ -218,6 +219,7 @@ Fluorescent lamp spectrum, new sensor (left or top) and commercial instrument (r
 </i>
 </figcaption>
 </figure>
+</p>
 
 #### Linear response
 The following data show the response of the instrument for three narrow spectral lines and one broad spectral line, with exposure time varied from 10ms to 0.5sec.  The response is measured as volts divided by exposure time.  If an instrument is linear, these curves should be flat.
