@@ -11,7 +11,7 @@
 	- [Loading the firmware](#loading-the-firmware)
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
 - [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
-- [Sources of non-linearity and electrical characteristics of CCD spectrometers](#sources-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers)
+- [Origins of non-linearity and electrical characteristics of CCD spectrometers](#origins-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers)
 - [Setup for linearity testing](#setup-for-linearity-testing)
 - [Spectrometer construction](#spectrometer-construction)
 - [Electrical design (a tutorial)](#electrical-design)
@@ -194,7 +194,7 @@ When the instrument is linear, measurements can be related to intensity or numbe
 
 There are a few ways in which spectrometer response can be non-linear. The most important and most common are related to electrical limitations in bandwidth or slew (dV/dt) or to charge being held over to the next frame or from pixel to pixel during readout.  Where information is not lost or made ambiguous by the non-linearity, there might exist a numerical correction (in a mathematical sense).  Generally, it is far easier and far more reliable to simply use an instrument that is already linear.
 
-### Spectral response
+### Linear response and line shape
 The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
 
 <p align="center" >
@@ -207,7 +207,7 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-### Linear response
+### Linear response and exposure time
 The following data show the response of the instrument for three narrow spectral lines and one broad spectral line, with exposure time varied from 10ms to 0.5sec.  The response is measured as volts divided by exposure time.  If an instrument is linear, these curves should be flat.
 As noted above, for data to be meaningful the response curves should at least be monotonic and strictly increasing.
 
@@ -224,7 +224,7 @@ Normalized response for (a) the present design and (b) the commercial instrument
 The present design shows approximately linear response - apart from the first points were the SNR is low and the last point where the two strongest peaks have reached saturation.
 The response of the commercial instrument (right or bottom) depends on line shape, and for the sharper lines is neither linear nor monotonic even where far below saturation.
 
-### Consistent peak height ratios
+### Peak height ratios with line shape and exposure
 The following shows ratios of peak heights derived from the above data. The data is displayed as fractional change relative to the maximum of each curve.  We quite reasonably expect that for a reliable instrument, ratios of peak heights should normally, not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios (within noise).  The commercial instrument shows strong non-monotonic changes in ratios of peak heights.
 
 <p align="center" >
@@ -252,7 +252,7 @@ Fluorescent lamp spectrum.<br>
 </p>
 
 
-## Sources of non-linearity and electrical characteristics of CCD spectrometers
+## Origins of non-linearity and electrical characteristics of CCD spectrometers
 The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with how the signal is produced and retrieved from a CCD detector.
 
 A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register in response to a clock signal. At the last such pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
