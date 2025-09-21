@@ -11,26 +11,15 @@
 	- [Loading the firmware](#loading-the-firmware)
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
 - [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
-	- [Sources of non-linearity and electrical characteristics of CCD spectrometers](#sources-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers)
-	- [Circuit models with filtering and effects of large dV/dt ](#circuit-models-with-filtering-and-effects-of-large-dvdt)
-- [Setup for testing](#setup-for-linearity-testing-and-comparison)
+- [Sources of non-linearity and electrical characteristics of CCD spectrometers](#sources-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers)
+- [Setup for linearity testing](#setup-for-linearity-testing)
 - [Spectrometer construction](#spectrometer-construction)
 - [Electrical design (a tutorial)](#electrical-design)
-	- [TCD1304 electrical characteristics and operation](#tcd1304dg-electrical-characteristics-and-operation)
-	- [TCD1304G noise](#tcd1304dg-noise)
-	- [Signal conditioning](#signal-conditioning)
-		- [Single ended](#single-ended-signal-conditioning)
-		- [Low noise differential](#low-noise-differential-signal-conditioning)
-		- [A circuit to avoid, and analysis](#a-dont-do-diy-circuit)
-	- [Basic Concepts for interfacing to an ADC](#basic-concepts-for-interfacing-to-an-adc)
-		- [Sample hold input (S-H) input and SPICE model](#s-h-spice-model)
-		- [Factors effecting precision](#factors-effecting-precision)
-		- [ADC kickback](#adc-kickback)
-		- [Charge reservoir mitigates kickback](#introducing-the-charge-reservoir)
-		- [Signals with large dV/dt (spectrometers)](#dvdt-versus-charge-reservoir)
-	- [SPICE models for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
-		- [Differential signal path with ADC](#differential-signal-path-and-adc)
-		- [Gate drivers (and power rail)](#gate-drivers)
+	+ [TCD1304DG electrical characteristics](#tcd1304dg-electrical-characteristics)
+	+ [Signal conditioning](#signal-conditioning)
+	+ [Interfacing to an ADC](#interfacing-to-an-adc)
+	+ [SPICE model for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
+	- [Gate driver and analog signal integrity](#gate-driver-and-analog-signal-integrity)
 
 
 ## Introduction
@@ -98,11 +87,11 @@ This repository at present contains the preliminary gerbers, schematic and BOM, 
 If you have questions, please feel free to contact me.
 
 
-### Getting it all up and running
+## Getting it all up and running
 This sensor board is intended to be used with our new [Teensy 4 (T4) based controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3). 
 The files provided here (gerbers and code) and in the controller repo, plus some trivial cabling and a host computer (we recommend Linux for the best frame rate perfomance) should be sufficient to build and operate the boards. 
 
-#### Assembling or Obtaining boards
+### Assembling or Obtaining boards
 You can assemble the boards yourself, or if you prefer, please feel free to contact me for pre-assembled boards.
 
 If you want to assemble your boards, and this is your first time assembling an SMT board, search for an introduction to DIY SMT assembly, [for example here](https://www.kingfieldpcb.com/essential-tips-for-diy-smt-assembly/).
@@ -110,10 +99,10 @@ If you want to assemble your boards, and this is your first time assembling an S
 Here are some notes on how we do assembly in our shop.
 We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about $200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
-#### USB connection
+### USB connection
 We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.
 
-#### Loading the firmware
+### Loading the firmware
 After the boards are assembled, you will need to install the Teensy board in the controller, and compile and load the code into the Teensy.  You will most likely want to use the Arduino IDE for this.  Teensy is well integrated into the IDE. [See here for setup instructions.](https://www.pjrc.com/teensy/td_download.html)   The Teensy needs to be connected by USB to your host computer for this step.
 
 The firmware codes are found in the repo in the Firmware/ subdirectory,
@@ -132,7 +121,7 @@ If you want to customize the firmware, it is recommended to create a new directo
 
 After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session, or start the IDE and navigate to the directory and open the file.
 
-#### Setting up and running the Python codes
+### Setting up and running the Python codes
 
 Python codes and Bash scripts for operating the TCD1304DG sensor and working with the data, all under Linux, are provided in the repod under the subdirectory Python/.
 
@@ -205,7 +194,7 @@ When the instrument is linear, measurements can be related to intensity or numbe
 
 There are a few ways in which spectrometer response can be non-linear. The most important and most common are related to electrical limitations in bandwidth or slew (dV/dt) or to charge being held over to the next frame or from pixel to pixel during readout.  Where information is not lost or made ambiguous by the non-linearity, there might exist a numerical correction (in a mathematical sense).  Generally, it is far easier and far more reliable to simply use an instrument that is already linear.
 
-#### Spectral response
+### Spectral response
 The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
 
 <p align="center" >
@@ -218,7 +207,7 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-#### Linear response
+### Linear response
 The following data show the response of the instrument for three narrow spectral lines and one broad spectral line, with exposure time varied from 10ms to 0.5sec.  The response is measured as volts divided by exposure time.  If an instrument is linear, these curves should be flat.
 As noted above, for data to be meaningful the response curves should at least be monotonic and strictly increasing.
 
@@ -235,7 +224,7 @@ Normalized response for (a) the present design and (b) the commercial instrument
 The present design shows approximately linear response - apart from the first points were the SNR is low and the last point where the two strongest peaks have reached saturation.
 The response of the commercial instrument (right or bottom) depends on line shape, and for the sharper lines is neither linear nor monotonic even where far below saturation.
 
-#### Self-consistency (peak height ratios)
+### Consistent peak height ratios
 The following shows ratios of peak heights derived from the above data. The data is displayed as fractional change relative to the maximum of each curve.  We quite reasonably expect that for a reliable instrument, ratios of peak heights should normally, not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios (within noise).  The commercial instrument shows strong non-monotonic changes in ratios of peak heights.
 
 <p align="center" >
@@ -249,7 +238,7 @@ Peak height ratios (normalized) for (a) the present design and (b) the commercia
 </p>
 
 
-#### Baseline integrity
+### Baseline integrity
 Baseline or background subtraction is often a necessary step in extracting intensity data from spectra.  There are a number of ways to do this, for example using dark spectra or regions of spectra where the experiment produces little intensity.  The former assumes the background is independent of the signal of interest and the latter assumes background is dominated by the dark noise of the detector rather than light.
 
 The following shows a fluorescent lamp spectrum from [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/83/Fluorescent_lighting_spectrum_peaks_labelled.png).
@@ -263,7 +252,7 @@ Fluorescent lamp spectrum.<br>
 </p>
 
 
-### Sources of non-linearity and electrical characteristics of CCD spectrometers
+## Sources of non-linearity and electrical characteristics of CCD spectrometers
 The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with how the signal is produced and retrieved from a CCD detector.
 
 A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register in response to a clock signal. At the last such pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
@@ -314,7 +303,7 @@ And finally, here is what happens when the circuit is not able to respond to lar
 <img src="Images/Spectrum_Flip_Shift_SlowOPAMP_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
 </p>
 
-## Setup for linearity testing and comparison
+## Setup for linearity testing
 
 The equipment list for our linearity study is as follows.  Construction of the spectrometer is described [here](#spectrometer-construction)
 
@@ -413,7 +402,7 @@ We start with characteristics of the TCD1304DG and then proceed through signal c
 
 The reader may also be interested in reading the description in our repo for the original "All-In-One" board, [here](https://github.com/drmcnelson/Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library).
 
-#### TCD1304DG electrical characteristics and operation
+### TCD1304DG electrical characteristics and operation
 The TCD1304DG datasheet can be downloaded [here](https://toshiba.semicon-storage.com/us/semiconductor/product/linear-image-sensors/detail.TCD1304DG.html).
 The device architecture is shown in the following figure found on page 2 and labeled "Circuit Diagram".  We see a photodiode array, shift gate (SH), integration clear gate (ICG), CCD analog shift register and signal output buffer (OS), with pins SH, ICG, master clock ΦM, and OS plus power and ground.
 
@@ -450,7 +439,7 @@ Electrical characteristics of the TCD1304 output are described on page 3 of the 
 <img src="Images/TCD1304_outputdiagram.jpg" alt="TCD1304 internal digram" width="40%">
 </p>
 
-#### TCD1304DG noise
+### TCD1304DG noise
 The TCD1304DG datasheet reports dark noise as 2mV (typ, max 5mv) with 10 ms exposure. The following shows our measurement of the dark noise as a function of exposure time using our 16 bit sensor board.  As expected, dark noise is linear in exposure time. But there appears to be a floor for dark noise at about 0.6mV, which it approaches for exposure times less than 20ms. 
 
 <p align="center">
@@ -467,28 +456,28 @@ Dark noise is known to be related to temperature with the usual Boltzmann depend
 Some have reported reductions in noise by a factor of 4 with modest cooling to around 4C.
 
 
-#### Signal conditioning
+### Signal conditioning
 For best performance we want to match the output of the TCD1304DG to the input range of our ADC.  For the two board configuration, this will be a 16 bit high precision ADC with a differential input and 4V reference. For the "all-in-one" board this will be the 12 bit analog input of the MCU with a range of 0 to 3.3V.  In either case we need to shift, flip and amplify the output from the sensor to match the input range of the ADC.
 
 <p align="center">
 <img src="Images/ccd_output_convert.jpg" alt="TCD1304 internal digram" width="70%">
 </p>
 
-##### Single ended signal conditioning
+#### Single ended signal conditioning
 The following shows a reasonable approach for the front end circuit. We use a dual OPAMP, the ADA4807-2, slew 225μV/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.
 
 <p align="center">
 <img src="Images/CCD_input_sketch.jpg" alt="CCD signal conditioning" width="80%">
 </p>
 
-##### Low noise differential signal conditioning
+#### Low noise differential signal conditioning
 We use the following approach for 16 bit precision.  Similar to the above, the first unit is configured as a follower but the second is configured as an inverter with offset and unity gain.  The two outputs together provide a differential signal.  In implementation we follow this with a fully differential amplifier (FDA) and a differential input ADC.  For gain we get a factor of 2 for free and make up the rest in the FDA.  Cancellation between the differential pair improves noise performance for our mixed signal environment.
 
 <p align="center">
 <img src="Images/CCD_differential_sketch.jpg" alt="CCD signal conditioning" width="70%">
 </p>
 
-##### A don't-do DIY circuit
+#### A don't-do DIY circuit
 The following shows a design that appears from time to time in DIY postings.  The inventor typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
 
 <p align="center">
@@ -498,10 +487,10 @@ The following shows a design that appears from time to time in DIY postings.  Th
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
 And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about $3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
 
-### Basic concepts for interfacing to an ADC
+### Interfacing to an ADC
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
 
-##### S-H spice model
+#### Spice model for ADC input
 The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.
 
 The following models the sample and hold as a switched capacitor network. For illustration, we use an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
@@ -513,7 +502,7 @@ ADC model with ideal voltage source.<br> Green = input, blue = sampling capacito
 </p>
 </p>
 
-##### Factors effecting precision
+#### Factors effecting precision
 For n bits of precision and full scale range Vfs, the voltage on C1 at the end of the sampling window has to be within 1 part in 2<sup>n</sup> of Vfs.
 The input always has some series resistance, in this case Ron.
 Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1.  
@@ -535,7 +524,7 @@ ADC model driven by OPAMP follower.<br> Green = out, blue = sar cap, grey = samp
 </p>
 </p>
  
- #### Introducing the charge reservoir
+ #### Charge reservoir as solution for kickback
 The following shows the recommended method for driving an ADC. A cap C2 is added in front of the ADC to act as a charge reservoir for C1.  As can be seen, charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
 
 <p align="center">
@@ -599,7 +588,7 @@ Red = sensor, Green = adc inp, turquoise = Cs+ (sar cap).
 </p>
 </p>
 
-#### Gate drivers
+### Gate driver and analog signal integrity
 
 Two issues that require careful attention in designing the gate drivers, include the fact of the very large capacitance of the SH gate, the role of this gate in collection charge from the photodectors into the readout CCD register, and then an electrical effect in the rest of the circuit wherein noise from the gate drivers appears on the power rails.
 
