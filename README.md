@@ -550,7 +550,7 @@ A perhaps simpler way to illustrate the idea is as follows.  The arrows indicate
 </p>
 
 This looks like a low pass filter, but the components are chosen a little differently.
-We need C2 needs to be large compared to C1 and R1 needs to be tuned between the current capacity of the OPAMP and allowing C2 to track the input. We make extensive use of SPICE modeling to check designs for response and precision.
+C2 needs to be large compared to C1 and R1 needs to be tuned between the current capacity of the OPAMP and allowing C2 to track the input. We make extensive use of SPICE modeling to check designs for response and precision.
 
 #### dV/dt versus charge reservoir
 
