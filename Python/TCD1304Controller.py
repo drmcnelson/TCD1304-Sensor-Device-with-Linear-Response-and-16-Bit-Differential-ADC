@@ -1431,19 +1431,35 @@ class TCD1304CONTROLLER:
             
     def commandlineprocessor( self, line, fileprefix=None ):
 
+        if not line or not len(line):
+            return True
+        
         # String ubstitutions
-        if '%(' in line:
-            parts = list( split_bracketed( line ) )
-            for n,p in enumerate(parts):
-                if p.startswith('"') and '"%(' in p:
-                    try:
-                        exec( "res="+p, self.__dict__, globals() )
-                        parts[n] =res                    
-                        line = ' '.join( parts )
-                        print( "command with string substitution:", line )
-                    except Exception as e:
-                        print("cli string subst:", p, e)
-                        return
+        if not line.startswith('for '):
+            
+            if line[0] == '"' and line[-1] ==')' and line.count('"') == 2:
+                if self.debug:
+                    print("string subst for command line:", line)
+                exec( "res="+line, self.__dict__, globals() )
+                line=res
+        
+            
+            elif '%(' in line:
+                if self.debug:
+                    print("command line:", line)
+                parts = list( split_bracketed( line ) )
+                for n,p in enumerate(parts):
+                    if p.startswith('"') and '"%(' in p:
+                        try:
+                            exec( "res="+p, self.__dict__, globals() )
+                            parts[n] =res                    
+                            line = ' '.join( parts )
+                            #print( "command with string substitution:", line )
+                        except Exception as e:
+                            print("cli string subst:", p, e)
+                            return
+                if self.debug:
+                    print("command line =>", line)
         
         if self.monitorqueue:
             self.monitorqueue.put( 'command: ' + line + '\n')
@@ -1472,10 +1488,6 @@ class TCD1304CONTROLLER:
             print( "   save fileprefix comments... - save contents of data queue to diskfile" )
             print( "   wait                        - wait for completion of the active frameset" )
             print( "" )
-            print( "   Execute commands from text file" )
-            print( "     @filespec                 - read and execute commands from a file" )
-            print( "        (in batch files,';' is a command separator, use \\; to escape for shell commands)" )
-            print( "" )
             print( "   Pass command to operation system shell" )
             print( "     !command                  - execute shell command" )
             print( "" )
@@ -1484,10 +1496,38 @@ class TCD1304CONTROLLER:
             print( "     = python statement        -  pass to python interprator" )
             print( "      these commands have access to local() and class name spaces" )
             print( "" )
+            print( "   Execute commands from text file, parameters appear as a list, batchpars" )
+            print( "" )
+            print( "     @filespec [parameter list] - read and execute commands from a file" )
+            print( "" )
+            print( "     Example" )
+            print( "" )
+            print( "       @testscrpt 1 2" )
+            print( "" )
+            print( "       testscript:" )
+            print( "         =print(batchpars)" )
+            print( "" )
+            print( "       output:")
+            print("           [\'testscript\', \'1\', \'2\']" )
+            print( "" )
+            print( "   Loops and string substitution, by example" )
+            print( "" )
+            print( "     for a_ in [0,.1,.2]: @testscript \"%.2f\"%(a_)")
+            print( "     for a_ in [0,.1,.2]: for b_ in [ .3,.4,.5]: @testscript \"%.2f\"%(a_) \"%.2f\"%(b_)")
+            print( "" )
+            print( "      testscript:" )
+            print( "         =print(batchpars)" )
+            print( "" )
+            print( "       output:")
+            print("           [\'testscript\', \'0.00\', \'0.30\']" )
+            print("           [\'testscript\', \'0.00\', \'0.40\']" )
+            print( "          etc" )
+            print( "" )
             print( "   q[uit]                      - exit the cli program" )
+            print( "" )
             
         elif line.startswith( '#' ):
-            print( "rcvd comment line" )
+            #print( "rcvd comment line" )
             print( line )
 
         elif line.startswith('wait'):
@@ -1553,8 +1593,13 @@ class TCD1304CONTROLLER:
 
         elif line.startswith('@'):
 
-            batchfile = line[1:].strip()
+            print("")
+            print(line)
             
+            exec( "batchpars = "+str(line[1:].strip().split()), globals())
+            
+            batchfile = line[1:].strip().split()[0]
+
             try:
                 with open( batchfile, 'r' ) as f:
                     script = f.readlines()
@@ -1566,22 +1611,15 @@ class TCD1304CONTROLLER:
                 line = line.strip()
                 status = True
 
-                print(batchfile, "read", line)
+                print(batchfile, "=>", line)
                 
-                # Protect the semicolons
-                if ';' in line:
-                    line = line.replace( ';', '{\\semicolon}' )
-                    
                 for line_ in line.split(';'):
-
-                    # Restore the semicolons
-                    line_ = line_.replace( '{\\semicolon}', ';' )
-                    line_ = line_.strip()
-                    print( "command:", line_ )
 
                     if not line_.startswith("wait") and \
                        not line_.startswith("stop") and \
                        not line_.startswith("clear") and \
+                       not line_.startswith("toggle") and \
+                       not line_.startswith("set ") and \
                        self.busyflag.value:
                         print("device is busy, need to wait, clear or stop first")
                         status = False
@@ -1591,11 +1629,15 @@ class TCD1304CONTROLLER:
                         status = False
                         print( "command failed:", line_ )
                         break
-                    print( "command finished:", line_ )
+                    
+                    if self.debug:
+                        print( "command finished:", line_ )
+                    
                 if not status:
                     break
-
-            print("completed",batchfile)
+                
+            if self.debug:
+                print("completed",batchfile)
 
         elif line.startswith('!'):
             result = os.popen( line[1:] ).read()
@@ -1626,6 +1668,9 @@ class TCD1304CONTROLLER:
 
         elif line.startswith('for') and not line.startswith("format"):
 
+            print("")
+            print(line)
+            
             try:
                 loopspec, line_ = line.split(':',maxsplit=1)
             except Exception as e:
@@ -1651,11 +1696,13 @@ class TCD1304CONTROLLER:
                     
                     if line__.startswith( '"' ):
                         exec( "line___ = " + line__, self.__dict__, globals() )
-                        print( "command:", line___ )
+                        if self.debug:
+                            print( "command:", line___ )
                         if not self.commandlineprocessor( line___, fileprefix ):
                             return False                   
                     else:
-                        print( "command:", line__ )
+                        if self.debug:
+                            print( "command:", line__ )
                         if not self.commandlineprocessor( line__, fileprefix ):
                             return False
 

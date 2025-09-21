@@ -1,0 +1,10 @@
+=print(batchpars)
+offset=batchpars[1]
+icgstart=0.5+float(offset)
+icgwidth=2.1+icgstart
+=print(icgwidth,icgstart)
+"setup pulse 0.5u 1.0u 0.6u %.2fu %.2fu 1 1"%(icgwidth,icgstart)
+setup timer 0.05 10
+start timer
+wait
+"save offset_study_%sus"%(offset)

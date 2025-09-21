@@ -137,6 +137,68 @@ def spectrum_excursion_filter( data, span=11, gap=3, threshold=5., passes=2, ver
     return y
     
 # ===================================================================================================================
+class FLEXPWM:
+
+    def __init__( self, name, period, onA, offA, invertA, onB, offB, invertB):
+
+        self.name = name
+        
+        self.period  = period
+
+        self.onA = onA
+        self.offA = offA
+        self.invertA = invertA
+
+        self.onB = onB
+        self.offB = offB
+        self.invertB = invertB
+
+    def dump( self ):
+
+        s = 'FLEXPWM: ' + self.name 
+        for key, val in self.__dict__.items():
+            s += ' ' + key + '=' + str(val)
+            
+        print(s)
+
+        return True
+
+    def draw(self,ax,stop,yoffset):
+
+        def draw_(ax,on,off,stop,invert,yoffset):
+
+            x = 0
+
+            step1 = on
+            step2 = off-on
+            step3 = period-off
+
+            if invert:
+                offstate = 1 + yoffset
+                onstate = yoffset
+            else:
+                onstate = 1 + yoffset
+                offstate = yoffset                
+            
+            while x < stop:
+                if step1 > 0:
+                    ax.axhline(offstate,x,x+step1)
+                    x = x+step1
+                if step2 > 0:
+                    ax.axvline(x,offstate,onstate)
+                    ax.axhline(onstate,x,x+step2)
+                    x = x+step2
+                    ax.axvline(x,offstate,onstate)
+                if step3 > 0:
+                    ax.axhline(onstate,x,x+step3)
+                    x = x+step3
+
+        draw_(ax,self.onA,self.offA,self.period,self.invertA,yoffset)
+
+        draw_(ax,self.onB,self.offB,self.period,self.invertB,yoffset)
+            
+        
+# ===================================================================================================================
 class DATAFrame:
 
     def __init__( self, lines, parentinstance, offsetdigits = 5 ):
@@ -346,6 +408,8 @@ class DATA:
         for key, val in self.__dict__.items():
             if type(val) is list and len(val) > 10:
                 print( key,  '=', val[0], '...' )
+            elif isinstance(val,FLEXPWM):
+                val.dump()
             elif type(val) in [ dict ] :
                 continue
             else:
@@ -460,8 +524,13 @@ class LCCDDATA( DATA ):
                 print( "set exposure from frame_exposure", self.exposure)
         except Exception as e:
             print( 'frame_exposures', e )
+
+        for flexpwm_name in [ 'clk', 'sh', 'icg', 'cnvst', 'timer' ]:
+            try:
+                self.__dict__[ 'flexpwm_'+flexpwm_name ] = self.extractflexpwm(flexpwm_name)
+            except Exception as e:
+                print( 'extract '+flexpwm_name, e )
             
-        
     def trim( self, left = 0, right = -1 ):
 
         self.xpixels = self.xpixels[left:right]
@@ -489,8 +558,46 @@ class LCCDDATA( DATA ):
             idx2 = 1 + np.where(self.xdata<=right)[0][-1]
 
         self.trim( idx1, idx2 )
-            
 
+    def extractflexpwm(self,name):
+    
+        timestep = 1./150.E6
+            
+        try:
+            key = "flexpwm_" + name+"_period"
+            print( "key", key, self.__dict__[key] )
+            if key in self.__dict__:
+                vals = self.__dict__[key]
+                vals   = vals.split()
+                divider = int(vals[4])
+                timestep = float(divider)/150.E6
+                period = float(vals[0])*timestep
+
+            key = "flexpwm_" + name+"_A"
+            print( "key", key, self.__dict__[key] )
+            if key in self.__dict__:
+                vals = self.__dict__[key]
+                vals = vals.split()
+                onA     = float(vals[5])*timestep
+                offA    = float(vals[7])*timestep
+                invertA = 'noninverting' not in self.__dict__[key]
+                    
+
+            key = "flexpwm_" + name+"_B"
+            print( "key", key, self.__dict__[key] )
+            if key in self.__dict__:
+                vals = self.__dict__[key]
+                vals = vals.split()
+                onB     = float(vals[5])*timestep
+                offB    = float(vals[7])*timestep
+                invertB = 'noninverting' not in self.__dict__[key]
+
+        except Exception as e:
+            print(name, 'not parsed', e)
+            return None
+                
+        return FLEXPWM( name, period, onA, offA, invertA, onB, offB, invertB)
+                
 # =============================================================================================
 def loaddata( filespec, verbose=False ):
 
