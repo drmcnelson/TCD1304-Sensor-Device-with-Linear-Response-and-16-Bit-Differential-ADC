@@ -591,7 +591,7 @@ The following are screens from two of the spice models that we used in designing
 
 #### Differential signal path and ADC
 This is the [SPICE model for the analog signal path with ADC](SPICE/TCD1304DifferentialBuffer.asc).
-The input is configured as a short pulse to stress the kickback management.  The second graph shows the voltage on the sampling capacitor converging to the input voltage within the sampling window.  Convergence is better than 16 bits.
+The input is configured as a short pulse to stress the kickback management.  The second graph shows the voltage on the sampling capacitor converging to the input voltage within the sampling window.  Convergence is better than 1 part in 16 bits.
 
 <p align="center">
 <img src="Images/TCD1304DifferentialBuffer.jpg" width="65%">
