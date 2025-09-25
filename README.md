@@ -84,9 +84,9 @@ And of course, no warranty or guarantee is given whatsoever.  We did our best.
 ### Contents of this repo
 This repository at present contains the preliminary gerbers, schematic and BOM, plus preliminary firmware and python code and selected SPICE files.  We plan at least one update for the firmware and we plan to add KiCAD files.  The README (this file) provides results of testing and some explanation of how things work.
 
-If you have questions, please feel free to contact me.
+If you have questions, please feel free to contact me.  
 
-
+***
 ## Getting it all up and running
 This sensor board is intended to be used with our new [Teensy 4 (T4) based controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3). 
 The files provided here (gerbers and code) and in the controller repo, plus some trivial cabling and a host computer (we recommend Linux for the best frame rate perfomance) should be sufficient to build and operate the boards. 
@@ -100,38 +100,43 @@ Here are some notes on how we do assembly in our shop.
 We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about $200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
 ### USB connection
-We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.
+We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.  
 
 ### Loading the firmware
 After the boards are assembled, you will need to install the Teensy board in the controller, and compile and load the code into the Teensy.  You will most likely want to use the Arduino IDE for this.  Teensy is well integrated into the IDE. [See here for setup instructions.](https://www.pjrc.com/teensy/td_download.html)   The Teensy needs to be connected by USB to your host computer for this step.
 
-The firmware codes are found in the repo in the Firmware/ subdirectory,
+The firmware codes are found in the repo in the Firmware/ subdirectory
 
-    TCD1304Device_Controller_250817/
+(In the following, the "250901" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
+
+    TCD1304Device_Controller_250901/
     
-      TCD1304Device_Controller_250817.ino  - the arduino program with CLI
+      TCD1304Device_Controller_250901.ino  - The Arduino program with the CLI
     
-      parselib.cpp    - parsing library for the CLI
+      parselib.cpp    - The string parsing library for the CLI
       parselib.h
-      TCD1304Device.h - header-only C++ library for the TCD1304 with FlexPWM
+      TCD1304Device.h - The header-only C++ library for the TCD1304 with FlexPWM
 
 The Arduino IDE requires that the "ino" file and directory have the same name.
 
 If you want to customize the firmware, it is recommended to create a new directory, copy the files to that directory and rename the ino file per the above.
 
-After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session, or start the IDE and navigate to the directory and open the file.
+After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session, or start the IDE and navigate to the directory and open the file.  
 
 ### Setting up and running the Python codes
 
 Python codes and Bash scripts for operating the TCD1304DG sensor and working with the data, all under Linux, are provided in the repod under the subdirectory Python/.
 
-The codes have been used with the Fedora Cinnamon Spin, which you can [download from here](https://fedoraproject.org/spins/cinnamon).   This uses xorg rather than Wayland, the desktop is Win7-like and it is easy to work with terminal windows. The codes may work with other distros, we have not tested them.
+The codes have been used with the Fedora Cinnamon Spin, which you can [download from here](https://fedoraproject.org/spins/cinnamon).   This uses xorg rather than Wayland, the desktop is Win7-like and it is easy to work with terminal windows. The codes may work with other distros, we have not tested them.  
 
-The command to install the Python environment and libraries used by the codes is as follows:
+#### Installing the Python environment
+
+The command to install the Python environment and libraries used by the codes is as follows (in Fedora, use apt-get or aptitude in Ubuntu):
 
     $ sudo dnf install python python-numpy python-scipy python-matplotlib python-pyserial
       
 
+#### Setting up the user software for the TCD1304 boards
 To setup the Python codes from this repo, unpack or download the files from the repo's Python subdirectory to a directory on your Linux machine; somewhere under your personal user directory works just fine.  And, set the permissions to allow execute  (chmod a+x *.py, and chmod a+x *.sh).
 
 Here is a list of the files provided in the Python directory
@@ -153,6 +158,9 @@ Here is a list of the files provided in the Python directory
     
     Calibration2           - example wavelength calibration
 
+<br>
+
+#### Running the user command interface with real-time display and post collection shell scripts
 
 You will want to add the directory for the Python and bash scripts to your PATH. You can do this by adding the following line to your .bashrc.  Alternatively you can run this from a command terminal, but you would then need to do it each time.  Note that the command begins with ". "
 
@@ -182,8 +190,10 @@ Data collection is run in two or three steps depending on the mode of operation.
 
 The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
 
-A Python program, DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.
+A Python program, DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.  
+<br>
 
+***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
 In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers using data collected with the present design sensor as a reference and comparison for data collected with  commercial instruments.
@@ -300,6 +310,7 @@ And finally, here is what happens when the circuit is not able to respond to lar
 <img src="Images/Spectrum_Flip_Shift_SlowOPAMP_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
 </p>
 
+---
 ## Setup for linearity testing
 
 The equipment list for our linearity study is as follows.  Construction of the spectrometer is described [here](#spectrometer-construction)
@@ -386,8 +397,11 @@ That is about 0.8 for our geometry.  The TCD1304 pixel size is 8μmx200μm.  So 
 where is w<sub>slit</sub> is the slit width.  For  w<sub>slit</sub>≈200μm and L<sub>C</sub>≈60mm, we expect δλ≈2.2nm.
 
 In the next section, you can see spectra from the instrument and indeed, the range is about 450nm and the narrowest line widths are in the range of 2nm.
-Note that the wavelength range and pixel density set an effective limit on resolution.  For this instrument we have about 0.12nm per pixel.  A 25um slit would give an optical resolution of about 0.28nm, but spread across only 2 pixels.
+Note that the wavelength range and pixel density set an effective limit on resolution.  For this instrument we have about 0.12nm per pixel.  A 25um slit would give an optical resolution of about 0.28nm, but spread across only 2 pixels.  
 
+<br>
+
+***
 ## Electrical design
 
 We now describe some of the elements of circuit design for a CCD based spectrometer (or imaging system).
