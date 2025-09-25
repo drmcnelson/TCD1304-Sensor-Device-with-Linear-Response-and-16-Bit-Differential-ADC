@@ -396,7 +396,7 @@ That is about 0.8 for our geometry.  The TCD1304 pixel size is 8μmx200μm.  So 
 
 where is w<sub>slit</sub> is the slit width.  For  w<sub>slit</sub>≈200μm and L<sub>C</sub>≈60mm, we expect δλ≈2.2nm.
 
-In the next section, you can see spectra from the instrument and indeed, the range is about 450nm and the narrowest line widths are in the range of 2nm.
+In the preceding sections, you can see spectra from the instrument and indeed, the range is about 450nm and the narrowest line widths are in the range of 2nm.
 Note that the wavelength range and pixel density set an effective limit on resolution.  For this instrument we have about 0.12nm per pixel.  A 25um slit would give an optical resolution of about 0.28nm, but spread across only 2 pixels.  
 
 <br>
