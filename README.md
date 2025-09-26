@@ -639,16 +639,8 @@ This is a caution that the gates should not be driven directly from low current 
 <p align="center">
 <img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-LED spectrum, orange curve is with LED off.
+LED spectrum, orange curve is with LED off and too short a drive pulse to the SH pin.
 Carry-over appears with inadequate gate drive.
 </p>
 </p>
 <br>
-
-<p align="center">
-<img src="Images/CarryOverGraph.jpg" width="65%">
-<p align="center" style="margin-left:5em;margin-right:5em">
-Carry-over decreases with SH pulse width.
-</p>
-</p>
-
