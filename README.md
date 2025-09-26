@@ -630,7 +630,7 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  This puts us well within our power supply noise budget for the analog signal path.
 
 #### Charge clearance, carry-over and relationship to gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.  Here is what it looks like when the SH pulse is too short (0.2usec in this instance).   Notice that there seems to be charge left over from the previous image.  Generally, the SH gate needa about 25mA and at least 1usec.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.  Here is what it looks like when the SH pulse is too short (0.2usec in this instance).   Notice that there seems to be charge left over from the previous image.  Generally, the SH gate needs about 25mA and at least 1usec.
 
 <p align="center">
 <img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="40%">
