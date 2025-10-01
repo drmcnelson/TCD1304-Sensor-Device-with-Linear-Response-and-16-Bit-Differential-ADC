@@ -20,7 +20,7 @@
 	+ [Interfacing to an ADC](#interfacing-to-an-adc)
 	+ [SPICE model for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
 	- [Gate driver and analog signal integrity](#gate-driver-and-analog-signal-integrity)
-
+- [Appendix A - quick command list](#appendix-a-quick-command-list)
 
 ## Introduction
 
@@ -182,18 +182,15 @@ Notice that in the console window, you have a prompt.  This is the command line 
 
 Some of the commands are implemented in the Python code, the remainder are passed through to the sensor device.  The CLI also supports scripting and can execute shell commands.
 
-There are two operating modes for the sensor, "frameset" for short exposure times where the SH gate and readout have to overlap, and "single" where the exposure time is longer than the time needed for readout and managed by a separate hardware timer. The device can run in triggered mode for framesets or timed singles or simply singles.
-
-The firmware is tested but we are adding some features to build up a more intuitive layer of commands.  At present the command set is more like "nuts and bolts".  There is sometimes an advantage to being able to work with an instrument at a low level, but it requires knowing a little bit about what is happening inside.
-
-Data collection is run in two or three steps depending on the mode of operation. For frameset, the clock is built into the timing configuration for the gates. For clocked exposures we can run the commands **setup frameset...** and **start frameset**, or **setup single**, **setup timer...** and **start timer**. For triggered operation, we can follow any of the setup commands by **setup trigger...** and **start trigger**.  After data collection is complete, we can use the command **save filespec**.   The data is buffered in a queue and the queue is cleared when the data is retrieved and saved to disk.  There is a clear command, or one can save to a file called temp or junk to clear it.
+Enabling and starting a data collection comprises several steps depending on the mode of operation, as depicted below in the "Quick command reference" table.  Note that each of the TCD1304DG operations comprises one or more setups followed by a start. The data is produced asynchronously in the TCD1304DG controller hardware and when it arrives in the host computer it is buffered into a data queue and enqueued to the graphical display window.  The data queue is cleared when we send the command to save the data to disk.  There is also a clear command (or we can save to a file called temp or junk to clear it.)
 
 The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
 
-A Python program, DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.  
-<br>
+Subsequent versions of the software will add an intuitive set of high level commands. However there is sometimes an advantage to being able to work with an instrument at a low level. We plan to retain both levels in the command set.
 
-***
+The Python program DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.
+
+ ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
 In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers using data collected with the present design sensor as a reference and comparison for data collected with  commercial instruments.
@@ -218,31 +215,31 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 
 ### Linear response and exposure time
-The following data show the response of the instrument for three narrow spectral lines and one broad spectral line, with exposure time varied from 10ms to 0.5sec.  The response is measured as volts divided by exposure time.  If an instrument is linear, these curves should be flat.
-As noted above, for data to be meaningful the response curves should at least be monotonic and strictly increasing.
+The following data show response as peak height divided by exposure time, for the two sharp lines at 546nm and 542nm and the broader line at 487nm.   If an instrument is linear, these curves should be flat until the intensity reaches saturation.
+The present design shows good linear response until saturation.
 
 <p align="center" >
-<img src="Images/LinearResponseComparison.jpg" width="90%">
+<img src="Images/Comparison_responses_3peaks.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Normalized response for (a) the present design and (b) the commercial instrument versus exposure time.
+Response for three spectral lines with one near saturation for (a) the present design and (b) the commercial instrument.
 </i>
 </p>
 </p>
 
-The present design shows approximately linear response - apart from the first points were the SNR is low and the last point where the two strongest peaks have reached saturation.
-The response of the commercial instrument (right or bottom) depends on line shape, and for the sharper lines is neither linear nor monotonic even where far below saturation.
 
 ### Peak height ratios with line shape and exposure
-The following shows ratios of peak heights derived from the above data. The data is displayed as fractional change relative to the maximum of each curve.  We quite reasonably expect that for a reliable instrument, ratios of peak heights should normally, not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios (within noise).  The commercial instrument shows strong non-monotonic changes in ratios of peak heights.
+The 
+
+The following shows ratios of peak heights corresponding to the above data. We quite reasonably expect that for a reliable instrument ratios of intensity should not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios from where both signals are above noise and with increasing exposure until one peak saturates.
 
 <p align="center" >
-<img src="Images/LinearResponseComparison.jpg" width="90%">
+<img src="Images/Comparison_ratios.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Peak height ratios (normalized) for (a) the present design and (b) the commercial instrument versus exposure time
+Peak height ratios for (a) the present design and (b) the commercial instrument versus exposure time
 </i>
 </p>
 </p>
@@ -630,13 +627,69 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  This puts us well within our power supply noise budget for the analog signal path.
 
 #### Charge clearance, carry-over and relationship to gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.  Here is what it looks like when the SH pulse is too short (0.2usec in this instance).   Notice that there seems to be charge left over from the previous image.  Generally, the SH gate needs about 25mA and at least 1usec.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gAppendix A - Quick command list
+ate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.
+
+Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000 and so carry-over is small compared to dark noise.  In our case, our gate driver provides 25mA, so the time constant really is set by the RC.
+
+This is a caution that the gates should not be driven directly from low current sources where the time constant will be current limited, for example from the digital I/O pins of a microcontroller, but rather from a proper gate driver that can deliver enough current to achieve a sufficiently rapid charging curve on the SH pin.
 
 <p align="center">
-<img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="40%">
+<img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-LED spectrum, orange curve is with LED off and too short a drive pulse to the SH pin.
+LED spectrum, orange curve is with LED off.
 Carry-over appears with inadequate gate drive.
 </p>
 </p>
 <br>
+
+<p align="center">
+<img src="Images/CarryOverGraph.jpg" width="65%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+Carry-over decreases with SH pulse width.
+</p>
+</p>
+
+***
+## Appendix A - Quick command list
+
+The followings is a subset of the commands implemented in the TCD1304 firmware and in the Python user utility (indicated as CLI).  Enter the command "help" for a more complete listing and consult the source code for further information.
+
+<p align="center">
+<b>Quick command reference </b><br>
+See <b>help</b> for more details
+</p>
+
+| **TCD1304DG Operation:** | *command sequence:* |
+| :----- | :---- |
+| *Timed exposures* | **setup pulse → setup timer &lt;secs&gt; &lt;n&gt; → start timer** |
+| *Triggered timed*| **setup pulse → setup timer ... → setup trigger** [options] **→ start trigger**|
+| *Triggered/gated* | **setup pulse → setup trigger ... → start trigger** |
+| *Manual exposure* | **setup pulse → start pulse** (2x to form an exposure) |
+| | |
+| *Short exposures* | **setup frameset** &lt;exposure&gt; &lt;frame interval&gt; &lt;n&gt; ... **→ start frameset**|
+| *Triggered frame sets* | **setup frameset ... → setup trigger → start trigger**|
+| *Configure trigger* | **configure trigger** [ **rising\|falling\|change \| (no)pullup \| pin &lt;n&gt;**]|
+| | |
+| **CLI functions:** | **command:** |
+| *Wait for completion* | **wait** |
+| *Save to disk* | **save** &lt;filenameprefix&gt; |
+| *Clear the queues* | **clear** |
+| *Print help text* | **help** [report\|coefficients\|pulse\|frameset\|timer\|trigger] |
+| | |
+| *Execute from script* | @&lt;filename&gt; [args] |
+| *Pass command to shell* | !command |
+| *Exec in Python* | [leftside]=[rightside] |
+| *List name space* | = |
+| *Loop* (example)| for a_ in [0,.1,.2]: @testscript \"%.2f\"%(a_)"|
+| | |
+| *Print configured i/o pins*| **pins** |
+| *Digital I/O*| **set** &lt;pin&gt; **hi\| lo\| output\| input\| pullup**  |
+| | **pulse** &lt;pin&gt; &lt;usecs&gt; |
+| | **read** &lt;pin&gt; |
+| | **toggle** &lt;pin&gt; |
+| | |
+| *Quit* | quit \| exit \| ctrl-c |
+<br>
+
+
