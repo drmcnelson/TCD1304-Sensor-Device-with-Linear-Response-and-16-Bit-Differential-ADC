@@ -230,8 +230,6 @@ Response for three spectral lines with one near saturation for (a) the present d
 
 
 ### Peak height ratios with line shape and exposure
-The 
-
 The following shows ratios of peak heights corresponding to the above data. We quite reasonably expect that for a reliable instrument ratios of intensity should not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios from where both signals are above noise and with increasing exposure until one peak saturates.
 
 <p align="center" >
