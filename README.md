@@ -193,15 +193,21 @@ The Python program DataReader can be used as a library to work with data file or
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
-In this section we illustrate some of the challenges in linearity and reproducibility in CCD spectrometers using data collected with the present design sensor as a reference and comparison for data collected with  commercial instruments.
+In this section we illustrate some of the challenges in linearity and reproducibility as observed in CCD spectrometers.  After defining some terms, we show examples that compare the performance of the present design and that of a widely used commercial instrument.  These also help to illustrate the concepts why this is important for reproducibility.
 
-Linear response, for a spectrometer, means that the  measured response S is proportional to the number of photons P impinging on the detector, generally within a specified exposure time. For each pixel n, we expect that S<sub>n</sub> = c<sub>n</sub> P<sub>n</sub> + D<sub>n</sub>, and ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant and D<sub>n</sub> represents the dark signal for that pixel.
+Linear response, for a spectrometer, means that the  measured response S is proportional to the number of photons P impinging on the detector. For a change in intensity at pixel "n", we expect that ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant.  
 
-When the instrument is linear, measurements can be related to intensity or number of photons, ratios of peak heights S<sub>1</sub>/S<sub>2</sub> remain constant and spectra can be added or subtracted meaningfully (the sum of two spectra S = S<sub>a</sub> + S<sub>b</sub> with exposure times t<sub>a</sub> and t<sub>b</sub> provides the same result as a single spectrum collected with exposure time t = t<sub>a</sub> + t<sub>b</sub>).   In other words, linear response is important in being able to report measurements that are both meaningful and that can be feasibly and reliably reproduced by other researchers.
+When a system is linear we should see that (a) spectra collected with different exposure times agree with each other  (S<sub>1</sub>/t<sub>1</sub> = S<sub>2</sub>/t<sub>2</sub>), (b) ratios of peak heights are constant (S<sub>λ<sub>a</sub></sub>/S<sub>λ<sub>b</sub></sub> at t<sub>1</sub> = S<sub>λ<sub>a</sub></sub>/S<sub>λ<sub>b</sub></sub> at t<sub>2</sub>), and when summed the result agrees with that obtained by a single measurement with the combined exposure time S = S<sub>t1</sub> + S<sub>t2</sub> = S<sub>t1+t2</sub>.
 
-There are a few ways in which spectrometer response can be non-linear. The most important and most common are related to electrical limitations in bandwidth or slew (dV/dt) or to charge being held over to the next frame or from pixel to pixel during readout.  Where information is not lost or made ambiguous by the non-linearity, there might exist a numerical correction (in a mathematical sense).  Generally, it is far easier and far more reliable to simply use an instrument that is already linear.
+Notably our linearity criterion was expressed as a change in P and S.  Normally we would apply the above rules after subtracting a noise or background signal. Conveniently, for this kind of sensor, the dark noise S<sub>D</sub> is proportional to exposure time in the range of exposure times greater than 20msec and for this sensor system the electrical noise is several orders of magnitude smaller than the dark noise.  Therefore, we expect that the total intensity (S = S<sub>P</sub> + S<sub>D</sub>) should be linear in exposure time.
 
-### Linear response and line shape
+That said, there are a few ways in which spectrometer response can be non-linear. Some of these can be corrected numerically provided the non-linearity meets certain mathematical criteria.  For example, measured values should at least be monotonically increasing in exposure time so that there can exist a unique mapping between a measurement and its corrected value.
+
+However, some non-linearities involve bandwidth or line shape. And while a *valid* correction might exist, it is most often far easier and far more reliable to start with an instrument that has linear response.
+
+Let's look at some data.
+
+### Spectra
 The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
 
 <p align="center" >
@@ -214,9 +220,24 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-### Linear response and exposure time
-The following data show response as peak height divided by exposure time, for the two sharp lines at 546nm and 542nm and the broader line at 487nm.   If an instrument is linear, these curves should be flat until the intensity reaches saturation.
-The present design shows good linear response until saturation.
+### Intensity
+The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra for the present design and the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.  The vertical scale for the present design is volts read from the sensor.
+
+In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. In the present design, the curves are indeed straight lines from near the origin until near the limiting output voltage of the sensor at 0.6V.   For the commercial instrument, most of the range is not linear.  We will see more explicitly, how this effects relative peak heights.
+
+<p align="center" >
+<img src="Images/Comparison_peaks.jpg" width="90%">
+<br>
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+Response for three spectral lines with one near saturation for (a) the present design and (b) the commercial instrument.
+</i>
+</p>
+</p>
+
+### Normalized response
+
+Lets look at the normalized response for the three lines 546nm, 542nm, and 487nm.  Dividing by exposure time, we expect the curves to be flat or at least monotonically increasing until they reach saturation.  Again we see that the present design does indeed provide flat response until it reaches the voltage limit of the chip.
 
 <p align="center" >
 <img src="Images/Comparison_responses_3peaks.jpg" width="90%">
@@ -229,8 +250,10 @@ Response for three spectral lines with one near saturation for (a) the present d
 </p>
 
 
-### Peak height ratios with line shape and exposure
-The following shows ratios of peak heights corresponding to the above data. We quite reasonably expect that for a reliable instrument ratios of intensity should not change when we change intensity or exposure time.  The present design does indeed show roughly constant peak height ratios from where both signals are above noise and with increasing exposure until one peak saturates.
+### Peak height ratios
+We reasonably expect that in a reliable instrument ratios of intensity should not change when we change intensity or exposure time. We expect that spectra should look the same when we repeat a measurement. On a more serious level, quantitative comparison of intensities is a basic element of many experimental protocols.
+
+The following shows ratios among the above three peaks as a function of exposure time.  The present design does indeed show roughly constant peak height ratios from above noise until the line at 546nm reaches the limiting voltage of the sensor (the purple and blue curves both have the intensity at 546nm in the denominator).
 
 <p align="center" >
 <img src="Images/Comparison_ratios.jpg" width="90%">
@@ -258,9 +281,9 @@ Fluorescent lamp spectrum.<br>
 
 
 ## Origins of non-linearity and electrical characteristics of CCD spectrometers
-The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with how the signal is produced and retrieved from a CCD detector.
+The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with nature of the signal produced on reading a CCD detector and in particular the case where the instrument has good resolution and can produce narrow lines.
 
-A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register in response to a clock signal. At the last such pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
+A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register towards one end in response to a clock signal. At the last pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
 <p align="center">
 <img src="Images/ccdclockedreadout.jpg" alt="CCD Readout" width="85%">
 </p>
@@ -275,14 +298,17 @@ The following shows the Fourier transform of the above spectrum (blue), and on t
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.rfft-tscaled.jpg" alt="CCD Readout" width="40%">
 </p>
 
-The following shows a perhaps more intuitive way to look at this, by graphing the spectrum as its first derivative, dV/dt.   Now we can see clearly that anomalous attenuation in the commercial instrument seems to follow dV/dt.  This is suggestive in that it corresponds  directly to a selection parameter for OPAMPs, the maximum slew.  We will show some detail about how this works in the following section.
+The following shows a perhaps more intuitive way to look at this, by graphing the spectrum as its first derivative, dV/dt.   Now we can see clearly that anomalous attenuation in the commercial instrument seems to follow dV/dt.   In electronics, the ability to support a dV/dt is often referred to as slew.
 
 <p align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.dvdt-tscaled.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
 </p>
 
-Before leaving this topic, we should mention another effect.
-The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  There can be a similar effect on a frame to frame basis.  At typical transfer efficiency 99.99%, this should be a small effect even after order 1K pixels, but data are suggestive of these effects is common.
+There are two obvious ways that a design can be slew limited.  The perhaps more trivial is in the maximum slew supported by the choice of OPAMP.  This is a parameter that normally is listed in the datasheet.  Slew can also be limited by current starving the sampling capacitor in the input stage to the ADC.  We will see how this works when we talk about electrical design.
+
+Before leaving this topic, we should mention another phenomenon that also effects linearity.
+The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  Generally and remarkably, this effect is usually small if the manufacturers specs for clocking the chip are followed.
+An easily much larger effect arises in moving charge from the photodiodes into the readout register.  This appears as a weak copy of the previous frame added to the next frame.  It is very important to drive the shift gate properly to minimize the effect.  After that, a typical method to further reduce the effect is to quickly pulse the shift gate a few times before starting the next exposure.
 
 ### Circuit models with filtering and effects of large dV/dt
 We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  These are single ended to simplify the presentation. (Our 16 bit board is differential with a differential input ADC.)
