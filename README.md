@@ -226,7 +226,7 @@ The following is the spectrum from above from the new instrument,expanded to sho
 <img src="Images/Desklamp_ND0700_0.025sec.zoom.jpg" width="55%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
-<i>Expanded scale to show detail structure from the new instrument.
+<i>Spectrum from the new instrument with expanded intensity scale to show detail around 590nm and 615nm.
 </i>
 </p>
 </p>
