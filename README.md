@@ -220,7 +220,7 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-The following shows the detail structure from the above spectrum in the new instrument.  The change of scale is needed to show this in the new instrument because the much larger intensity of the sharp lines that dominates the scale in the above.
+The following is the spectrum from above from the new instrument,expanded to show the detail structure around 590nm and 615nm. The change of scale is needed because the scale in the above rendering is dominated by the strong response to the lines at 435nm and 546nm in the new instrument.
 
 <p align="center" >
 <img src="Images/Desklamp_ND0700_0.025sec.zoom.jpg" width="55%">
