@@ -354,7 +354,7 @@ The following shows the Fourier transform of the above spectrum (blue), and on t
 </p>
 
 A more intuitive way to look at this is shown in the following where we graph the spectrum as its first derivative, dV/dt.  We see that the line at 435nm which is markedly stronger in the present design instrument also has the largest dV/dt.
-In electronics, dV/dt is related *slew*.
+In electronics, dV/dt is related to *slew*.
 
 <p align="center">
 <img src="Images/Desklamp_ND0700_0.025sec.dvdt.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
