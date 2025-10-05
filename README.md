@@ -58,7 +58,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 
 #### Reproducibility and linearity
 
-Reproducibility for CCD spectrometry, in a practical sense depends on linearity, and specifically, linear response independent of line shape.  This is a significant challenge to electrical design, as will be explained. Absent this kind of linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
+Reproducibility for CCD spectrometry in a practical sense depends on linearity and specifically, linear response independent of line shape.  This is a significant challenge to electrical design as will be explained. Absent this kind of linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
 
 We include test results [(here)](##on-linearity-and-reproducibility-in-ccd-spectrometers-with-data) for both the present design and a popular commercial instrument.  These are recorded in essentially side-by-side measurements.  The intent is to illustrate what linearity should look like and why it is important for reproducibility.
 
