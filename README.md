@@ -309,13 +309,14 @@ The following shows the Fourier transform of the above spectrum (blue), and on t
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.rfft-tscaled.jpg" alt="CCD Readout" width="40%">
 </p>
 
-The following shows a perhaps more intuitive way to look at this, by graphing the spectrum as its first derivative, dV/dt.   Now we can see clearly that anomalous attenuation in the commercial instrument seems to follow dV/dt.   In electronics, the ability to support a dV/dt is often referred to as slew.
+The following shows a perhaps more intuitive way to look at this. Here we graph spectrum as its first derivative, dV/dt.  We see clearly that anomalous attenuation in the commercial instrument seems to directly follow dV/dt.
+In electronics, dV/dt is related *slew*.
 
 <p align="center">
-<img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.dvdt-tscaled.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
+<img src="Images/Desklamp_ND0700_0.025sec.dvdt.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
 </p>
 
-There are two obvious ways that a design can be slew limited.  The perhaps more trivial is in the maximum slew supported by the choice of OPAMP.  This is a parameter that normally is listed in the datasheet.  Slew can also be limited by current starving the sampling capacitor in the input stage to the ADC.  We will see how this works when we talk about electrical design.
+There are two obvious ways that a circuit can be slew limited.  The perhaps more trivial is in the maximum slew supported by the choice of OPAMP.  This is a parameter that normally is listed in the datasheet.  Slew can also be limited by current starving the sampling capacitor in the input stage to the ADC.  We will see how this works when we talk about electrical design.
 
 Before leaving this topic, we should mention another phenomenon that also effects linearity.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  Generally and remarkably, this effect is usually small if the manufacturers specs for clocking the chip are followed.
