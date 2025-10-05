@@ -35,7 +35,7 @@ The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS A
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
 <br>
-<img src="Images/TCD1304_sensor_system_photo_p600.jpg" width="50%">
+<img src="Images/TCD1304_sensor_system_photo_p600.jpg" width="52%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
 TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary marks, (b) sensor board top showing circuits, interconnects and baseline trim, and (c) sensor board and controller showing geometry and interconnection (control and data plus 5V power).
