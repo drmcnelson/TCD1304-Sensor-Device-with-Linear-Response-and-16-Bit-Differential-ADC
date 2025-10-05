@@ -387,7 +387,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Construction
-The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic (1/8").  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  We have a center wavelength of about 520nm and cover the range from about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
+The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  We have a center wavelength of about 520nm and cover the range from about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="33%" height="auto">  
@@ -404,6 +404,7 @@ The parts list for the above is:
 <li>SMA905 fitting, Amazon, Digikey, Mouser, Ebay ~$15</li>
 <li>Aluminum plate, OnlineMetals.com or Amazon</li>
 <li>Mounts produced with a 3-d printer</li>
+<li>Opaque black plastic sheets and black PVC tape, Amazon</li>
 <li>TCD1304 sensor board and controller from this repo, with cables</li>
 </ol>
 
