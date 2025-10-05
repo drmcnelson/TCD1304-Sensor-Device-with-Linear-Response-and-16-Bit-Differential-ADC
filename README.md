@@ -11,7 +11,6 @@
 	- [Loading the firmware](#loading-the-firmware)
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
 - [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
-- [Origins of non-linearity and electrical characteristics of CCD spectrometers](#origins-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers)
 - [Setup for linearity testing](#setup-for-linearity-testing)
 - [Spectrometer construction](#spectrometer-construction)
 - [Electrical design (a tutorial)](#electrical-design)
@@ -291,8 +290,8 @@ Fluorescent lamp spectrum.<br>
 </p>
 
 
-## Origins of non-linearity and electrical characteristics of CCD spectrometers
-The following provides some insight into how the above phenomena emerge in   a CCD spectrometer (or imaging system).  We start with nature of the signal produced on reading a CCD detector and in particular the case where the instrument has good resolution and can produce narrow lines.
+### On origins of non-linearity and electrical characteristics of CCD spectrometers
+The following provides some insight into how the above phenomena may emerge in   a CCD spectrometer (or imaging system).  We start with nature of the signal produced on reading a CCD detector and in particular the case where the instrument has good resolution and can produce narrow lines.
 
 A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register towards one end in response to a clock signal. At the last pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
 <p align="center">
@@ -309,7 +308,7 @@ The following shows the Fourier transform of the above spectrum (blue), and on t
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.rfft-tscaled.jpg" alt="CCD Readout" width="40%">
 </p>
 
-The following shows a perhaps more intuitive way to look at this. Here we graph spectrum as its first derivative, dV/dt.  We see clearly that anomalous attenuation in the commercial instrument seems to directly follow dV/dt.
+A more intuitive way to look at this is shown in the following where we graph the spectrum as its first derivative, dV/dt.  We see that the line at 435nm which is markedly stronger in the present design instrument also has the largest dV/dt.
 In electronics, dV/dt is related *slew*.
 
 <p align="center">
@@ -322,26 +321,6 @@ Before leaving this topic, we should mention another phenomenon that also effect
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  Generally and remarkably, this effect is usually small if the manufacturers specs for clocking the chip are followed.
 An easily much larger effect arises in moving charge from the photodiodes into the readout register.  This appears as a weak copy of the previous frame added to the next frame.  It is very important to drive the shift gate properly to minimize the effect.  After that, a typical method to further reduce the effect is to quickly pulse the shift gate a few times before starting the next exposure.
 
-### Circuit models with filtering and effects of large dV/dt
-We are going to skip ahead and present some SPICE models that demonstrate the effects of bandwidth and dV/dt. We use the actual spectrum from the linear sensor board as input.  These are single ended to simplify the presentation. (Our 16 bit board is differential with a differential input ADC.)
-
-First, here is a circuit that produces good linear response. This is similar to the design from our single ended "All In One" sensor board.  The spectrum (green trace) is exactly overlaid by the voltage on the sampling capacitor (red trace).
-
-<p align="center">
-<img src="Images/Spectrum_Flip_Shift_RC_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
-</p>
-
-Now we introduce a low pass filter. We set this aggressively to produce an effect that is easy to see when graphed in this way.  The filter produces attenuation for the sharp lines, but the effects is similar for all of the sharp lines.
-
-<p align="center">
-<img src="Images/Spectrum_Flip_Shift_Filter_RC_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
-</p>
-
-And finally, here is what happens when the circuit is not able to respond to large dV/dt.  The change in the circuit is a slower OPAMP.  Now we see stronger attenuation of the sharper lines in the blue, as expected based on our analysis above.
-
-<p align="center">
-<img src="Images/Spectrum_Flip_Shift_SlowOPAMP_SAR.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="70%">
-</p>
 
 ---
 ## Setup for linearity testing
