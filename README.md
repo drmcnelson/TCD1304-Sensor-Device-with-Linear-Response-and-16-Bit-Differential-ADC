@@ -92,7 +92,7 @@ A tutorial on electrical design CCD sensors and spectroscopy is included [here](
 
 #### KiCad files and code provided
 
-The fab files and code provided in this repo, and in the controller repo, plus some cabling and a host computer, should be sufficient to assemble the boards and get your detector system up and running.  Feel free to contact me for consultation or pre-assembled boards (time permitting).  And needless to say, donations are very much appreciated, please the sponsorship button above.
+The fab files and code provided in this repo, and in the controller repo, plus some cabling and a host computer, should be sufficient to assemble the boards and get your detector system up and running.  Feel free to contact me for consultation or pre-assembled boards (time permitting).  And needless to say, donations are very much appreciated, please find and "click" the sponsorship button above.
 
 
 ### <font color="blue"> The SPI Instrumentation Project - Open Instruments for Open Science</font>
@@ -104,7 +104,7 @@ At this writing, we have received requests and helped scientists working in Euro
 
 One very important way that you can help underfunded scientists is by clicking the "Sponsor" button at the top of this repo.   The funds go to helping to make more instruments more available to more scientists around the world.
 
-If you would like to sponsor and receive boards for sponsoring, please contact me.
+If you would like to sponsor or receive boards, please contact me.
 
 ### <font color="blue"> *Permissions, no warranty or guarantee, and etc.*</font>
 Permission is hereby granted for you to build and use these boards and codes in your lab and for your personal use.
