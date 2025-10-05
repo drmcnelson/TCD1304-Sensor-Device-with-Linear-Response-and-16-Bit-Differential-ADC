@@ -23,29 +23,74 @@
 
 ## Introduction
 
-This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG designed specifically for linear response and reproducibility in spectroscopy and scientific imaging.  We provide (a) files for fabrication including gerbers and BOM, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models that we used to develop and test the design. (KiCAD files will be added after the initial roll out.)
+This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG designed specifically for linear response and reproducibility inthese challenges to linearity arise in  spectroscopy and scientific imaging.  We provide (a) files for fabrication including gerbers and BOM, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models that we used to develop and test the design. (KiCAD files will be added after the initial roll out.)
 
-We provide two implementations, a sensor board that operates with our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and an All-In-One device with sensor and MCU on back and front of the same board.
-The sensor board offers very low noise with a 16 bit differential input 1MSPS ADC, and mechanical isolation.
-The single board device, with sensor, electronics and controller all on one board, offers similar performance in terms of linearity to the two board system, but with 12 bit precision (and fewer parts) using the on-board analog input of the T4. The firmware and Python codes have been tested with both devices.
+#### Two implementations
 
-Reproducibility for CCD spectrometry, in a practical sense depends on linearity, and specifically, linear response independent of line shape.  This is a significant challenge to electrical design, as will be explained. Absent this kind of linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.  We will show you examples of this in popular commercial instruments, side by side with results showing that this kind of linearity is achieved in the present design.
+We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the sensor board and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board "All-In-One" implementation with sensor and MCU on back and front of the same board.
+Both run from a common set of firmware and Python codes.
 
-Having established the "facts on the ground", we then offer our perspective on the challenges to linearity and reproducibility in CCD spectroscopy and imaging, including the nature of the signals produced and certain aspects of device physics for the detectors.   We then explain our approach to designing a system that addresses these issues with the help of some detailed SPICE modeling.
+The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  Fiduciary marks are provided on both sides of the sensor board to facilitate optical alignment.
+
+<p align="center">
+<img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
+<br>
+<img src="Images/TCD1304_sensor_system_photo_p600.jpg" width="50%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary marks, (b) sensor board top showing circuits, interconnects and baseline trim, and (c) sensor board and controller showing geometry and interconnection (control and data plus 5V power).
+</i>
+</p>
+</p>
+
+The single board device, with sensor, electronics and controller all on one board, offers similar performance in terms of linearity to the two board system, but with 12 bit precision (and fewer parts) using the on-board analog input of the T4.
+
+<p align="center">
+<img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
+<br>
+<img src="Images/TCD1304-all-in-one-perspective-p600.jpg" width="50%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the microcontroller board and pins for auxiliary functions, and (c) view showing the overall geometry.
+</i>
+</p>
+</p>
+
+#### Reproducibility and linearity
+
+Reproducibility for CCD spectrometry, in a practical sense depends on linearity, and specifically, linear response independent of line shape.  This is a significant challenge to electrical design, as will be explained. Absent this kind of linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
+
+We include test results [(here)](##on-linearity-and-reproducibility-in-ccd-spectrometers-with-data) for both the present design and a popular commercial instrument.  These are recorded in essentially side-by-side measurements.  The intent is to illustrate what linearity should look like and why it is important for reproducibility.
+
+We finish the presentation on reliability with a brief discussion of the nature of the signals produced in a spectrometer and how this can lead to non-linearity depending on certain details of circuit design and operation of the sensor.
+
+#### Construction of the spectrometer used for testing
 
 Construction of the spectrometer used for testing the new sensor is described below [(click here)](#spectrometer-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
 Total cost of materials for the spectrometer is under $400, including the electronics (this repo), optics and mechanical parts.
+
+#### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
 The T4/NXP platform provides a flexible timing generator (FlexPWM), fast CPU clock (600MHz) and high-speed USB (480 Mbps).
 The former is helpful for optimal operation of the TCD1304DG. 
 The latter enable signal averaging and 100fps transfers for the large 3664 pixel frames produced by the TCD1304DG.
 
+#### Firmware
+
 The firmware, written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
 The controller can be programmed in the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
+#### Python user code
+
 The Python code can function as a user interface or as a Class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the code provides a Python Class that implements both high and low level member functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+
+#### Electronic design
+
+A tutorial on electrical design CCD sensors and spectroscopy is included [here](#electrical-design).  The section begins with the datasheet and characteristics of the sensor, proceeds to signal condition and driving and ADC and finishes with a short section on the gate drivers.  SPICE files are included in a subdirectory of the repo.  You can modify the SPICE files to investigate your own designs.
+
+#### KiCad files and code provided
 
 The fab files and code provided in this repo, and in the controller repo, plus some cabling and a host computer, should be sufficient to assemble the boards and get your detector system up and running.  Feel free to contact me for consultation or pre-assembled boards (time permitting).  And needless to say, donations are very much appreciated, please the sponsorship button above.
 
@@ -124,7 +169,7 @@ After installing the Arduino IDE and Teensy package, you should be able to doubl
 
 ### Setting up and running the Python codes
 
-Python codes and Bash scripts for operating the TCD1304DG sensor and working with the data, all under Linux, are provided in the repod under the subdirectory Python/.
+Python codes and Bash scripts for operating the TCD1304DG sensor and working with the data, all under Linux, are provided in the repo under the subdirectory Python/.
 
 The codes have been used with the Fedora Cinnamon Spin, which you can [download from here](https://fedoraproject.org/spins/cinnamon).   This uses xorg rather than Wayland, the desktop is Win7-like and it is easy to work with terminal windows. The codes may work with other distros, we have not tested them.  
 
