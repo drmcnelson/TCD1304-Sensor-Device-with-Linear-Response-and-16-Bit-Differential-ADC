@@ -98,7 +98,7 @@ The fab files and code provided in this repo, and in the controller repo, plus s
 ### <font color="blue"> The SPI Instrumentation Project - Open Instruments for Open Science</font>
 The contents of this repo are part of our effort in ***Open Instrumentation for Open Science***.  
 
-We believe that access to doing great science should not be limited to those privileged in funding and affiliation nor held ransom to the extractive practices of the market in scientific instruments. And anyway, you may feel better served by instruments developed by other scientists who actually use them and have decades of experience designing professional instrumentation. The designs we provide can often be built at about 1/10 of the cost of the commercial instrument.  In our own research, we are typically able to do more with these boards that we build and understand than we can with the expensive commercial instruments.
+We believe that access to doing great science should not be limited to those privileged in funding and affiliation nor held ransom to the extractive practices of the market in scientific instruments. And anyway, you may feel better served by instruments developed by other scientists who actually use them and have decades of experience designing professional instrumentation. The designs we provide can often be built at about 1/10 of the cost of the commercial instrument.  In our own research, we are typically able to do more with these boards than we can with the expensive commercial instruments.
 
 At this writing, we have received requests and helped scientists working in Europe, Africa, India, Canada and the USA.
 
