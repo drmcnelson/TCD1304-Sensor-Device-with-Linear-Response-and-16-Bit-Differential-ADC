@@ -58,7 +58,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 
 #### Reproducibility and linearity
 
-Reproducibility for CCD spectrometry in a practical sense depends on linearity and specifically, linear response independent of line shape.  This is a significant challenge to electrical design as will be explained. Absent this kind of linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
+Reproducibility for a CCD spectrometer in a practical sense depends on linearity. This is a significant challenge to electrical design, as will be explained.  Absent linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
 
 We include test results [(here)](##on-linearity-and-reproducibility-in-ccd-spectrometers-with-data) for both the present design and a popular commercial instrument.  These are recorded in essentially side-by-side measurements.  The intent is to illustrate what linearity should look like and why it is important for reproducibility.
 
@@ -360,7 +360,8 @@ In electronics, dV/dt is related to *slew*.
 <img src="Images/Desklamp_ND0700_0.025sec.dvdt.jpg" alt="Fl Lamp Specrtum, dV/dt at ADC" width="45%">
 </p>
 
-There are two obvious ways that a circuit can be slew limited.  The perhaps more trivial is in the maximum slew supported by the choice of OPAMP.  This is a parameter that normally is listed in the datasheet.  Slew can also be limited by current starving the sampling capacitor in the input stage to the ADC.  We will see how this works when we talk about electrical design.
+Circuits can be slew limited through the choice of OPAMP and by any of several ways of current starving the sampling capacitor in the input stage to the ADC.
+Maximum slew and output current are characteristics usually listed in the datasheet for an OPAMP.
 
 Before leaving this topic, we should mention another phenomenon that also effects linearity.
 The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  Generally and remarkably, this effect is usually small if the manufacturers specs for clocking the chip are followed.
