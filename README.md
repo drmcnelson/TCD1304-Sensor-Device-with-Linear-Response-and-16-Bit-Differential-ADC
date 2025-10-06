@@ -25,7 +25,7 @@
 
 This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG designed specifically for linear response and reproducibility inthese challenges to linearity arise in  spectroscopy and scientific imaging.  We provide (a) files for fabrication including gerbers and BOM, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models that we used to develop and test the design. (KiCAD files will be added after the initial roll out.)
 
-#### Two implementations
+#### Implementations
 
 We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the sensor board and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board "All-In-One" implementation with sensor and MCU on back and front of the same board.
 Both run from a common set of firmware and Python codes.
