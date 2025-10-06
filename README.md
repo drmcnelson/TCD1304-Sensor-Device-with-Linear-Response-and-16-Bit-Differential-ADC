@@ -677,7 +677,7 @@ Recalling the table at the top of the discussion on electrical design, we saw th
 A suitable way to drive the gate would look like the following.  We use a SN74LVC1T45 and an 82ohm series resistor.
 
 <p align="center">
-<img src="Images/gatedriversketch.jpg" width="40%">
+<img src="Images/gatedriversketch.jpg" width="50%">
 </p>
 
 
