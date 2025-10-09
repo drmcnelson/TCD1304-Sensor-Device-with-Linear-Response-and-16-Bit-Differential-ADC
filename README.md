@@ -25,14 +25,17 @@
 
 This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
 
-In the following we will explain how to get everything up and running, show our data from testing the present design and a popular commercial instrument, and then explain how the design works with key points illustrated in SPICE models.
+It should be emphasized that there is a difference between getting a signal and having a result that looks the same from one instance to the next and even more so that you can quantify, and that you can report your result and be confident that other researchers will find the same result.  This has long been a challenge for CCD spectrometers, as is well known to those who have been working with them since their inception and adoption in astronomy and synchrotron facilities in the 1980's and commercialization in miniature spectrometers in the early 1990's.  This was the motivation for the present design.  We specifically set out to produce a definitive design that addresses these issues and "sets the bar" for linear response for a CCD based spectrometer.
 
-This repo provides (a) fab files and BOM for making the boards, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models referred to in the text and that we used to develop and test the design. 
+In this README we cover a lot of ground, from getting and working with the boards, to documenting what linearity and non-linearity look like in real instruments and why it is important, explaining why the problem is especially tied to spectrometers, and providing a tutorial in electrical design with example circuits. We use SPICE models to illustrate key points and we include a collection of these in this repo so that you can explore the ideas for yourself.
 
+This repo provides (a) fab files and BOM for making the boards, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models as referred to in the text and including those we used to develop and test the design. 
+
+We begin with a summary of what is contained in the rest of the readme and repo.
 
 #### Implementations
 
-We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the sensor board and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board "All-In-One" implementation with sensor and MCU on back and front of the same board.
+We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC/tree/main/TCD1304_SPI_Rev2EB) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM) implementation with sensor and MCU on back and front of the same board.
 Both run from a common set of firmware and Python codes.
 
 The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  Fiduciary marks are provided on both sides of the sensor board to facilitate optical alignment.
@@ -65,13 +68,14 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 
 Reproducibility for a CCD spectrometer in a practical sense depends on linearity. This is a significant challenge to electrical design, as will be explained.  Absent linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
 
-We include test results [(here)](##on-linearity-and-reproducibility-in-ccd-spectrometers-with-data) for both the present design and a popular commercial instrument.  These are recorded in essentially side-by-side measurements.  The intent is to illustrate what linearity should look like and why it is important for reproducibility.
+We include test results [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
+for both the present design and a popular commercial instrument.  These are recorded in essentially side-by-side measurements.  The intent is to illustrate what linearity should look like and why it is important for reproducibility.
 
 We finish the presentation on reliability with a brief discussion of the nature of the signals produced in a spectrometer and how this can lead to non-linearity depending on certain details of circuit design and operation of the sensor.
 
 #### Construction of the spectrometer used for testing
 
-Construction of the spectrometer used for testing the new sensor is described below [(click here)](#spectrometer-construction).
+Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
 Total cost of materials for the spectrometer is under $400, including the electronics (this repo), optics and mechanical parts.
 
@@ -84,12 +88,12 @@ The latter enable signal averaging and 100fps transfers for the large 3664 pixel
 
 #### Firmware
 
-The firmware, written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
+The firmware [(here)](Firmware/), written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
 The controller can be programmed in the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
 #### Python user code
 
-The Python code can function as a user interface or as a Class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the code provides a Python Class that implements both high and low level member functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+The Python code [(here)](Python/) can function as a user interface or as a Class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the code provides a Python Class that implements both high and low level member functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
 
 #### Electronic design
 
@@ -130,10 +134,7 @@ Permission for use in a product or other commercial effort
 
 And of course, no warranty or guarantee is given whatsoever.  We did our best.
 
-### Contents of this repo
-This repository at present contains the preliminary gerbers, schematic and BOM, plus preliminary firmware and python code and selected SPICE files.  We plan at least one update for the firmware and we plan to add KiCAD files.  The README (this file) provides results of testing and some explanation of how things work.
-
-If you have questions, please feel free to contact me.  
+If you have questions, please feel free to contact me.  And of course, don't forget to click the "Sponsor" button.
 
 ***
 ## Getting it all up and running
