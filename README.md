@@ -23,7 +23,7 @@
 
 ## Introduction
 
-This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
+This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
 
 In the following we will explain how to get everything up and running, show our data from testing the present design and a popular commercial instrument, and then explain how the design works with key points illustrated in SPICE models.
 
