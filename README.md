@@ -35,7 +35,7 @@ We begin with a summary of what is contained in the rest of the readme and repo.
 
 #### Implementations
 
-We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM) implementation with sensor and MCU on back and front of the same board.
+We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board.
 Both run from a common set of firmware and Python codes.
 
 The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  Fiduciary marks are provided on both sides of the sensor board to facilitate optical alignment.
@@ -466,7 +466,7 @@ Note that the wavelength range and pixel density set an effective limit on resol
 We now describe some of the elements of circuit design for a CCD based spectrometer (or imaging system).
 This will be something of a tutorial.  The idea is to support open science.  That includes being open about what you need to know to design something like this for yourself. We assume some basic knowledge of electronics.  The "attentive reader" will note that we make extensive use of SPICE models.
 
-We include a set of SPICE models in the [SPICE subdirectory](SPICE).  These form the basis of most of the illustrations shown in this README.
+We include a set of SPICE models in the [SPICE subdirectory](SPICE/).  These form the basis of most of the illustrations shown in this README.
 
 We start with characteristics of the TCD1304DG and then proceed through signal conditioning to the ADC, gate drivers, and power architecture.
 
