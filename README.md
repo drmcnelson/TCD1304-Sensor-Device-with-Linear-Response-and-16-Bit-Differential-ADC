@@ -395,7 +395,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Construction
-The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 520nm and use the range is about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
+The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 520nm.  The wavelength range is about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="33%" height="auto">  
@@ -416,7 +416,7 @@ The parts list for the above is:
 <li>TCD1304 sensor board and controller from this repo, with cables</li>
 </ol>
 
-Detailed discussions on designing a spectrometer are easily found by web search. We will mention a few important highlights.  Here is the geometry for reference.
+Detailed discussions on designing a spectrometer are easily found by web search. We will mention a few important highlights as we go step by step through the design process for the above instrument.  Here is the geometry for reference.
 
 <p align="center">
 <img src="Images/SpectrometerTransmissionGeometry.jpg" width="60%">
@@ -428,15 +428,15 @@ First, let's choose a center wavelength.  For a grating with line density G (in 
 λ<sub>0</sub> G = sin θ<sub>in</sub> + sin θ<sub>out</sub>. 
 </p>
 
-Setting the exit angle to zero (0), our 1200l/mm grating with a center wavelength at 500 nm gives us an incident angle of about 37 degrees. That happens to be the blaze angle for our grating, So, that works out very well.
+Setting the exit angle to zero (0) and our center wavelength at 500nm, with our 1200l/mm grating we have an incident angle of about 37 degrees. That happens to be the blaze angle for our grating, So, that works out very well.
 
 The range in wavelength is set by the size of the detector and the focal length of the second lens,
 
 <p align="center">
 G Δλ = cos(θ<sub>out</sub>) L<sub>D</sub>/L<sub>F</sub>
 </p>
-where L<sub>D</sub> is the length of the active region along the detector and L<sub>F</sub> is the focal length. In our geometry (θ<sub>out</sub> = 0)
-with a 1,200 l/mm grating, 30mm detector and 55mm fl exit lens,  we expect should gives us a range of about 450nm.
+
+where L<sub>D</sub> is the length of the active region along the detector and L<sub>F</sub> is the focal length. We have G = 1,200 l/mm, θ<sub>out</sub> = 0, L<sub>D</sub> = 30mm and L<sub>F</sub> = 55mm fl. So our spectral range Δλ should be about 450nm.
 
 For setup and alignment, the slit and sensor should be positioned at the foci of the lenses and the sensor should be parallel to the grating. (Note that the sensor is actually 0.7mm behind the face of its glass window.)
 You can use a flashlight and fiber as input to align the device. It should look like a well focused rainbow on the face of the sensor.
