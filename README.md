@@ -90,15 +90,15 @@ The latter enable signal averaging and 100fps transfers for the large 3664 pixel
 #### Firmware
 
 The firmware [(here)](Firmware/), written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
-The controller can be programmed in the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
+The T4 controller is supported by the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
 #### Python user code
 
-The Python code [(here)](Python/) can function as a user interface or as a Class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the code provides a Python Class that implements both high and low level member functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+The Python code [(here)](Python/) can function as a user interface or as a Class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the spectrometer is available as an instance of a class object.  The Class provides both high and low level functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
 
 #### Electronic design
 
-A tutorial on electrical design CCD sensors and spectroscopy is included [here](#electrical-design).  The section begins with the datasheet and characteristics of the sensor, proceeds to signal condition and driving and ADC and finishes with a short section on the gate drivers.  SPICE files are included in a subdirectory of the repo.  You can modify the SPICE files to investigate your own designs.
+A tutorial on electrical design for CCD sensors and spectroscopy is included [here](#electrical-design).  The section begins with the datasheet and characteristics of the sensor, proceeds to signal condition and driving an ADC and finishes with a section on the gate drivers.  SPICE files are included in a subdirectory of the repo.  You can modify the SPICE files to investigate your own designs.
 
 #### KiCad files and code provided
 
@@ -158,17 +158,22 @@ After the boards are assembled, you will need to install the Teensy board in the
 
 The firmware codes are found in the repo in the Firmware/ subdirectory
 
-(In the following, the "250901" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
+(In the following, the "250928" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
 
-    TCD1304Device_Controller_250901/
+    TCD1304Device_Controller_250928/
     
-      TCD1304Device_Controller_250901.ino  - The Arduino program with the CLI
+      TCD1304Device_Controller_250928.ino  - The Arduino program with the CLI
     
       parselib.cpp    - The string parsing library for the CLI
       parselib.h
-      TCD1304Device.h - The header-only C++ library for the TCD1304 with FlexPWM
+      TCD1304Device2.h - The header-only C++ library for the TCD1304 with FlexPWM
 
 The Arduino IDE requires that the "ino" file and directory have the same name.
+
+To load firmware into the "All-In-One" board, open the file **TCD1304Device2.h** in a text editor or find its "tab" in the Arduino IDE, and un-comment the following line. It is at line 23 in the current version of the file.
+
+      //#define ALLINONEBOARD
+
 
 If you want to customize the firmware, it is recommended to create a new directory, copy the files to that directory and rename the ino file per the above.
 
@@ -178,7 +183,7 @@ After installing the Arduino IDE and Teensy package, you should be able to doubl
 
 Python codes and Bash scripts for operating the TCD1304DG sensor and working with the data, all under Linux, are provided in the repo under the subdirectory Python/.
 
-The codes have been used with the Fedora Cinnamon Spin, which you can [download from here](https://fedoraproject.org/spins/cinnamon).   This uses xorg rather than Wayland, the desktop is Win7-like and it is easy to work with terminal windows. The codes may work with other distros, we have not tested them.  
+The codes have been used with the Fedora Cinnamon Spin, which you can [download from here](https://fedoraproject.org/spins/cinnamon).   This uses xorg rather than Wayland, the desktop is Win7-like and it is easy to work with terminal windows. We have also done some preliminary testing in Ubuntu.
 
 #### Installing the Python environment
 
