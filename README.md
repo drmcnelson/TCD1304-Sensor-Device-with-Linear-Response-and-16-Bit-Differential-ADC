@@ -233,7 +233,7 @@ Now you can run the controller program.
 
     $ TCD1304Controller.py
 
-The controller should open a grahics window.  The desktop will look something like this:
+The controller should open a grahics window.  The desktop will look something like this (this is from an earlier instrument with similar software):
 
 <p align="center">
 <img src="Images/TCD1304_desktop.jpg" width="60%">
@@ -302,7 +302,7 @@ In a linear instrument, all of these intensities should rise linearly with expos
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Response for three spectral lines with one near saturation for (a) the present design and (b) the commercial instrument.
+Intensity versus exposure time for four spectral lines for (a) the present design and (b) the commercial instrument.   The present design demonstrates linear response.
 </i>
 </p>
 </p>
@@ -316,7 +316,7 @@ Lets look at the normalized response for the three lines 546nm, 542nm, and 487nm
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Response for three spectral lines with one near saturation for (a) the present design and (b) the commercial instrument.
+Intensity normalized to exposure time for three spectral lines for (a) the present design and (b) the commercial instrument.
 </i>
 </p>
 </p>
