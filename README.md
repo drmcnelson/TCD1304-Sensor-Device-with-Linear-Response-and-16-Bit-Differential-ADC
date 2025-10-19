@@ -1,5 +1,10 @@
 # TCD1304 Sensor with Linear Response and 16 Bit Differential ADC
 
+<p align="center">
+<img src="Images/TCD1304_socialmedia_preview2.jpg" width="75%">
+</p>
+<br>
+
 #### Table of Contents
 - [Introduction](#introduction)
 	- [SPI Instrumentation Project](#-the-spi-instrumentation-project---open-instruments-for-open-science)
