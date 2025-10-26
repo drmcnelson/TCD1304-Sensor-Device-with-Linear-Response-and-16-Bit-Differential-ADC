@@ -624,8 +624,14 @@ ADC model driven by OPAMP follower.<br> Green = out, blue = sar cap, grey = samp
 </p>
 </p>
  
- #### Charge reservoir as solution for kickback
-The following shows the recommended method for driving an ADC. A cap C2 is added in front of the ADC to act as a charge reservoir for C1.  As can be seen, charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
+#### Charge reservoir as solution for kickback
+In the often recommended solution for kickback, we provide a charge reservoir in the form of a capacitor in front of the input to the switched capacitor network, as in the following illustration.  Now, when the switch closes, current flows from the charge reservoir, which is replenished on a somewhat slower time scale by the driver (the opamp).
+
+<p align="center">
+<img src="Images/SimpleSamplingDriver.jpg" width="50%"><br>
+</p>
+
+The following shows the implementation of this scheme in our SPICE mode. A cap C2 is added in front of the ADC to act as the charge reservoir for C1.  We see in the traces that charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
 
 <p align="center">
 <img src="Images/Sampling_ADC_RC_circuit.jpg" width="75%">
@@ -636,13 +642,7 @@ ADC model with recommended driver, charge reservoir C2.<br> Green = out, turquoi
 </p>
 </p>
 
-A perhaps simpler way to illustrate the idea is as follows.  The arrows indicate the current flow to maintain the charge on the reservoir and what happens when the switch is closed.
-
-<p align="center">
-<img src="Images/SimpleSamplingDriver.jpg" width="50%"><br>
-</p>
-
-This looks like a low pass filter, but the components are chosen a little differently.
+The charge reservoir and series resistor together look like a low pass filter, but the components are chosen a little differently.
 C2 needs to be large compared to C1 and R1 needs to be tuned between the current capacity of the OPAMP and allowing C2 to track the input. We make extensive use of SPICE modeling to check designs for response and precision.
 
 #### dV/dt versus charge reservoir
@@ -720,11 +720,10 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 </p>
 </p>
 
-Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  This puts us well within our power supply noise budget for the analog signal path.
+Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
 #### Charge clearance, carry-over and relationship to gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gAppendix A - Quick command list
-ate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.
 
 Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000 and so carry-over is small compared to dark noise.  In our case, our gate driver can provide 50mA, so the time constant really is set by the RC.
 
