@@ -631,7 +631,7 @@ In the often recommended solution for kickback, we provide a charge reservoir in
 <img src="Images/SimpleSamplingDriver.jpg" width="50%"><br>
 </p>
 
-The following shows the implementation of this scheme in our SPICE mode. A cap C2 is added in front of the ADC to act as the charge reservoir for C1.  We see in the traces that charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
+The following shows the implementation of this scheme in our SPICE model. A cap C2 is added in front of the ADC to act as the charge reservoir for C1.  We see in the traces that charge for C1 now comes from C2 and the voltage on C2 is managed by a much smaller current through R1.  There is no discernible kickback in V(out) nor in the current through R1.
 
 <p align="center">
 <img src="Images/Sampling_ADC_RC_circuit.jpg" width="75%">
