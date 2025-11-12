@@ -1,0 +1,8 @@
+@pulsewidth.script 1 3
+set pin 0 input
+q
+@pulsewidth.script 1 3
+read 10 0.1
+read 10 0.05
+read 10 0.025
+q

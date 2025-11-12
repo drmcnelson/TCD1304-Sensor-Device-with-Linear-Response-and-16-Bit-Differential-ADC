@@ -1,0 +1,262 @@
+TCD1304 CLI:help
+
+Report device, version and configuration
+  version           - report software version
+  configuration     - report device configuration and data structure
+  pins              - report digital i/o functions and pin numbers
+  stop              - stop everything
+
+Coefficients for pixel number to wavelength
+  store coefficients <a0> <a1> <a2> <a3> (need 4 numbers)
+  erase coefficients
+  coefficients       - report
+
+  store units <string> (upto 6 characters, c.f. nm, um, mm)
+  units              - report
+
+Identifier string (63 bytes)
+  store identifier <identifier>
+  identifier         - list identifier string
+
+Data format
+  set ascii          - set data format to ascii
+  set binary         - set data format to binary
+  format             - report data form
+
+  set async          - data is sent asynchronously
+  set synchronous    - READY DATA is sent, host responds send data
+
+  enable|disable crc - precede each data transfer with crc
+  enable|disable sum - precede each data transfer with sum
+
+  crc | send crc     - send 8 bit crc calculated on the binary data
+  sum | send sum     - send 32 bit sum calculated on the binary data
+
+  send test          - send test data
+  send               - (re)send last data
+
+Microcontroller functions
+  temperature        - report microcontroller temperature
+  reboot             - reboots the entire board
+
+ADCs Read and average analog inputs
+  adcs <navgs>        - read analog inputs and report
+  set adcs <navgs>    - read ADCs at frame completion
+  set adcs off
+
+LCCD commands:
+
+  1) High level read and trigger commands
+
+    read <exposure>  (secs)                  - read single frame
+    read <nframes> <exposure>                - read contiquous frames
+    read <nframes> <exposure>  <interval>    - read fast frame sequence
+
+    read ...   nostart                       - setup read without start
+    start read
+
+    wait read
+
+    trigger <exposure>  (secs)               - triggered read, single frame
+    trigger <nframes> <exposure>             - trigger read, contiquous frames
+    trigger <nframes> <exposure>  <interval> - trigger read, fast frame sequence
+
+    trigger ...   nostart                    - setup triggered read, without start
+    start trigger
+
+    wait trigger
+
+    gate frame <n>
+
+    configure trigger pin <n> | pullup | nopullup | rising | falling | change
+
+  2) Single pulse setup (time syntax: 1E-6, 0.000001 or 1u)
+
+    setup pulse [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)
+
+          defaults to 0.5u 1u 0.6u 2.6u 0.5u 1 1
+
+          Generally this command will be followed by "setup timer" or "setup trigger"
+
+      start pulse - launches a single pulse with readout
+      stop pulse  - stops ongoing pulse
+
+      arm pulse   - re-arm for the next pulse, see set nframes and nframesets
+      init pulse  - re-arms and sets frame counter to 0
+
+      configure clearing pulses [n] - power-up default is 0
+         (SH is pulsed before the start of the next exposure to clear residual charge)
+
+  3) Frameset setup - provides short exposure time (time syntax: 1E-6, 0.000001 or 1u)
+
+    setup frameset <exposure> <interval> <nframes> [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)
+
+          defaults to 100u 5E-3 10 0.5u 1u 0.6u 2.6u 0.5u
+
+          Generally this command will be followed by "start frameset" or "setup trigger"
+
+      start frameset - launches a single frameset with readout
+      stop frameset  - stops ongoing frameset
+
+      arm frameset   - re-arm for the next frameset, see set nframes and nframesets
+      init frameset  - re-arms and sets frame counter to 0
+
+  4) Timer setup, clocks pulses, implemented in the flexpwm, rounded to multiple of 5,10 or 20 msecs depending on readout time
+
+    setup timer <exposure> [<nframes> [<offset>]] - nframes defaults to previous setup, offset to 0
+
+          Generally this command will be followed by "start timer" or "setup trigger"
+
+      start timer - launches the timer
+      stop timer  - stops the timer
+
+  5) External trigger setup - triggers pulse, timer or frameset per setup (see section 1 above)
+
+    setup trigger [ncounts]
+
+          Generally this command will be followed by "start trigger"
+
+      start trigger - arms the interrupt
+      stop trigger  - disables the trigger
+
+    configure trigger [args ....]
+
+      args:  pin <n>,  pullup | nopullup,  rising | falling | change
+
+  More commands
+
+       set sync on | off - enable or disable sync pin output
+
+       set frame counts nframes [nframesets]
+       set frame counts nframesets
+
+       print pulse counters
+
+    System timer    - Clocks the pulse start function using standard timer calls (see setup pulse)
+
+      setup clock <period> [n] - defaults to number required by the tcd1304 setup
+
+        start clock
+        stop clock
+
+    This is the obsoleted frameset setup:
+
+      setup old frameset <clkbase (64|128)> <exposure> <pulsewidth> <frame interval> <nframes> [add] (in secs)
+
+        start old tcd1304
+        stop old tcd1304
+
+  Low level TCD1304 submodule setup, refer to flexpwm section of the processor manual
+
+    setup submodule <name> [arg val ...] [commands ....]
+
+      names:   clk sh icg cnvst timer
+
+      args:    prescale <n>, period <n>, onA|B <n>, offA|B <n>, [no]invertA|B, ctrl2 <n>
+               master, slave, sync, print, list, check, load
+
+  Low level TCD1304 FlexPWM Commands, refer to flexpwm section of the processor manual
+
+     All of the submodules:
+
+       flexpwm dump  - dump all of the flexpwm registers
+
+       flexpwm stop  - stop all of the flexpwm submodules
+
+     Single or group commands (submodule 0-3 or mask  0x1 - 0xF
+
+       flexpwm <submodule|mask> clear load ok  (cldok in mcu reference manual)
+       flexpwm <submodule|mask> set load ok    (ldok in mcu ref manual)
+
+       flexpwm <submodule|mask> clear run    - stops the clock
+       flexpwm <submodule|mask> set run      - starts the clock
+
+     Single submodule commands
+
+       flexpwm <submodule> set clock master  - clock runs independently
+       flexpwm <submodule> set clock slave   - clock syncs and starts with 0
+       flexpwm <submodule> set clock sync    - clock syncs with 0, starts independently
+
+       flexpwm <submodule> force  -  force counter to reload to init
+
+     Single submodule counters
+
+       flexpwm <submodule> set prescale <value>  - prescale, 0 to 7 for divider 1<<p
+       flexpwm <submodule> set init <value>      - set counter init register to value (16 bits)
+       flexpwm <submodule> set val<n> <value>    - set comparison register 0 to 5, to value
+
+  Processor reference manual:
+
+       i.MX RT1060 Processor Reference Manual
+       https://www.nxp.com/products/i.MX-RT1060
+
+       Chapter 55 Enhanced Flex Pulse Width Modulator (eFlexPWM) page 3091
+
+  Pin controls - <pin> = sync | busy trigger | <n>
+
+     read pin <pin>
+     set pin <pin> hi|low|input|pullup|output
+     pulse pin  <pin>  [usecs]
+     toggle pin <pin>
+
+Preconfigured pins
+  Trigger(input)2  Busy 1  Sync 0  ~OverCurrent 23
+
+Help subcommands
+
+  help [all | report | coefficients | data | microcontroller | adcs
+           lccd | pulse | frameset | trigger | help]
+
+  
+Commands implemented in the CLI/host computer:
+   h|help                      - produces this help text
+
+   baseline on | off           - turn baseline correction on/off
+
+   clear                       - empty the data and text queues
+
+   save fileprefix comments... - save contents of data queue to diskfile
+   wait                        - wait for "complete" message from sensor
+   wait read | trigger         - for the tcd1304 firmware wait functions
+   wait                        - wait for "complete" message from sensor
+
+   tcd1304 ....                - pass command to the tcd1304
+
+   Pass command to operation system shell
+     !command                  - execute shell command
+
+   Pass instruction to python intepretor
+     a = 3                     - '=' causes evaluation as python
+     = python statement        -  pass to python interprator
+      these commands have access to local() and class name spaces
+
+   Execute commands from text file, parameters appear as a list, batchpars
+
+     @filespec [parameter list] - read and execute commands from a file
+
+     Example
+
+       @testscrpt 1 2
+
+       testscript:
+         =print(batchpars)
+
+       output:
+           ['testscript', '1', '2']
+
+   Loops and string substitution, by example
+
+     for a_ in [0,.1,.2]: @testscript "%.2f"%(a_)
+     for a_ in [0,.1,.2]: for b_ in [ .3,.4,.5]: @testscript "%.2f"%(a_) "%.2f"%(b_)
+
+      testscript:
+         =print(batchpars)
+
+       output:
+           ['testscript', '0.00', '0.30']
+           ['testscript', '0.00', '0.40']
+          etc
+
+   q[uit]                      - exit the cli program
+
+

@@ -1,0 +1,28 @@
+
+=print(batchpars)
+
+SHwidth=float(batchpars[1])
+=print(SHwidth)
+
+ICGwidth=2.1+SHwidth
+=print(ICGwidth)
+
+ICGwidth=max(ICGwidth,2.6)
+=print(ICGwidth)
+
+Npulses=int(batchpars[2])
+=print(Npulses)
+
+set pin 0 input
+configure trigger pin 0 rising
+
+"configure clearing pulses %d"%(Npulses)
+
+"setup pulse 0.5u %.1fu 0.6u %.1fu 0.5u 1 1"%(SHwidth,ICGwidth)
+
+setup timer 0.1 5
+
+start timer
+
+
+
