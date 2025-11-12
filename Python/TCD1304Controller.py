@@ -20,7 +20,7 @@ __status__    = "alpha testing"
 
 __all__ = [ 'LCCDFRAME', 'LCCDDATA', 'LCCDDATASET' ]
 
-versionstring = 'LCCDController.py - version %s %s M C Nelson, PhD, (c) 2023'%(__version__,__status__)
+versionstring = 'TCD1304Device.py - version %s %s M C Nelson, PhD, (c) 2023'%(__version__,__status__)
 
 import sys
 import time
@@ -80,6 +80,13 @@ try:
 except:
     has_GraphicsWindow = False
     
+# ----------------------------------------------------------
+try:
+    from PulseTimingDevice import PULSETIMINGDEVICE
+    has_PulseTimingDevice = True
+except:
+    has_PulseTimingDevice = False
+
 # ----------------------------------------------------------
 
 def lineno():
@@ -204,6 +211,8 @@ class TCD1304CONTROLLER:
         self.flag = Value( 'i', 1 )
         self.busyflag = Value( 'i', 0 )
 
+        self.pulsetimingdevice = None
+        
         # Control data processing in reader
         self.baselineflag = Value( 'i', 1 )
 
@@ -222,6 +231,7 @@ class TCD1304CONTROLLER:
 
         self.identifier = None
         self.coefficients = []
+        self.units = None
 
         self.graph_by_pixels = graph_by_pixels
 
@@ -336,6 +346,14 @@ class TCD1304CONTROLLER:
                 print( 'coefficients', self.coefficients )
                 print( self.xdata )
             
+            buffer = self.rawcommand( 'units', 'units' )
+            if buffer is not None:
+                if self.debug:
+                    print( 'units buffer', buffer )
+                if len(buffer.split()) > len("units:"):
+                    self.units = buffer.split(maxsplit=1)[1:]
+                print( 'units:', self.units )
+            
 
         # ---------------------------------
         if xrange is None:
@@ -383,16 +401,32 @@ class TCD1304CONTROLLER:
         atexit.register(self.exit, None )
 
     # ------------------------------------------
+    def parseunits(self, buffer):
+        if not buffer.startswith("units") or len(buffer.split()) < 2:
+            return False
+        try:
+            self.units = buffer.split(maxsplit=1)[1].strip()
+            print("new units: ", self.units)
+            return True
+        except Exception as e:
+            print("parsing units", e)
+        return False
+    
     def parsecoefficients( self, buffer ):
 
-        print( buffer )
+        if not buffer.startswith("coefficients") or len(buffer.split()) < 2:
+            return False
+        
         if 'nan' in buffer:
+            print("resetting coefficients to 0,1")
             self.coefficients = [ 0., 1., 0., 0. ]
             self.xdata = generate_x_vector( self.datalength, None )
             return False
 
         try:
+            print("loading new coefficients")
             self.coefficients = [ a for a in map( float, buffer.split()[1:] ) ]            
+            print("setting new xdata")
             self.xdata = generate_x_vector( self.datalength, self.coefficients )
         except Exception as e:
             print( e )
@@ -580,10 +614,19 @@ class TCD1304CONTROLLER:
                 print( 'lccd setting busyflag' )
             busyflag.value = 1
             try:
+                n = 0
                 while not dataqueue_empty():
                     dataqueue_get()
+                    n += 1
+                    while not dataqueue_empty():
+                        dataqueue_get()
+                        n += 1
+                    sleep(0.1)
+                    
+                print("recordProcessingInitialization cleared %d data queue entries"%(n))
+                    
             except Exception as e:
-                print( 'clearing dataqueue', e )
+                print( 'Error while clearing dataqueue', e )
 
         def recordProcessing( ):
 
@@ -1135,19 +1178,7 @@ class TCD1304CONTROLLER:
                     if debug:
                         print( 'lccd clearing busyflag' )
                     busyflag.value = 0
-                    
-                    
-                elif buffer.startswith( "coefficient" ):
-
-                    # this also generates self.xdata
-                    self.parsecoefficients( buffer )
-                    print( self.coefficients )
-                    print( self.xdata )
-                    
-                elif buffer.startswith( "Identifier" ):
-
-                    self.identifier = buffer.split(maxsplit=1)
-
+                
                 # --------------------------------
                 # Receive Ascii Formatted Text
                 #elif ( buffer[0] == '#' ):
@@ -1222,12 +1253,26 @@ class TCD1304CONTROLLER:
     def clear( self ):
 
         print("clearing text and data queues and device accumulator(s)")
-        
+
+        n = 0
         while not self.textqueue.empty():
             self.textqueue.get()
-            
+            n += 1
+            while not self.textqueue.empty():
+                self.textqueue.get()
+                n += 1
+            sleep(0.1)
+        print("cleared ", n, " textqueue entries")
+
+        n = 0
         while not self.dataqueue.empty():
             self.dataqueue.get()
+            n += 1
+            while not self.dataqueue.empty():
+                self.dataqueue.get()
+                n += 1
+            sleep(0.1)
+        print("cleared ", n, " dataqueue entries")
 
         self.busyflag.value = 0
 
@@ -1297,6 +1342,18 @@ class TCD1304CONTROLLER:
 
             if not file.endswith( self.filesuffix ):
                 file += "." + timestamp.strftime('%Y%m%d.%H%M%S.%f') + self.filesuffix
+
+            dirspec = os.path.dirname(file)
+            if len(dirspec):
+                if os.path.isdir(dirspec):
+                    print( 'saving to directory', dirspec )
+                else:
+                    print( 'creating directory', dirspec )
+                    try:
+                        os.makedirs(dirspec)
+                    except Exception as e:
+                        print( e )
+                        return False
                 
             try:
                 file = open(file,"x")
@@ -1428,6 +1485,14 @@ class TCD1304CONTROLLER:
                 print("parname ", parname)
                 print("value ", pars[3])
                 self.__dict__[parname]=pars[3]
+            elif len(pars)==3:
+                parname="flexpwm_"+pars[1]
+                print("parname ", parname)
+                print("value ", pars[2])
+                try:
+                    self.__dict__[parname]=int(pars[2])
+                except:
+                    self.__dict__[parname]=pars[2]
             
     def commandlineprocessor( self, line, fileprefix=None ):
 
@@ -1440,8 +1505,13 @@ class TCD1304CONTROLLER:
             if line[0] == '"' and line[-1] ==')' and line.count('"') == 2:
                 if self.debug:
                     print("string subst for command line:", line)
-                exec( "res="+line, self.__dict__, globals() )
-                line=res
+                try:
+                    exec( "res="+line, self.__dict__, globals() )
+                    line=res
+                except Exception as e:
+                    print("failed string substitution", e)
+                    print(line)
+                    return False
         
             
             elif '%(' in line:
@@ -1486,7 +1556,11 @@ class TCD1304CONTROLLER:
             print( "   clear                       - empty the data and text queues" )
             print( "" )
             print( "   save fileprefix comments... - save contents of data queue to diskfile" )
-            print( "   wait                        - wait for completion of the active frameset" )
+            print( "   wait                        - wait for \"complete\" message from sensor" )
+            print( "   wait read | trigger         - for the tcd1304 firmware wait functions" )
+            print( "   wait                        - wait for \"complete\" message from sensor" )
+            print( "" )
+            print( "   tcd1304 ....                - pass command to the tcd1304" )
             print( "" )
             print( "   Pass command to operation system shell" )
             print( "     !command                  - execute shell command" )
@@ -1530,7 +1604,9 @@ class TCD1304CONTROLLER:
             #print( "rcvd comment line" )
             print( line )
 
-        elif line.startswith('wait'):
+        elif line.startswith('wait') and \
+             not line.startswith("wait read") and \
+             not line.startswith("wait trigger"):
 
             pars = line.split()
             if len(pars) > 3:
@@ -1615,7 +1691,16 @@ class TCD1304CONTROLLER:
                 
                 for line_ in line.split(';'):
 
-                    if not line_.startswith("wait") and \
+                    if not len(line):
+                        continue
+                    
+                    if line_.startswith("nowait"):
+                        try:
+                            line_ = line_.split(maxsplit=1)[1]
+                        except Exception as e:
+                            print("empty line after nowait")
+                        
+                    elif not line_.startswith("wait") and \
                        not line_.startswith("stop") and \
                        not line_.startswith("clear") and \
                        not line_.startswith("toggle") and \
@@ -1623,18 +1708,18 @@ class TCD1304CONTROLLER:
                        self.busyflag.value:
                         print("device is busy, need to wait, clear or stop first")
                         status = False
-                        break
+                        return False
                     
                     if not self.commandlineprocessor( line_, fileprefix ):
                         status = False
                         print( "command failed:", line_ )
-                        break
+                        return False
                     
                     if self.debug:
                         print( "command finished:", line_ )
                     
                 if not status:
-                    break
+                    return False
                 
             if self.debug:
                 print("completed",batchfile)
@@ -1695,7 +1780,13 @@ class TCD1304CONTROLLER:
                     line__ = line__.strip()
                     
                     if line__.startswith( '"' ):
-                        exec( "line___ = " + line__, self.__dict__, globals() )
+                        try:
+                            exec( "line___ = " + line__, self.__dict__, globals() )
+                        except Exception as e:
+                            print( "command:", line__ )
+                            print(e)
+                            return False
+                        
                         if self.debug:
                             print( "command:", line___ )
                         if not self.commandlineprocessor( line___, fileprefix ):
@@ -1713,21 +1804,41 @@ class TCD1304CONTROLLER:
             except Exception as e:
                 print( e )
 
+        elif line.startswith('pulsetimingdevice'):
+            if self.pulsetimingdevice is None:
+                print( "no timing device loaded" )
+                return False
+
+            try:
+                return self.pulsetimingdevice.commandlineprocessor(line.split(maxsplit=1)[1])
+            except:
+                print(e)
+                return False
+
         elif line is not None and len(line) > 0:
 
+            if line.startswith("tcd1304") and len(line.split()) > 1:
+                line = line.split(maxsplit=1)[1]
+            
             self.write( line + '\n' )
             
             response = self.read()
             for line in response:
                 print( 'response: ', line )
-                self.parseflexpwm(line)
+                if self.parseflexpwm(line) or \
+                   self.parsecoefficients(line) or \
+                   self.parseunits(line):
+                    print("parameters updated")
                 
         else:
             response = self.read_nowait()
             if len(response) :
                 for line in response:
                     print( '>response: ', line )
-                    self.parseflexpwm(line)
+                    if self.parseflexpwm(line) or \
+                       self.parsecoefficients(line) or \
+                       self.parseunits(line):
+                        print("parameters updated")
 
         if self.checkerrors():
             print( 'checkerrors found errors' )
@@ -1799,7 +1910,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser( description='LCCD Controler Monitor/Cli',
                                       formatter_class=ExplicitDefaultsHelpFormatter )
 
-    parser.add_argument( 'ports', default=[ser0_default], nargs='*',
+    parser.add_argument( 'ports', default=[ser0_default,ser1_default], nargs='*',
                          help = 'one or more serial or com ports,' +
                          ' the first is the control port, others are readonly' )
 
@@ -1814,6 +1925,8 @@ if __name__ == "__main__":
 
     parser.add_argument( '--raw', action = 'store_true', help='graph raw binary values' )
 
+    parser.add_argument( '--pulsetimingdevice', '--timing', action = 'store_true' )
+    
     parser.add_argument( '--debug', action = 'store_true' )
 
     # for datafile reading
@@ -1867,10 +1980,15 @@ if __name__ == "__main__":
                                       debug=args.debug )
     
     dataport = None
-    
+
+    '''
     if len(args.ports) > 1:
         dataport = TCD1304CONTROLLER( args.ports[1] )
+    '''
 
+    if args.pulsetimingdevice:
+        serialdevice.pulsetimingdevice = PULSETIMINGDEVICE( args.ports[1] )
+        
     # ---------------------------------------------------------
     if not args.nohistoryfile:
         try:
