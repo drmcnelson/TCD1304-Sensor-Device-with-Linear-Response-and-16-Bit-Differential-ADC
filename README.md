@@ -243,7 +243,7 @@ Notice that in the console window, you have a prompt.  This is the command line 
 
 Some of the commands are implemented in the Python code, the remainder are passed through to the sensor device.  The CLI also supports scripting and can execute shell commands.
 
-Enabling and starting a data collection comprises several steps depending on the mode of operation, as depicted below in the "Quick command reference" table.  Note that each of the TCD1304DG operations comprises one or more setups followed by a start. The data is produced asynchronously in the TCD1304DG controller hardware and when it arrives in the host computer it is buffered into a data queue and enqueued to the graphical display window.  The data queue is cleared when we send the command to save the data to disk.  There is also a clear command (or we can save to a file called temp or junk to clear it.)
+The firmware supports clocked, triggered and gated exposures, and triggered clocked series of exposures.  At a high level there are commands like **read \<n frames\> \<exposure (secs)\>**  which collects a clocked series of contiguously exposed frames and **trigger \<n frames\> \<exposure (secs)\>** which collects the same series initiated by an external trigger.  At the next level there are commands like for configuring and launching precisely controlled gate pulse sequences and readout.  And at the lowest level there are commands that directly configure and access modules in the FlexPWM peripheral that serves as the timing generator.  A detailed command list is provided at the end of this readme.
 
 The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
 
@@ -755,8 +755,20 @@ The followings is a subset of the commands implemented in the TCD1304 firmware a
 See <b>help</b> for more details
 </p>
 
-| **TCD1304DG Operation:** | *command sequence:* |
+
+| **Operation:** | *commands:* |
 | :----- | :---- |
+| *Timed exposures* | **read &lt;n&gt;&lt;exposure (secs)&gt;  → [wait read]** |
+|  | **read &lt;n&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait read]** |
+| *Triggered timed exposures* | **trigger &lt;nframes&gt;&lt;exposure (secs)&gt;  → [wait trigger]** |
+|  | **trigger &lt;nframes&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait trigger]** |
+|  | **trigger &lt;nsets&gt; &lt;nframes&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait trigger]** |
+| | |
+| *Configure trigger* | **configure trigger** [ **rising\|falling\|change \| (no)pullup \| pin &lt;n&gt;** ]|
+| | |
+| *Configure clearing pulses* | **configure clearing pulses &lt;n&gt;**|
+| | |
+| **Mid level operations:** | *command sequence:* |
 | *Timed exposures* | **setup pulse → setup timer &lt;secs&gt; &lt;n&gt; → start timer** |
 | *Triggered timed*| **setup pulse → setup timer ... → setup trigger** [options] **→ start trigger**|
 | *Triggered/gated* | **setup pulse → setup trigger ... → start trigger** |
@@ -779,10 +791,10 @@ See <b>help</b> for more details
 | *Loop* (example)| for a_ in [0,.1,.2]: @testscript \"%.2f\"%(a_)"|
 | | |
 | *Print configured i/o pins*| **pins** |
-| *Digital I/O*| **set** &lt;pin&gt; **hi\| lo\| output\| input\| pullup**  |
-| | **pulse** &lt;pin&gt; &lt;usecs&gt; |
-| | **read** &lt;pin&gt; |
-| | **toggle** &lt;pin&gt; |
+| *Digital I/O*| **set pin** &lt;pin&gt; **hi\| lo\| output\| input\| pullup**  |
+| | **pulse pin** &lt;pin&gt; &lt;usecs&gt; |
+| | **read pin** &lt;pin&gt; |
+| | **toggle pin** &lt;pin&gt; |
 | | |
 | *Quit* | quit \| exit \| ctrl-c |
 <br>
