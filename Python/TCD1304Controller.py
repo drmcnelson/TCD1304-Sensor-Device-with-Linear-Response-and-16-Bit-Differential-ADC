@@ -434,10 +434,35 @@ class TCD1304CONTROLLER:
 
         return True
     
+    def parseflexpwm(self,line):
+        line=line.strip()
+        if line.startswith('flexpwm:'):
+            #print("found flexpwm")
+            pars=line.split(maxsplit=3)
+            if len(pars)==4:
+                parname="flexpwm_"+pars[1]+"_"+pars[2]
+                #print("parname ", parname)
+                #print("value ", pars[3])
+                self.__dict__[parname]=pars[3]
+                return True
+            elif len(pars)==3:
+                parname="flexpwm_"+pars[1]
+                #print("parname ", parname)
+                #print("value ", pars[2])
+                try:
+                    self.__dict__[parname]=int(pars[2])
+                except:
+                    self.__dict__[parname]=pars[2]
+                return True
+            else:
+                print("flexpwm line not processed: ", line)
+                
+        return False
+    
     # ===========================================
     def rawcommand( self, command, key=None ):
 
-        print( "sending", command )
+        print( "sending:", command )
         self.write( command + '\n' )
 
         response = []
@@ -445,7 +470,7 @@ class TCD1304CONTROLLER:
             try:
                 buffer = self.ser.read_until( )
                 buffer = buffer.decode()[:-1]
-                print( "rcvd: ", buffer )
+                print( "rcvd:", buffer )
             except Exception as e:
                 print( "rawread", e )
                 break            
@@ -550,6 +575,7 @@ class TCD1304CONTROLLER:
             , timer_difference \
             , trigger_difference \
             , timer_period \
+            , timer_subperiod \
             , frameset_complete \
             , frame_mode \
             , frame_every \
@@ -666,7 +692,8 @@ class TCD1304CONTROLLER:
                                , frame_exposure \
                                , timer_difference \
                                , trigger_difference \
-                               , timer_period        
+                               , timer_period
+                               , timer_subperiod
                                , frameset_complete
                                , frame_mode
                                , frame_every
@@ -711,6 +738,7 @@ class TCD1304CONTROLLER:
                            , timer_difference \
                            , trigger_difference \
                            , timer_period        
+                           , timer_subperiod        
                            , frameset_complete
                            , frame_mode
                            , frame_every
@@ -752,6 +780,7 @@ class TCD1304CONTROLLER:
         trigger_difference = 0
         
         timer_period = 0        
+        timer_subperiod = 0        
         frameset_complete = False
         frame_mode = ""
         frame_every = 0
@@ -779,7 +808,8 @@ class TCD1304CONTROLLER:
             nonlocal timer_difference
             nonlocal trigger_difference
 
-            nonlocal timer_period        
+            nonlocal timer_period     
+            nonlocal timer_subperiod
             nonlocal frameset_complete
             nonlocal frame_mode
             nonlocal frame_every
@@ -801,6 +831,7 @@ class TCD1304CONTROLLER:
             trigger_difference = 0
             
             timer_period = 0        
+            timer_subperiod = 0        
             frameset_complete = False
             frame_mode = ""
             frame_every = 0
@@ -1122,6 +1153,15 @@ class TCD1304CONTROLLER:
                         self.errorflag.value += 1
                         self.textqueue.put( 'Error: ' + buffer )
 
+                elif buffer.startswith( "TIMER SUBPERIOD" ):
+                    #print( buffer )
+                    try:
+                        timer_subperiod = float(buffer[15:])
+                    except Exception as e:
+                        print( buffer, e )
+                        self.errorflag.value += 1
+                        self.textqueue.put( 'Error: ' + buffer )
+
                 # ---------------------------------------
                 # This come at the start and end of each frameset
                 elif buffer.startswith( "FRAMESET START" ):
@@ -1240,13 +1280,20 @@ class TCD1304CONTROLLER:
     def write( self, buffer ):
         self.ser.write( buffer.encode() )
 
-    def writeread( self, line ):
+    def writeread( self, line, parsepars=False ):
 
+        print("sending:", line)
+        
         self.write( line + '\n' )
     
         response = self.read()
         for line in response:
-            print( 'response: ', line )
+            print("response:", line )
+            if parsepars:
+                if self.parseflexpwm(line) or \
+                   self.parsecoefficients(line) or \
+                   self.parseunits(line):
+                    pass
 
         return response
         
@@ -1428,6 +1475,7 @@ class TCD1304CONTROLLER:
                     , timer_difference \
                     , trigger_difference \
                     , timer_period \
+                    , timer_subperiod \
                     , frameset_complete \
                     , frame_mode \
                     , frame_every \
@@ -1450,6 +1498,7 @@ class TCD1304CONTROLLER:
                     , "timer_difference" \
                     , "trigger_difference" \
                     , "timer_period" \
+                    , "timer_subperiod" \
                     , "frameset_complete" \
                     , "frame_mode" \
                     , "frame_every" \
@@ -1475,25 +1524,8 @@ class TCD1304CONTROLLER:
             file.close()
                   
     # =====================================================================
-    def parseflexpwm(self,line):
-        line=line.strip()
-        if line.startswith('flexpwm:'):
-            print("found flexpwm")
-            pars=line.split(maxsplit=3)
-            if len(pars)==4:
-                parname="flexpwm_"+pars[1]+"_"+pars[2]
-                print("parname ", parname)
-                print("value ", pars[3])
-                self.__dict__[parname]=pars[3]
-            elif len(pars)==3:
-                parname="flexpwm_"+pars[1]
-                print("parname ", parname)
-                print("value ", pars[2])
-                try:
-                    self.__dict__[parname]=int(pars[2])
-                except:
-                    self.__dict__[parname]=pars[2]
-            
+    
+    # =====================================================================
     def commandlineprocessor( self, line, fileprefix=None ):
 
         if not line or not len(line):
@@ -1819,26 +1851,31 @@ class TCD1304CONTROLLER:
 
             if line.startswith("tcd1304") and len(line.split()) > 1:
                 line = line.split(maxsplit=1)[1]
-            
+
+            self.writeread(line,parsepars=True)
+
+            '''
             self.write( line + '\n' )
             
             response = self.read()
             for line in response:
-                print( 'response: ', line )
+                print("response:", line )
                 if self.parseflexpwm(line) or \
                    self.parsecoefficients(line) or \
                    self.parseunits(line):
-                    print("parameters updated")
-                
+                    pass
+            '''
+            
         else:
+            # Nothing was sent, read any pending responses
             response = self.read_nowait()
             if len(response) :
                 for line in response:
-                    print( '>response: ', line )
+                    print(">response:", line )
                     if self.parseflexpwm(line) or \
                        self.parsecoefficients(line) or \
                        self.parseunits(line):
-                        print("parameters updated")
+                        pass
 
         if self.checkerrors():
             print( 'checkerrors found errors' )
@@ -1847,11 +1884,11 @@ class TCD1304CONTROLLER:
         return True
         
         
-    def commandloop( self, name="SerialMonitor", fileprefix=None ):
+    def commandloop( self, name="CLI", fileprefix=None ):
         
         while self.flag.value:
 
-            line = input( name + ':' )
+            line = input( name + ': ' )
 
             if line.lower() in ['exit', 'quit', 'q' ]:
                 break
