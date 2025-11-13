@@ -853,7 +853,7 @@ class TCD1304CONTROLLER:
                 try:
                     buffer = buffer.decode()[:-1]
                 except:
-                    print( 'failed decode', buffer )
+                    print( 'failed decode', buffer[:10], buffer[-10:] )
                     continue
 
                 if debug:
@@ -888,13 +888,16 @@ class TCD1304CONTROLLER:
 
                     # Read(Expect) the end of data message
                     endbuffer = self.ser.read_until( )
-                    endbuffer = endbuffer.decode()[:-1]
 
-                    if debug:
-                        print( "lccd endbuffer: ", endbuffer )
-                        
+                    try:
+                        endbuffer = endbuffer.decode()[:-1]
+                        end_ok = endbuffer.startswith( "END" )
+                    except Exception as e:
+                        print( "Error: data endbuffer", e)
+                        end_ok = False
+                    
                     # If valid, process the data
-                    if endbuffer.startswith( "END" ):
+                    if end_ok:
                         
                         data = []
                         for b in data_buffers:
@@ -919,7 +922,8 @@ class TCD1304CONTROLLER:
                         #  ----------------------------------------
 
                     else:
-                        print('reader ' + name +  ' ', buffer, len(data), ' without END')
+                        #print('reader ' + name +  ' ', buffer, len(data), ' without END')
+                        print('reader ' + name +  ' ', len(data), ' without END')
                         self.textqueue.put( "ERROR: data not completed" )
                         if self.monitorqueue:
                             self.monitorqueue.put( "ERROR: data not completed\n" )  
@@ -928,33 +932,35 @@ class TCD1304CONTROLLER:
                 # Receive Binary Formatted 16 bit Data Buffer
                 elif buffer.startswith( "BINARY16" ):
                     ndata = int(buffer[8:])
+                    nbytes = ndata * 2
 
                     # Read the data
-                    data = self.ser.read( ndata*2 )
+                    data = self.ser.read(nbytes)
+                    nread = len(data)
+                    while nread < nbytes:
+                        nbytes -= nread
+                        nextdata = self.ser.read(nbytes)
+                        data.append(nextdata)
 
                     timestamp = datetime.now()
 
                     # Read(Expect) the end of data message
                     endbuffer = self.ser.read_until( )
-                    endbuffer = endbuffer.decode()[:-1]
+
+                    try:
+                        endbuffer = endbuffer.decode()[:-1]
+                        end_ok = endbuffer.startswith( "END" )
+                    except Exception as e:
+                        print( "BINARY16 endbuffer", e)
+                        end_ok = False
 
                     # Update the text display, begin and end mesages
-                    if debug:
-                        print( "endbuffer: ", endbuffer )
-                    
-                    if endbuffer.startswith( "END" ):
+                    if end_ok:
                         
                         data = struct.unpack( '<%dH'%(len(data)/2), data )
 
                         data = np.array(data)
 
-                        if testdata:
-                            for n,d in enumerate(data):
-                                if d != n:
-                                    printf( "aberrant test data at %d (0x%04x) read  %d (0x%04x)"%(n,n,d,d) )
-                            testdata = False
-
-                        
                         if self.vperbit:
                             data = data * self.vperbit
 
@@ -974,7 +980,7 @@ class TCD1304CONTROLLER:
                         #  ----------------------------------------
                         
                     else:
-                        print('reader ' + name +  ' ', buffer, len(data), ' without END')
+                        print('reader BINARY16' + name +  ' ', len(data), "/", ndata, 'FRAME_COUNTER', frame_counter, ' without END')
                         
                         self.textqueue.put( "ERROR: data not completed" )
                         if self.monitorqueue:
@@ -994,10 +1000,16 @@ class TCD1304CONTROLLER:
 
                     # Read(Expect) the end of data message
                     endbuffer = self.ser.read_until( )
-                    endbuffer = endbuffer.decode()[:-1]
+
+                    try:
+                        endbuffer = endbuffer.decode()[:-1]
+                        end_ok = endbuffer.startswith( "END" )
+                    except Exception as e:
+                        print("Error: binary32 decode", e)
+                        end_ok = False
 
                     # Update the text display, begin and end mesages
-                    if endbuffer.startswith( "END" ):
+                    if end_ok:
 
                         data = struct.unpack( '<%dI'%(len(data)/4), data )
 
@@ -1028,7 +1040,7 @@ class TCD1304CONTROLLER:
                         #  ----------------------------------------
                         
                     else:
-                        print('reader ' + name +  ' ', buffer, len(data), ' without END')
+                        print('reader ' + name +  ' ', len(data), ' without END')
                         
                         self.textqueue.put( "ERROR: data not completed" )
                         if self.monitorqueue:
@@ -1664,7 +1676,16 @@ class TCD1304CONTROLLER:
             
         elif line.startswith('clear'):
             self.clear()
-            
+
+        elif self.busyflag.value and (
+                line.startswith("read") or
+                line.startswith("trigger") or
+                line.startswith("flexpwm") or
+                line.startswith("start") or
+                line.startswith("setup")):
+            print( "device is busy, try stop and clear busy")
+            return False
+
             
         elif line.startswith('save'):
 
