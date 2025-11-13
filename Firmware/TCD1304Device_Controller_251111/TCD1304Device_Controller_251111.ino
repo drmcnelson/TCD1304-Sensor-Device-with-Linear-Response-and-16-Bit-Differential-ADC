@@ -1060,6 +1060,9 @@ void printTriggerSetup( )
     case INPUT_PULLUP:
       Serial.print(" pullup");
       break;
+    case INPUT_PULLDOWN:
+      Serial.print(" pulldown");
+      break;
     }
   
   switch(tcd1304device.trigger_edge_mode)
@@ -1097,7 +1100,7 @@ bool strTrigger(char *pc, char **next)
       pinMode(tcd1304device.trigger_pin, tcd1304device.trigger_pin_mode);
     }
 
-    else if (strMatch(pc, "nopullup",&pc)) {
+    else if (strMatch(pc, "nopull",&pc)||strMatch(pc, "input",&pc)) {
       pinMode(tcd1304device.trigger_pin,INPUT);
       tcd1304device.trigger_pin_mode = INPUT;
     }
@@ -1105,6 +1108,11 @@ bool strTrigger(char *pc, char **next)
     else if (strMatch(pc, "pullup",&pc)) {
       pinMode(tcd1304device.trigger_pin,INPUT_PULLUP);
       tcd1304device.trigger_pin_mode = INPUT_PULLUP;
+    }
+    
+    else if (strMatch(pc, "pulldown",&pc)) {
+      pinMode(tcd1304device.trigger_pin,INPUT_PULLDOWN);
+      tcd1304device.trigger_pin_mode = INPUT_PULLDOWN;
     }
     
     else if (strMatch(pc, "rising",&pc)) {
@@ -1394,7 +1402,7 @@ void help(const char *key) {
     Serial.println("#");
     Serial.println("#    gate frame <n>");
     Serial.println("#");
-    Serial.println("#    configure trigger pin <n> | pullup | nopullup | rising | falling | change");
+    Serial.println("#    configure trigger pin <n> | pullup | pulldown | nopull | rising | falling | change");
     Serial.println("#");
   }
   if (all || strMatch(key,"lccd",&s) || strMatch(key,"pulse",&s)) {
@@ -1455,7 +1463,7 @@ void help(const char *key) {
     Serial.println("#");
     Serial.println("#    configure trigger [args ....] ");
     Serial.println("#");
-    Serial.println("#      args:  pin <n>,  pullup | nopullup,  rising | falling | change");
+    Serial.println("#      args:  pin <n>,  pullup | pulldown | nopull,  rising | falling | change");
     Serial.println("#");
   }
   if (all) {
@@ -1531,7 +1539,7 @@ void help(const char *key) {
     Serial.println("#  Pin controls - <pin> = sync | busy trigger | <n>");
     Serial.println("#");
     Serial.println("#     read pin <pin>");
-    Serial.println("#     set pin <pin> hi|low|input|pullup|output");
+    Serial.println("#     set pin <pin> hi|low|input|pullup|pulldown|output");
     Serial.println("#     pulse pin  <pin>  [usecs]");
     Serial.println("#     toggle pin <pin>");
     Serial.println("#");  
@@ -2452,7 +2460,7 @@ void loop( ) {
         serialPrintlnf("Pin %d set INPUT", utemp);
       }      
 
-      else if (strMatch(pc, "nopullup", &pc)) {
+      else if (strMatch(pc, "nopull", &pc)) {
         pinMode(u8tmp, INPUT);
         serialPrintlnf("Pin %d set INPUT", utemp);
       }      
@@ -2460,6 +2468,11 @@ void loop( ) {
       else if (strMatch(pc, "pullup", &pc)) {
         pinMode(u8tmp, INPUT_PULLUP);
         serialPrintlnf("Pin %d set PULLUP", utemp);
+      }
+      
+      else if (strMatch(pc, "pulldown", &pc)) {
+        pinMode(u8tmp, INPUT_PULLDOWN);
+        serialPrintlnf("Pin %d set PULLDOWN", utemp);
       }
       
       else {

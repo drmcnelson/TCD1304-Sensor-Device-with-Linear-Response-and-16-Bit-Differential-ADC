@@ -22,6 +22,9 @@
 
 //#define ALLINONEBOARD
 
+// CONFIGURE PULLUPS/PULLDOWNS
+#define PINPULLS
+
 // =========================================
 
 #ifdef  ALLINONEBOARD
@@ -382,7 +385,13 @@ public:
 
     pinMode(CNVST_PIN, OUTPUT);   
     digitalWrite(CNVST_PIN, LOW);
- 
+
+#ifdef PINPULLS    
+    pinMode(CLK_PIN, INPUT_PULLDOWN);
+    pinMode(SH_PIN, INPUT_PULLDOWN);
+    pinMode(ICG_PIN, INPUT_PULLUP);
+#endif
+
   }
 
   void stop_all()
