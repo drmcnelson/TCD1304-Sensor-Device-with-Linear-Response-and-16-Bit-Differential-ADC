@@ -758,11 +758,15 @@ bool clock_setup(float secs, unsigned int ncounts=0)
    CCD sensor read callback
    ====================================================================================================== */
 
-void send_header(const char *modestring)
+//void send_header(const char *modestring)
+void send_header()
 {
-  Serial.print("START ");
-  Serial.print(modestring);
+  Serial.print("START");
+  //Serial.print(modestring);
 
+  if (tcd1304device.trigger_mode) {
+    Serial.print(" TRIGGER");
+  }
   if (tcd1304device.mode == FRAMESET) {
     Serial.print(" FRAMESET");
   }
@@ -783,10 +787,6 @@ void send_header(const char *modestring)
     Serial.print(" TIMER");
   }
   */
-
-  if (tcd1304device.trigger_mode) {
-    Serial.print(" TRIGGER");
-  }
 
   Serial.println("");
 
@@ -825,7 +825,7 @@ void send_header(const char *modestring)
 
 void send_frame_header( )
 {
-  if (tcd1304device.frame_counter<=1) {
+  if (tcd1304device.frame_counter<1) {
     Serial.println("FRAMESET START ");
   }
 
@@ -1730,7 +1730,7 @@ void loop( ) {
       bool start = true;
 
       char *pc1 = pc;
-      
+
       if (strUint(pc,&nframes, &pc1)
           && strFlt(pc1,&exposure, &pc1)
           && strFlt(pc1,&frameinterval, &pc)) {
@@ -1738,9 +1738,10 @@ void loop( ) {
         if (strMatch(pc,"nostart",&pc)) {
           start = false;
         }
-        
+
         tcd1304device.read(nframes, exposure, frameinterval, bufferp,
-                           send_callback, send_frameset_end, send_complete, start);
+                           send_callback, send_frameset_end, send_complete,
+                           send_header, start);
         
       }
           
@@ -1752,7 +1753,8 @@ void loop( ) {
         }
         
         tcd1304device.read(nframes,exposure,bufferp,
-                           send_callback, send_frameset_end, send_complete, start);          
+                           send_callback, send_frameset_end, send_complete,
+                           send_header, start);          
       }
            
       else if (strFlt(pc,&exposure, &pc)) {
@@ -1762,7 +1764,8 @@ void loop( ) {
         }
         
         tcd1304device.read(nframes,exposure,bufferp,
-                           send_callback, send_frameset_end, send_complete, start);          
+                           send_callback, send_frameset_end, send_complete,
+                           send_header, start);          
       }
 
       else {
@@ -1823,7 +1826,7 @@ void loop( ) {
                       ntriggers, nframes, exposure, frameinterval, start);
         
         tcd1304device.triggered_read(ntriggers, nframes, exposure, frameinterval, bufferp,
-                                     send_callback, send_frameset_end, send_complete, start);          
+                                     send_callback, send_frameset_end, send_complete, send_header, start);          
       }
           
       else if (strUint(pc,&ntriggers, &pc1)
@@ -1838,7 +1841,7 @@ void loop( ) {
                       ntriggers, nframes, exposure, start);
         
         tcd1304device.triggered_read(ntriggers, nframes, exposure, bufferp,
-                                     send_callback, send_frameset_end, send_complete, start);          
+                                     send_callback, send_frameset_end, send_complete, send_header, start);          
       }
       
       else if (strUint(pc,&nframes, &pc1)
@@ -1853,7 +1856,7 @@ void loop( ) {
                       nframes, exposure, frameinterval, start);
         
         tcd1304device.triggered_read(1, nframes, exposure, frameinterval, bufferp,
-                                     send_callback, send_frameset_end, send_complete, start);          
+                                     send_callback, send_frameset_end, send_complete, send_header, start);          
       }
       
       else if (strUint(pc,&nframes, &pc1)
@@ -1867,7 +1870,7 @@ void loop( ) {
                       nframes, exposure, start);
         
         tcd1304device.triggered_read(1, nframes, exposure, bufferp,
-                                     send_callback, send_frameset_end, send_complete, start);          
+                                     send_callback, send_frameset_end, send_complete, send_header, start);          
       }
 
       else {
@@ -1929,7 +1932,8 @@ void loop( ) {
     }
     
     else if (strMatch(rcvbuffer, "start clock",&pc)) {
-      send_header("CLOCKED");
+      //send_header("CLOCKED");
+      send_header();
       clock_start( );
     }
 
@@ -1964,7 +1968,8 @@ void loop( ) {
     
     else if (strMatch(rcvbuffer, "start tcd1304 timer", &pc)||
              strMatch(rcvbuffer, "start timer", &pc)) {
-      send_header("TIMER");
+      //send_header("TIMER");
+      send_header();
       tcd1304device.timer_start( );
     }
 
@@ -2014,7 +2019,8 @@ void loop( ) {
     }
     
     else if (strMatch(rcvbuffer, "start trigger", &pc)) {
-      send_header("TRIGGERED");
+      //send_header("TRIGGERED");
+      send_header();
       tcd1304device.start_triggers( );
     }
     

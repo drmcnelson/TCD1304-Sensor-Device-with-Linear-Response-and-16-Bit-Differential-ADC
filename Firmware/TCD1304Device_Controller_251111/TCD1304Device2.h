@@ -488,6 +488,7 @@ public:
             void (*send_callbackf)(),
             void (*frameset_callbackf)(),
             void (*completion_callbackf)(),
+            void (*setup_callbackf)(),
             bool start=true)
   {
     float clk_secs = 0.5E-6;
@@ -498,17 +499,23 @@ public:
 
     if (!setup_pulse(clk_secs, sh_secs, sh_offset_secs, icg_secs, icg_offset_secs,
                      bufferp, NREADOUT, send_callbackf)) {
+      Serial.print("Error: failed to setup pulse");
       return false;
     }
 
     frame_counts = nframes;
     frames_completed_callback = frameset_callbackf;
     framesets_completed_callback = completion_callbackf;
-
+    
     if (!setup_timer(exposure,0.,nframes)) {
+      Serial.print("Error: failed to setup timer");
       return false;
     }
 
+    if (setup_callbackf) {
+      setup_callbackf();
+    }
+    
     if (!start) {
       return true;
     }
@@ -523,11 +530,12 @@ public:
     
     return true;
   }
-
+  
   bool read(uint nframes, float exposure, float frame_interval, uint16_t *bufferp,
             void (*send_callbackf)(),
             void (*frameset_callbackf)(),
             void (*completion_callbackf)(),
+            void (*setup_callbackf)(),
             bool start=true)
   {
     float clk_secs = 0.5E-6;
@@ -540,12 +548,19 @@ public:
     if (!setup_frameset(clk_secs, sh_secs, sh_offset_secs, icg_secs, icg_offset_secs,
                         exposure, frame_interval, nframes,
                         bufferp, NREADOUT, send_callbackf)) {
+      
+      Serial.print("Error: failed to setup frameset");
       return false;
     }
       
     frames_completed_callback = frameset_callbackf;
     framesets_completed_callback = completion_callbackf;
-    
+
+ 
+    if (setup_callbackf) {
+      setup_callbackf();
+    }
+   
     if (!start) {
       return true;
     }
@@ -597,9 +612,10 @@ public:
                       void (*send_callbackf)(),
                       void (*frameset_callbackf)(),
                       void (*completion_callbackf)(),
+                      void (*setup_callbackf)(),
                       bool start=true)
   {
-    if (!read(nframes, exposure, bufferp,send_callbackf, frameset_callbackf, completion_callbackf, false)) {
+    if (!read(nframes, exposure, bufferp,send_callbackf, frameset_callbackf, completion_callbackf, nullptr, false)) {
       Serial.println("Error: triggerd_read setup read");
       return false;
     }
@@ -609,6 +625,8 @@ public:
       return false;
     }
 
+    if (setup_callbackf) setup_callbackf();
+  
     if (start) {
       return start_triggers();
     }
@@ -620,10 +638,11 @@ public:
                       void (*send_callbackf)(),
                       void (*frameset_callbackf)(),
                       void (*completion_callbackf)(),
+                      void (*setup_callbackf)(),
                       bool start=true)
   {
     if (!read(nframes, exposure, interval, bufferp,
-              send_callbackf, frameset_callbackf, completion_callbackf, false)) {
+              send_callbackf, frameset_callbackf, completion_callbackf, nullptr, false)) {
       Serial.println("Error: triggerd_read setup read");
       return false;
     }
@@ -632,6 +651,8 @@ public:
       Serial.println("Error: triggerd_read setup trigger");
       return false;
     }
+
+    if (setup_callbackf) setup_callbackf();
 
     if (start) {
       return start_triggers();
