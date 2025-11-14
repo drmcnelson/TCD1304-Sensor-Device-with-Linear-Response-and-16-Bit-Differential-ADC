@@ -357,6 +357,7 @@ void sendBuffer_Formatted( ) {
   for (int n = 0; n < NPIXELS; n++) {
     Serial.println(p16[n]);
   }
+  Serial.send_now();
   Serial.println("END DATA");
 }
 
@@ -365,6 +366,7 @@ void sendBuffer_Binary( ) {
   Serial.print("BINARY16 ");
   Serial.println(NPIXELS);
   Serial.write((byte *) p16, NBYTES);
+  Serial.send_now();
   Serial.println("END DATA");
 }
 
@@ -384,6 +386,8 @@ inline void sendDataSum( ) {
 
 void sendData( ) {
 
+  Serial.send_now();
+  
   if (crc_enable) sendDataCRC( );
   if (sum_enable) sendDataSum( );
   
@@ -393,6 +397,7 @@ void sendData( ) {
   else if (dataformat == ASCII) {
     sendBuffer_Formatted( );
   }
+  Serial.send_now();
 }
 
 void sendDataReady( ) {
