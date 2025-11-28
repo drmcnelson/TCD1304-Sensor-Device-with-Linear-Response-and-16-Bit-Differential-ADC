@@ -47,7 +47,7 @@ Both run from a common set of firmware and Python codes.
 #### Two board set, 16 bit sensor board and controller
 The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  Fiduciary marks are provided on both sides of the sensor board to facilitate optical alignment.
 
-The component costs are currently $50 and $45 respectively, plus  TCD1304 and Teensy, $30 and $24, plus tariffs as applicable.  We most often assemble the controller in house and for the sensor we sometimes assemble in house and sometimes we use a PCBA service.
+Component costs for the boards are currently $50 and $45 plus  TCD1304 and Teensy, $30 and $24.  We most often assemble the controller in house. For the sensor we assemble in house or use a PCBA service depending on time and tariffs.
  
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
@@ -63,7 +63,7 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 #### "All-in-one", sensor and controller on a single board.
 The single board device, with sensor, electronics and controller all on one board, offers similar performance in terms of linearity to the two board system, but with 12 bit precision (and fewer parts) using the on-board analog input of the T4.
 
-The component costs are currently $22, plus  TCD1304 and Teensy, $30 and $24, plus tariffs as applicable.  We generally assemble this in house.
+The component costs are currently $22 plus TCD1304 and Teensy, $30 and $24. We generally assemble this one in house.
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
