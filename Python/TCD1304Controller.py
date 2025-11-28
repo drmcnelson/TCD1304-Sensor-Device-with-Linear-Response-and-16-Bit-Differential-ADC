@@ -1335,7 +1335,8 @@ class TCD1304CONTROLLER:
 
         self.busyflag.value = 0
 
-        return self.writeread("clear accumulator")
+        #self.writeread("clear accumulator")
+        return True
             
     def close( self, ignored=None ):
 
