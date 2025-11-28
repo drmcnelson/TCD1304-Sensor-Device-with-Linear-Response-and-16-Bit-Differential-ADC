@@ -508,7 +508,7 @@ public:
 
     if (!setup_pulse(clk_secs, sh_secs, sh_offset_secs, icg_secs, icg_offset_secs,
                      bufferp, NREADOUT, send_callbackf)) {
-      Serial.print("Error: failed to setup pulse");
+      Serial.println("Error: failed to setup pulse");
       return false;
     }
 
@@ -517,7 +517,7 @@ public:
     framesets_completed_callback = completion_callbackf;
     
     if (!setup_timer(exposure,0.,nframes)) {
-      Serial.print("Error: failed to setup timer");
+      Serial.println("Error: failed to setup timer");
       return false;
     }
 
@@ -558,7 +558,7 @@ public:
                         exposure, frame_interval, nframes,
                         bufferp, NREADOUT, send_callbackf)) {
       
-      Serial.print("Error: failed to setup frameset");
+      Serial.println("Error: failed to setup frameset");
       return false;
     }
       
@@ -678,8 +678,8 @@ public:
 
     return false;    
   }
-    
-  
+
+
   /* ==========================================================================
      64 bit elapsed time clock based on cpu cycles
      note that this is in the tcd1304 namespace
@@ -1132,7 +1132,7 @@ public:
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
       // for exposure
-      sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
+      //sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
     }
 
     // first pulse
@@ -1144,7 +1144,7 @@ public:
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
       // for exposure
-      sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
+      //sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
 
       // need to count
       sh_clearing_counter++;
@@ -1236,6 +1236,9 @@ public:
     flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(ICG_MASK);
 
     flexpwm->SM[CLK_SUBMODULE].CTRL2 = FLEXPWM_SMCTRL2_FORCE;  // force out while ldok, initializes the counters
+
+    // here is our exposure, diff to most recent previous sh gate    
+    sh_cyccnt64_exposure = sh_cyccnt64_now - sh_cyccnt64_prev;
     
     // bookkeeping
     icg_counter++;
@@ -1379,6 +1382,7 @@ public:
   static void pulse_start()
   {
     if (pulse_armed) {
+      sh_clearing_counter = 0;
       flexpwm_start();
     }
     else {
@@ -1400,6 +1404,8 @@ public:
     read_pointer = read_buffer;
     read_counter = 0;
 
+    sh_clearing_counter = 0;
+    
     // Restore the SH submodule counter and interrupt enable
     status = flexpwm->SM[SH_SUBMODULE].STS;
     flexpwm->SM[SH_SUBMODULE].STS = status;
@@ -1464,7 +1470,7 @@ public:
     
     pulse_arm();
   }
-  
+
   bool setup_pulse(float clk_secs, float sh_secs, float sh_offset_secs, float icg_secs, float icg_offset_secs,
                    uint16_t *buffer, unsigned int nbuffer, void (*callbackf)())
   {
