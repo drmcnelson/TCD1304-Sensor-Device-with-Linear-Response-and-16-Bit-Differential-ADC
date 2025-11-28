@@ -39,13 +39,16 @@ This repo provides (a) fab files and BOM for making the boards, (b) firmware as 
 
 We begin with a summary of what is contained in the rest of the readme and repo.
 
-#### Implementations
+### Implementations
 
 We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board.
 Both run from a common set of firmware and Python codes.
 
+#### Two board set, 16 bit sensor board and controller
 The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  Fiduciary marks are provided on both sides of the sensor board to facilitate optical alignment.
 
+The component costs are currently $50 and $45 respectively, plus  TCD1304 and Teensy, $30 and $24, plus tariffs as applicable.  We most often assemble the controller in house and for the sensor we sometimes assemble in house and sometimes we use a PCBA service.
+ 
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
 <br>
@@ -57,7 +60,10 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </p>
 </p>
 
+#### "All-in-one", sensor and controller on a single board.
 The single board device, with sensor, electronics and controller all on one board, offers similar performance in terms of linearity to the two board system, but with 12 bit precision (and fewer parts) using the on-board analog input of the T4.
+
+The component costs are currently $22, plus  TCD1304 and Teensy, $30 and $24, plus tariffs as applicable.  We generally assemble this in house.
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
@@ -70,42 +76,41 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 </p>
 </p>
 
-#### Reproducibility and linearity
+### Reproducibility and linearity
 
-Reproducibility for a CCD spectrometer in a practical sense depends on linearity. This is a significant challenge to electrical design, as will be explained.  Absent linearity, both normalized and relative peak heights become sensitive to exposure time or light intensity and the dependence can be non-monotonic.
+Reproducibility is vitally important for any instrument and is especially challenging for a CCD spectrometer. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  In particular, the non-linearity that seems most common in spectrometers is a function of line shape rather than simple intensity at a single pixel.  We show examples of this in data collected from a commercial instrument and compare this to data from the present design where the results are linear. 
+The data illustrate the point that linearity is prerequisite to producing data that is both reproducible and meaningful.
 
-We include test results [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
-for both the present design and a popular commercial instrument.  These are recorded in essentially side-by-side measurements.  The intent is to illustrate what linearity should look like and why it is important for reproducibility.
 
-We finish the presentation on reliability with a brief discussion of the nature of the signals produced in a spectrometer and how this can lead to non-linearity depending on certain details of circuit design and operation of the sensor.
-
-#### Construction of the spectrometer used for testing
+### Construction of the spectrometer used for testing
 
 Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
 Total cost of materials for the spectrometer is under $400, including the electronics (this repo), optics and mechanical parts.
 
-#### Controller
+### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
 The T4/NXP platform provides a flexible timing generator (FlexPWM), fast CPU clock (600MHz) and high-speed USB (480 Mbps).
 The former is helpful for optimal operation of the TCD1304DG. 
 The latter enable signal averaging and 100fps transfers for the large 3664 pixel frames produced by the TCD1304DG.
 
-#### Firmware
+### Firmware
 
 The firmware [(here)](Firmware/), written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
 The T4 controller is supported by the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
-#### Python user code
+There are now two versions of the firmware in the repo.  The traditional version sends data frames as they are collected.  The new experimental firmware implements a ring buffer system.  We anticipate that this will be the standard version.  Meanwhile we post both with the understanding that the latter is a preview.
 
-The Python code [(here)](Python/) can function as a user interface or as a Class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the spectrometer is available as an instance of a class object.  The Class provides both high and low level functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+### Python user interface with graphical display
 
-#### Electronic design
+The Python code [(here)](Python/) can function as a user interface or as a class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the spectrometer is available as an instance of a class object.  The Class provides both high and low level functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+
+### Electronic design
 
 A tutorial on electrical design for CCD sensors and spectroscopy is included [here](#electrical-design).  The section begins with the datasheet and characteristics of the sensor, proceeds to signal condition and driving an ADC and finishes with a section on the gate drivers.  SPICE files are included in a subdirectory of the repo.  You can modify the SPICE files to investigate your own designs.
 
-#### KiCad files and code provided
+### Fab files (Gerber, BOM) and codes
 
 The fab files and code provided in this repo, and in the controller repo, plus some cabling and a host computer, should be sufficient to assemble the boards and get your detector system up and running.  Feel free to contact me for consultation or pre-assembled boards (time permitting).  And needless to say, donations are very much appreciated, please find and "click" the sponsorship button above.
 
