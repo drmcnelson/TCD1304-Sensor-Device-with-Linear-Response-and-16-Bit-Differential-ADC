@@ -78,7 +78,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 
 ### Reproducibility and linearity
 
-Reproducibility is vitally important for any instrument and is especially challenging for a CCD spectrometer. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  In particular, the non-linearity that seems most common in spectrometers is a function of line shape rather than simple intensity at a single pixel.  We show examples of this in data collected from a commercial instrument and compare this to data from the present design where the results are linear. 
+Reproducibility is vitally important for any instrument and is especially challenging for a CCD spectrometer. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  In particular, the non-linearity that seems most common in spectrometers is a function of line shape rather than simple intensity at each pixel.  We show examples of this in data collected from a commercial instrument and compare this to data from the present design where the results are linear. 
 The data illustrate the point that linearity is prerequisite to producing data that is both reproducible and meaningful.
 
 
