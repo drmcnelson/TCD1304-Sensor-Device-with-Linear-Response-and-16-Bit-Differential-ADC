@@ -100,7 +100,8 @@ The latter enable signal averaging and 100fps transfers for the large 3664 pixel
 The firmware [(here)](Firmware/), written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
 The T4 controller is supported by the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
-There are now two versions of the firmware in the repo.  The traditional version sends data frames as they are collected.  The new experimental firmware implements a ring buffer system.  We anticipate that this will be the standard version.  Meanwhile we post both with the understanding that the latter is a preview.
+The current and recommended version of the firmware is in the subdirectory
+[Firmware/TCD1304Device_Controller_ringbuffered_251127](TCD1304Device_Controller_ringbuffered_25112).  This version implements ring buffering and allows the device to maintain through put with slower host computers.  Testing is preliminary, but looks very good.  Nonetheless we have not removed the older code, which can be found in the subdirectory [Firmware/TCD1304Device_Controller_251111](Firmware/TCD1304Device_Controller_251111)
 
 ### Python user interface with graphical display
 
@@ -168,11 +169,11 @@ After the boards are assembled, you will need to install the Teensy board in the
 
 The firmware codes are found in the repo in the Firmware/ subdirectory
 
-(In the following, the "250928" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
+(In the following, the "251111" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
 
-    TCD1304Device_Controller_250928/
+    TCD1304Device_Controller_ringbuffered_251127/
     
-      TCD1304Device_Controller_250928.ino  - The Arduino program with the CLI
+      TCD1304Device_Controller_ringbuffered_251127.ino  - The Arduino program and CLI
     
       parselib.cpp    - The string parsing library for the CLI
       parselib.h
@@ -185,7 +186,12 @@ To load firmware into the "All-In-One" board, open the file **TCD1304Device2.h**
       //#define ALLINONEBOARD
 
 
-If you want to customize the firmware, it is recommended to create a new directory, copy the files to that directory and rename the ino file per the above.
+The ring buffering system is presently configured for 32 slots.  You can change this in TCD1304Device_Controller_ringbuffered_251127 at line 590,
+
+	#define NBUFFERS 32
+	
+
+If you want to customize the firmware further, it is recommended to create a new directory, copy the files into that directory and rename the ino file per the above convention.
 
 After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session, or start the IDE and navigate to the directory and open the file.  
 
@@ -248,24 +254,22 @@ Notice that in the console window, you have a prompt.  This is the command line 
 
 Some of the commands are implemented in the Python code, the remainder are passed through to the sensor device.  The CLI also supports scripting and can execute shell commands.
 
-The firmware supports clocked, triggered and gated exposures, and triggered clocked series of exposures.  At a high level there are commands like **read \<n frames\> \<exposure (secs)\>**  which collects a clocked series of contiguously exposed frames and **trigger \<n frames\> \<exposure (secs)\>** which collects the same series initiated by an external trigger.  At the next level there are commands like for configuring and launching precisely controlled gate pulse sequences and readout.  And at the lowest level there are commands that directly configure and access modules in the FlexPWM peripheral that serves as the timing generator.  A detailed command list is provided at the end of this readme.
+The firmware supports clocked, triggered and gated exposures, and triggered clocked series of exposures.  At a high level there are commands like **read \<n frames\> \<exposure (secs)\>**  which collects a clocked series of contiguously exposed frames and **trigger \<n frames\> \<exposure (secs)\>** which collects the same series initiated by an external trigger.  At the next level there are commands like **setup pulse ...** and **setup frameset...**, for configuring and launching precisely controlled gate pulse sequences and readout.  And at the lowest level there are commands that directly configure and access modules in the FlexPWM peripheral that serves as the timing generator.  A detailed command list is provided at the end of this readme.
 
 The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
-
-Subsequent versions of the software will add an intuitive set of high level commands. However there is sometimes an advantage to being able to work with an instrument at a low level. We plan to retain both levels in the command set.
 
 The Python program DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.
 
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
-In this section we illustrate some of the challenges in linearity and reproducibility as observed in CCD spectrometers.  After defining some terms, we show examples that compare the performance of the present design and that of a widely used commercial instrument.  These also help to illustrate the concepts why this is important for reproducibility.
+In this section we illustrate some of the challenges in linearity and reproducibility as observed in CCD spectrometers.  After defining some terms, we show examples that compare the performance of the present design and that of a widely used commercial instrument.  These also help to illustrate basic concepts and why this is important for reproducibility.
 
 Linear response, for a spectrometer, means that the  measured response S is proportional to the number of photons P impinging on the detector. For a change in intensity at pixel "n", we expect that ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant.  
 
 When a system is linear we should see that (a) spectra collected with different exposure times agree with each other  (S<sub>1</sub>/t<sub>1</sub> = S<sub>2</sub>/t<sub>2</sub>), (b) ratios of peak heights are constant (S<sub>λ<sub>a</sub></sub>/S<sub>λ<sub>b</sub></sub> at t<sub>1</sub> = S<sub>λ<sub>a</sub></sub>/S<sub>λ<sub>b</sub></sub> at t<sub>2</sub>), and when summed the result agrees with that obtained by a single measurement with the combined exposure time S = S<sub>t1</sub> + S<sub>t2</sub> = S<sub>t1+t2</sub>.
 
-Notably our linearity criterion was expressed as a change in P and S.  Normally we would apply the above rules after subtracting a noise or background signal. Conveniently, for this kind of sensor, the dark noise S<sub>D</sub> is proportional to exposure time in the range of exposure times greater than 20msec and for this sensor system the electrical noise is several orders of magnitude smaller than the dark noise.  Therefore, we expect that the total intensity (S = S<sub>P</sub> + S<sub>D</sub>) should be linear in exposure time.
+Notably our linearity criterion was expressed as a change in P and S.  Normally we would apply the above rules after subtracting a noise or background signal. Conveniently, for this kind of sensor, the dark noise S<sub>D</sub> is proportional to exposure time in the range of exposure times greater than 20msec and for this sensor system the electrical noise is several orders of magnitude smaller than the dark noise.  Therefore, for these longer exposure times, the total intensity (S = S<sub>P</sub> + S<sub>D</sub>) should also be linear.
 
 That said, there are a few ways in which spectrometer response can be non-linear. Some of these can be corrected numerically provided the non-linearity meets certain mathematical criteria.  For example, measured values should at least be monotonically increasing in exposure time so that there can exist a unique mapping between a measurement and its corrected value.
 
