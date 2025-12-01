@@ -38,6 +38,10 @@ extern ADC *adc;
 #endif
 #define TCD1304_MINCLKHZ 0.8E6
 
+// =========================================
+
+#define TDIFF(a,b) ((double)(a-b)/F_CPU)
+
 // debug statements in setup
 //#define DEBUG
 
@@ -143,15 +147,18 @@ extern ADC *adc;
 #define BUSY_PIN_DEFAULT HIGH
 
 // Fast nofrills BUSY pin set, lear, flip state
+/*
 #define SETBUSYPIN (CORE_PIN1_PORTSET = CORE_PIN1_BITMASK)
 #define CLEARBUSYPIN (CORE_PIN1_PORTCLEAR = CORE_PIN1_BITMASK)
 #define TOGGLEBUSYPIN (CORE_PIN1_PORTTOGGLE = CORE_PIN1_BITMASK)
+*/
 
 // Fast nofrills SYNC pin set/clear
+/*
 #define SETSYNCPIN (CORE_PIN0_PORTSET = CORE_PIN0_BITMASK)
 #define CLEARSYNCPIN (CORE_PIN0_PORTCLEAR = CORE_PIN0_BITMASK)
 #define TOGGLESYNCPIN (CORE_PIN0_PORTTOGGLE = CORE_PIN0_BITMASK)
-
+*/
 // Sensor data readout
 #define NREADOUT 3694
 #define DATASTART 16
@@ -197,7 +204,7 @@ int debugprintf(const char* format, ...)
     Serial.println(buffer);
   }
   else if (n<0) {
-    Serial.print( "Error: debugprintf vsprintf");
+    Serial.print("Error: debugprintf vsprintf");
     Serial.println(format);
   }
   return n;
@@ -364,7 +371,6 @@ public:
   // this is our interval clock, implemented on PWM4. option for pin3 output.
   inline static IMXRT_FLEXPWM_t * const timerflexpwm = &IMXRT_FLEXPWM4;
   inline static SubModule timer = {"timer", TIMER_SUBMODULE, TIMER_MASK, 0xFF,0, TIMER_PIN,TIMER_MUXVAL, TIMER_IRQ, &IMXRT_FLEXPWM4};
-
 
   // error bookkeeping
   inline static bool error_flag = false;
@@ -1112,6 +1118,8 @@ public:
   {
     uint16_t status;
 
+    bool do_sync_toggle_here = false;
+    
     // this is a trailing edge interrupt := exposure timer
     uint64_t cyccnt64_now = cycles64();
     
@@ -1131,8 +1139,7 @@ public:
       flexpwm->SM[SH_SUBMODULE].VAL2 = 0xFFFF;
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
-      // for exposure
-      //sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
+      do_sync_toggle_here = true;
     }
 
     // first pulse
@@ -1143,8 +1150,8 @@ public:
       flexpwm->SM[SH_SUBMODULE].VAL1 = sh_short_period_counts;
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
-      // for exposure
-      //sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
+      // this is the end of the previous exposure
+      do_sync_toggle_here = true;
 
       // need to count
       sh_clearing_counter++;
@@ -1161,11 +1168,21 @@ public:
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
       sh_clearing_counter = 0;
+
+      // this is the start of the next exposure
+      do_sync_toggle_here = true;
     }
     
     // for elapsed time and exposure
     sh_cyccnt64_prev = sh_cyccnt64_now;
     sh_cyccnt64_now  = cyccnt64_now;
+
+    // sync is toggled on start and end of exposure
+    if (sync_enabled && do_sync_toggle_here) {
+      digitalToggleFast(SYNC_PIN);
+      synctoggled = !synctoggled;
+    }
+    
     // ======================================
 #else
     sh_clearing_counter++;
@@ -1875,13 +1892,13 @@ public:
   {
     if (flexpwm_running) {
       error_flag = true;
-      Serial.print("Error: framset already running");
+      Serial.println("Error: framset already running");
       return;
     }
 
     if (!frameset_armed) {
       error_flag = true;
-      Serial.print("Error: framset not armed");
+      Serial.println("Error: framset not armed");
       return;
     }
     
@@ -1999,7 +2016,8 @@ public:
     
     // default to 1 frame and 1 frameset
     frame_counter = 0;
-    frame_counts = nframes ? nframes : 10;
+    //frame_counts = nframes ? nframes : 10;
+    frame_counts = nframes ? nframes+1 : 10;
 
     frameset_counter = 0;
     frameset_counts = 1;
@@ -2048,7 +2066,7 @@ public:
     clock_period_counts = ceil(clock_period_counts/divider) * divider;
     clock_period_secs   = (float)clock_period_counts/F_BUS_ACTUAL;
     Serial.print("#Clock period counts "); Serial.print(clock_period_counts);
-    Serial.print( " secs "); Serial.println(clock_period_secs);
+    Serial.print(" secs "); Serial.println(clock_period_secs);
     
     if ((clock_period_counts < 4)|| (clock_period_secs > (1./TCD1304_MINCLKHZ))|| (clock_period_secs < (1./TCD1304_MAXCLKHZ))) {
       Serial.println("Error: not able to support this combination of clock and exposure times.");
@@ -2264,7 +2282,7 @@ public:
   {
     if (timer_running) {
       error_flag = true;
-      Serial.print("Error: timer_start() already running");
+      Serial.println("Error: timer_start() already running");
       return;
     }
     
