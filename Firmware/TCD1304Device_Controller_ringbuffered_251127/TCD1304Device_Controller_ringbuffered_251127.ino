@@ -681,15 +681,14 @@ void sendTestData(uint16_t *bp) {
    CCD sensor read callback
    ====================================================================================================== */
 
-//void send_header(const char *modestring)
 void send_header()
 {
   Serial.print("START");
-  //Serial.print(modestring);
 
   if (tcd1304device.trigger_mode) {
     Serial.print(" TRIGGER");
   }
+  
   if (tcd1304device.mode == FRAMESET) {
     Serial.print(" FRAMESET");
   }
@@ -704,12 +703,6 @@ void send_header()
   if (clock_mode) {
     Serial.print(" CLOCK");
   }
-
-  /*
-  if (tcd1304device.timer_mode) {
-    Serial.print(" TIMER");
-  }
-  */
 
   Serial.println("");
 
@@ -746,8 +739,12 @@ void send_header()
   }
 }
 
+// ==========================================================
+// Send the frame, header and data
+
 bool send_frame(TCD1304Device :: Frame_Header *p)
 {
+
 #ifdef DEBUG
   Serial.printf("#send_frame 0x%p->0x%p\n",p,p->buffer);
 #endif
@@ -789,10 +786,10 @@ bool send_frame(TCD1304Device :: Frame_Header *p)
     Serial.println(p->trigger_counter);
   }
 
-  // and send the data
+  // Send the data buffer
   sendData(p->buffer);
 
-  // This has to come after sending the daa
+  // These have to come after sending the daa
   if (p->frames_completed) {
     Serial.println("FRAMESET END");
 
@@ -801,6 +798,7 @@ bool send_frame(TCD1304Device :: Frame_Header *p)
     }
   }
 
+  // Clear the ready flag, this one is now available
   p->ready_for_send = false;
   
   return true;
@@ -820,34 +818,36 @@ void send_frames()
 
 
 // =====================================================
-// here is the call back for read complete
+// here is the callback for read complete, load the frame header and advance the pointers
 
 void frame_callback( )
 {
   unsigned int next_frame_index;
   TCD1304Device :: Frame_Header *next_framep;
 
+  // Ask the device to populate the current frame header, gets a pointer to the buffer
   tcd1304device.fill_frame_header(framep);
 
+  // Here is the next frame
   next_frame_index = (frame_index+1) % NBUFFERS;
   next_framep = &frame_header_ring[next_frame_index];
 
-  // Check that the next frame is open
+  // Check that the next frame is available
   if (!next_framep->ready_for_send) {
 
-    // Advance the frame index
+    // Advance the frame index to this next frame
     frame_index = next_frame_index;
     framep = next_framep;
 
-    // Advance the buffer index
+    // Advance the buffer index to this next buffer
     buffer_index = (buffer_index+1) % NBUFFERS;
     bufferp = buffer_ring[buffer_index];
 
-    // setup the next buffer
+    // Set the read pointer to this next buffer
     tcd1304device.update_read_buffer(bufferp);
   }
 
-  // If we are not completed, then it is an overrun (it will clear eventually, from loop)
+  // If counts not completed, then it is an overrun (will clear eventually, from loop)
   else if (!frame_header_ring[frame_index].framesets_completed) {
     Serial.println("Error: frame ring overrun");
     tcd1304device.error_flag = true;

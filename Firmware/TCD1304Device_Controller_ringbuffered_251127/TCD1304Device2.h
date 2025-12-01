@@ -147,15 +147,18 @@ extern ADC *adc;
 #define BUSY_PIN_DEFAULT HIGH
 
 // Fast nofrills BUSY pin set, lear, flip state
+/*
 #define SETBUSYPIN (CORE_PIN1_PORTSET = CORE_PIN1_BITMASK)
 #define CLEARBUSYPIN (CORE_PIN1_PORTCLEAR = CORE_PIN1_BITMASK)
 #define TOGGLEBUSYPIN (CORE_PIN1_PORTTOGGLE = CORE_PIN1_BITMASK)
+*/
 
 // Fast nofrills SYNC pin set/clear
+/*
 #define SETSYNCPIN (CORE_PIN0_PORTSET = CORE_PIN0_BITMASK)
 #define CLEARSYNCPIN (CORE_PIN0_PORTCLEAR = CORE_PIN0_BITMASK)
 #define TOGGLESYNCPIN (CORE_PIN0_PORTTOGGLE = CORE_PIN0_BITMASK)
-
+*/
 // Sensor data readout
 #define NREADOUT 3694
 #define DATASTART 16
@@ -355,6 +358,7 @@ public:
   inline static bool busytoggled = false;
 
   // Sync pin management
+  inline static uint8_t sync_pin = SYNC_PIN;
   inline static bool synctoggled = false;
   inline static bool sync_enabled = true;
 
@@ -1224,6 +1228,8 @@ public:
   {
     uint16_t status;
 
+    bool do_sync_toggle_here = false;
+    
     // this is a trailing edge interrupt := exposure timer
     uint64_t cyccnt64_now = cycles64();
     
@@ -1243,8 +1249,7 @@ public:
       flexpwm->SM[SH_SUBMODULE].VAL2 = 0xFFFF;
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
-      // for exposure
-      //sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
+      do_sync_toggle_here = true;
     }
 
     // first pulse
@@ -1255,8 +1260,8 @@ public:
       flexpwm->SM[SH_SUBMODULE].VAL1 = sh_short_period_counts;
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
-      // for exposure
-      //sh_cyccnt64_exposure = cyccnt64_now - sh_cyccnt64_prev;
+      // this is the end of the previous exposure
+      do_sync_toggle_here = true;
 
       // need to count
       sh_clearing_counter++;
@@ -1273,11 +1278,21 @@ public:
       flexpwm->MCTRL |= FLEXPWM_MCTRL_LDOK(SH_MASK);
 
       sh_clearing_counter = 0;
+
+      // this is the start of the next exposure
+      do_sync_toggle_here = true;
     }
     
     // for elapsed time and exposure
     sh_cyccnt64_prev = sh_cyccnt64_now;
     sh_cyccnt64_now  = cyccnt64_now;
+
+    // sync is toggled on start and end of exposure
+    if (sync_enabled && do_sync_toggle_here) {
+      digitalToggleFast(SYNC_PIN);
+      synctoggled = !synctoggled;
+    }
+    
     // ======================================
 #else
     sh_clearing_counter++;
@@ -2111,7 +2126,8 @@ public:
     
     // default to 1 frame and 1 frameset
     frame_counter = 0;
-    frame_counts = nframes ? nframes : 10;
+    //frame_counts = nframes ? nframes : 10;
+    frame_counts = nframes ? nframes+1 : 10;
 
     frameset_counter = 0;
     frameset_counts = 1;
