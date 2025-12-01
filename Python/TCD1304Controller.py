@@ -18,7 +18,7 @@ __version__   = "0.3"
 __email__     = "drmcnelson@gmail.com"
 __status__    = "alpha testing"
 
-__all__ = [ 'LCCDFRAME', 'LCCDDATA', 'LCCDDATASET' ]
+__all__ = [ 'TCD1304CONTROLLER' ]
 
 versionstring = 'TCD1304Device.py - version %s %s M C Nelson, PhD, (c) 2023'%(__version__,__status__)
 
@@ -57,6 +57,12 @@ import numpy as np
 from scipy.signal import savgol_filter as savgol
 
 import matplotlib.pyplot as plt
+
+try:
+    from Accumulators import Accumulators
+    has_accumulators = True
+except ModuleNotFoundError:
+    has_accumulators = False
 
 import faulthandler
 faulthandler.enable()
@@ -210,14 +216,15 @@ class TCD1304CONTROLLER:
 
         self.flag = Value( 'i', 1 )
         self.busyflag = Value( 'i', 0 )
+        self.localaccumulatorflag = Value( 'i', 0 )
 
+        # Local accumulators for the command line
+        self.accumulators = Accumulators( self.dataqueue, ycol0=0, parentinstance = self )
+                
         self.pulsetimingdevice = None
         
         # Control data processing in reader
         self.baselineflag = Value( 'i', 1 )
-
-        # Control local accumulator in reader
-        self.localaccumulatorflag = Value( 'i', 0 )
 
         # Report errors back
         self.errorflag = Value( 'i', 0 )
@@ -227,7 +234,7 @@ class TCD1304CONTROLLER:
         self.vperbit = self.vfs/(2**self.bits - 1)
         
         # --------------------------------
-        self.filesuffix = ".lccd"
+        self.filesuffix = ".tcd1304"
 
         self.identifier = None
         self.coefficients = []
@@ -961,6 +968,12 @@ class TCD1304CONTROLLER:
 
                         data = np.array(data)
 
+                        if testdata:
+                            for n,d in enumerate(data):
+                                if d != n:
+                                    printf( "aberrant test data at %d (0x%04x) read  %d (0x%04x)"%(n,n,d,d) )
+                            testdata = False
+                        
                         if self.vperbit:
                             data = data * self.vperbit
 
@@ -1336,6 +1349,7 @@ class TCD1304CONTROLLER:
         self.busyflag.value = 0
 
         #self.writeread("clear accumulator")
+
         return True
             
     def close( self, ignored=None ):
@@ -1536,8 +1550,6 @@ class TCD1304CONTROLLER:
         if newfile:
             file.close()
                   
-    # =====================================================================
-    
     # =====================================================================
     def commandlineprocessor( self, line, fileprefix=None ):
 

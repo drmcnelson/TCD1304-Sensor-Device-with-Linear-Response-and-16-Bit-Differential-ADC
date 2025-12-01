@@ -3,6 +3,7 @@
 # record structure  [ ycols,......, accumulation_counter, datetimestamp ]
 
 import numpy as np
+from time import sleep
 
 class Accumulators:
 
@@ -86,14 +87,26 @@ class Accumulators:
             return False
 
         records = []
+        while len(records) < self.naccumulators:
+            while self.queue.empty():
+                sleep(0.1)
+            try:
+                newrecord = self.queue.get(timeout=10)
+                records.append(newrecord)
+            except Exception as e:
+                print( 'add - queue get timeout, try again', len(newrecord), e )
+
+        print("accumulators.pull retrieved", len(records))
+        '''
         for n in range(self.naccumulators):
+            while
             try:
                 newrecord = self.queue.get(timeout=10)
                 records.append(newrecord)
             except Exception as e:
                 print( 'add - insufficient records', n, e )
                 return False
-
+        '''
         if not self.queue.empty():
             print( 'extra records in the queue' )
             return False
