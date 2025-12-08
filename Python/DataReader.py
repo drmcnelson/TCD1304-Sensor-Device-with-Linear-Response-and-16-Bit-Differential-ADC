@@ -210,7 +210,7 @@ class DATAFrame:
         # ----------------------------------------------------------------
         # Read the file, load data and exec lines with '='
 
-        isint = False
+        self.isint = False
         
         rows = None
         for line in lines:
@@ -230,15 +230,15 @@ class DATAFrame:
             elif line.startswith( "# DATA" ) or line.startswith( "# data" ):
                 rows = []
                 self.isimage = False
-                isint = False
+                self.isint = ('int64' in line) or ('int32') in line or ('uint16' in line)
 
             elif line.startswith( "# IMAGE" ) or line.startswith( "# image" ):
                 rows = []
                 self.isimage = True
-                isint = 'uint16' in line
+                self.isint = 'uint16' in line
 
             elif rows is not None:
-                if isint:
+                if self.isint:
                     rows.append( [ int(r) for r in line.split() ] )
                 else:
                     rows.append( [ float(r) for r in line.split() ] )
@@ -289,7 +289,40 @@ class DATAFrame:
                 for n,s in enumerate(self.LABELS):
                     self.__dict__[s] = self.data[n]
 
+    # Data in volts, if read as integers convert to volts and apply baseline
+    def dataVolts(self,col=0,dark_subtraction=True,offset_subtraction=True):
+
+        data = self.data[col]
+
+        if self.isint:
+            if self.parent.vperbit:
+                data = data * self.parent.vperbit
+
+            if offset_subtraction and 'offset' in self.__dict__:
+                print("baseline offset subtraction", self.offset)
+                data = data - self.offset
+
+            elif self.parent.scale_offset:
+                data = data - self.parent.scale_offset
+
+            if dark_subtraction and self.parent.darklength:
+                darkstart = self.parent.darkstart
+                darklength = self.parent.darklength
+                darkstop = darkstart + darklength
+                darkoffset = np.median( data[darkstart:darkstop] )
+                print("masked pixels (dark) subtraction", darkoffset)
+                data = data - darkoffset
                 
+
+        return data
+
+    # data in number of electrons counters (close to 1 per photon)
+    def dataCounts(self,col=0):
+        data = self.dataVolts(col)
+        data *= 37.152*1000.
+        return data
+        
+                    
     def get( self, name ):
         
         if name in self.__dict__:
@@ -455,14 +488,20 @@ class LCCDDATA( DATA ):
             self.pixelwidth_ = 8.0E-3
             
         self.datalength = len(self.frames[0].data[0])
+
+        print("creating xpixels")
         self.xpixels = np.linspace( 0, self.datalength, self.datalength )
+
+        print("creating defaiult xdata")
         self.xdata = self.xpixels * self.pixelwidth_ 
 
         # Wavelength coefficients specified
         if 'coefficients' in self.__dict__:
+            print("creating xdata from coefficients")
             self.xdata = np.polynomial.polynomial.polyval( self.xpixels, self.coefficients )
             
         if 'wavelength_coefficients' in self.__dict__:
+            print("creating xdata from wavelength_coefficients")
             self.coefficients = self.wavelength_coefficients
             self.xdata = np.polynomial.polynomial.polyval( self.xpixels, self.coefficients )
         
@@ -601,7 +640,7 @@ class LCCDDATA( DATA ):
 # =============================================================================================
 def loaddata( filespec, verbose=False ):
 
-    if filespec.endswith('lccd'):
+    if filespec.endswith('lccd') or filespec.endswith('tcd1304'):
         if verbose:
             print( 'loaddata', filespec )
             print( 'is lccd' )
@@ -710,15 +749,19 @@ if __name__ == "__main__":
     
     parser.add_argument( '--xmin', type=float )
     parser.add_argument( '--xmax', type=float )
+    parser.add_argument( '--logx', action='store_true' )
 
     parser.add_argument( '--ymin', type=float )
     parser.add_argument( '--ymax', type=float )
+    parser.add_argument( '--logy', action='store_true' )
 
     parser.add_argument( '--y2min', type=float )
     parser.add_argument( '--y2max', type=float )
+    parser.add_argument( '--logy2', action='store_true' )
     
     parser.add_argument( '--y3min', type=float )
     parser.add_argument( '--y3max', type=float )
+    parser.add_argument( '--logy3', action='store_true' )
 
     parser.add_argument( '--legend', nargs='*', help='applied  one for each of y,y2,...etc' )
     parser.add_argument( '--outside', action='store_true' )
@@ -1003,7 +1046,12 @@ if __name__ == "__main__":
         set_yaxis( ax1, ymin, ymax, ylabel, lns[-1].get_color(), ticfontsize=args.ticfont, labelfontsize=args.labelfont )
     else:
         set_yaxis( ax1, ymin, ymax, ylabel, None, ticfontsize=args.ticfont, labelfontsize=args.labelfont )
+
+    if args.logy:
+        ax1.set_yscale('log')
         
+    if args.logx:
+        ax1.set_xscale('log')
     #  ------------------------------------------------------------
     if y2 is not None:
         ax2 = ax1.twinx()
@@ -1024,6 +1072,9 @@ if __name__ == "__main__":
             
         set_yaxis( ax2, y2min, y2max, y2label, lns[-1].get_color(), ticfontsize=args.ticfont, labelfontsize=args.labelfont )
                      
+        if args.logy2:
+            ax2.set_yscale('log')
+            
         #  ------------------------------------------------------------
         if y3 is not None:
             
@@ -1050,6 +1101,9 @@ if __name__ == "__main__":
 
             set_yaxis( ax3, y3min, y3max, y3label, lns[-1].get_color(), ticfontsize=args.ticfont, labelfontsize=args.labelfont )
 
+            if args.logy3:
+                ax3.set_yscale('log')
+                
     #  ------------------------------------------------------------
     if text is not None:
         ax1.text( text_x, text_y, text,
