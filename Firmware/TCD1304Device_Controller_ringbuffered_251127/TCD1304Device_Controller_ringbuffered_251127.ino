@@ -786,6 +786,14 @@ bool send_frame(TCD1304Device :: Frame_Header *p)
     Serial.println(p->trigger_counter);
   }
 
+  // send the raw offset as average of the dummy pixels
+  Serial.print("RAWOFFSET ");
+  Serial.println(p->avgdummy);
+
+  // send the voltage offset based on the dummy pixels
+  Serial.print("OFFSET ");
+  Serial.println(p->offset,6);
+
   // Send the data buffer
   sendData(p->buffer);
 
@@ -1575,6 +1583,7 @@ void loop( ) {
       if (pc && *pc) {
 	while (isspace(*pc)) pc++;
       }
+      Serial.printf("help command parameter %s\n", pc);
       help(pc);
     }
 
@@ -1617,7 +1626,7 @@ void loop( ) {
         if (strMatch(pc,"nostart",&pc)) {
           start = false;
         }
-        
+	
         tcd1304device.read(nframes,exposure,bufferp,
                            frame_callback, 0, 0, send_header, start);
       }

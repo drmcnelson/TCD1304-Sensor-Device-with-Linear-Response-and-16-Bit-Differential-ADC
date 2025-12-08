@@ -32,7 +32,7 @@
 #include <ADC_util.h>
 extern ADC *adc;
 #define ANALOGPIN A0
-#define TCD1304_MAXCLKHZ 2.E6
+#define TCD1304_MAXCLKHZ 2.35E6
 #else
 #define TCD1304_MAXCLKHZ 4.E6
 #endif
@@ -383,6 +383,10 @@ public:
     uint16_t *buffer;
     unsigned int nbuffer;
 
+    // from the dummy outputs, first 16 elements
+    unsigned int avgdummy;
+    float offset;
+
 #ifdef DEBUG
     uint64_t sh_cyccnt64_start = 0;
     uint64_t sh_cyccnt64_now = 0;
@@ -557,8 +561,17 @@ public:
 
   static void fill_frame_header(Frame_Header *p)
   {
+    unsigned int utmp = 0;
+    int n;
+    
     p->buffer = read_buffer;
     p->nbuffer = read_counts;
+
+    for (n=0; n<DATASTART; n++) {
+      utmp += read_buffer[n];
+    }    
+    p->avgdummy = utmp/DATASTART;
+    p->offset = ((float)utmp * VPERBIT)/DATASTART;
 
 #ifdef DEBUG    
     p->sh_cyccnt64_start = sh_cyccnt64_start;
@@ -663,12 +676,12 @@ public:
             void (*setup_callbackf)(),
             bool start=true)
   {
+
     float clk_secs = 0.5E-6;
     float sh_secs = 1.0E-6;
     float sh_offset_secs = 0.6E-6;
     float icg_secs = 2.6E-6;
     float icg_offset_secs = 0.5E-6;
-
 
     if (!setup_frameset(clk_secs, sh_secs, sh_offset_secs, icg_secs, icg_offset_secs,
                         exposure, frame_interval, nframes,
@@ -2094,7 +2107,7 @@ public:
 
     // ------------------------------------------------------------------
     // announce ourselves
-    Serial.print("#tcd1304 setup frameset, clk "); Serial.print(clk_secs);
+    Serial.print("#tcd1304 setup frameset, clk "); Serial.print(clk_secs,8);
     Serial.print(" sh "); Serial.print(sh_secs,8);
     Serial.print(" offset "); Serial.print(sh_offset_secs,8);
     Serial.print(" icg "); Serial.print(icg_secs,8);
@@ -2176,7 +2189,7 @@ public:
     clock_period_counts = ceil(clock_period_counts/divider) * divider;
     clock_period_secs   = (float)clock_period_counts/F_BUS_ACTUAL;
     Serial.print("#Clock period counts "); Serial.print(clock_period_counts);
-    Serial.print(" secs "); Serial.println(clock_period_secs);
+    Serial.print(" secs "); Serial.println(clock_period_secs,8);
     
     if ((clock_period_counts < 4)|| (clock_period_secs > (1./TCD1304_MINCLKHZ))|| (clock_period_secs < (1./TCD1304_MAXCLKHZ))) {
       Serial.println("Error: not able to support this combination of clock and exposure times.");
