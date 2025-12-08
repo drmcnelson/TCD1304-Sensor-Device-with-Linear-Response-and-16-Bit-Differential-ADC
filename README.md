@@ -249,7 +249,7 @@ The firmware supports clocked, triggered and gated exposures, and triggered cloc
 
 We have now added commands to implement signal averaging. After reading or triggering frames or framesets, and before issuing the command **save \<filespec\>**, you can reduce the dataset using the commands **add framesets** or **add all**.  The former will preserve the frameset structure and the latter collapses everything into a single frame.  After adding the frames, you can use **save** as usual.
 
-Following is an example of a single frame and the result of adding 100 frames at the same signal intensity.  The signal noise raise increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is capability that you have only when your instrument is linear.  We will discuss this in further detail in the next section.
+Following is an example of a single frame and the result of adding 100 frames at the same signal intensity.  The signal noise ratio increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is capability that you have only when your instrument is linear.  We will discuss this in further detail in the next section.
 
 <p align="center">
 <img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
