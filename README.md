@@ -772,6 +772,8 @@ See <b>help</b> for more details
 |  | **trigger &lt;nframes&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait trigger]** |
 |  | **trigger &lt;nsets&gt; &lt;nframes&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait trigger]** |
 | | |
+| | (The CLI receives data frames onto its data queue. See CLI save, add and clear) |
+| | |
 | *Configure trigger* | **configure trigger** [ **rising\|falling\|change \| (no)pullup \| pin &lt;n&gt;** ]|
 | | |
 | *Configure clearing pulses* | **configure clearing pulses &lt;n&gt;**|
@@ -787,9 +789,14 @@ See <b>help</b> for more details
 | *Configure trigger* | **configure trigger** [ **rising\|falling\|change \| (no)pullup \| pin &lt;n&gt;**]|
 | | |
 | **CLI functions:** | **command:** |
+| *Data summing*| **add frameset** - add queued data collating by frame number |
+| | **add all** - adds all of the queued data resulting in a single frame|
+| *Clear data and text queues* | **clear** |
+| | |
 | *Wait for completion* | **wait** |
+| | |
 | *Save to disk* | **save** &lt;filenameprefix&gt; |
-| *Clear the queues* | **clear** |
+| | |
 | *Print help text* | **help** [report\|coefficients\|pulse\|frameset\|timer\|trigger] |
 | | |
 | *Execute from script* | @&lt;filename&gt; [args] |
