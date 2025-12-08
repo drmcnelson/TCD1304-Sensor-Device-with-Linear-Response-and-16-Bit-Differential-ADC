@@ -78,8 +78,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 
 ### Reproducibility and linearity
 
-Reproducibility is vitally important for any instrument and is especially challenging for a CCD spectrometer. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  In particular, the non-linearity that seems most common in spectrometers is a function of line shape rather than simple intensity at each pixel.  We show examples of this in data collected from a commercial instrument and compare this to data from the present design where the results are linear. 
-The data illustrate the point that linearity is prerequisite to producing data that is both reproducible and meaningful.
+Reproducibility is vitally important for any instrument.  For spectrometers linearity is a pre-requisite for reproducibility as well as for important capabilities such as signal averaging.  Linearity is especially challenging for a CCD spectrometer due to the nature of the signals produced on readout. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the connection between linearity and reproducibility and being able produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
@@ -100,8 +99,7 @@ The latter enable signal averaging and 100fps transfers for the large 3664 pixel
 The firmware [(here)](Firmware/), written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
 The T4 controller is supported by the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
-The current and recommended version of the firmware is in the subdirectory
-[Firmware/TCD1304Device_Controller_ringbuffered_251127](TCD1304Device_Controller_ringbuffered_25112).  This version implements ring buffering and allows the device to maintain through put with slower host computers.  Testing is preliminary, but looks very good.  Nonetheless we have not removed the older code, which can be found in the subdirectory [Firmware/TCD1304Device_Controller_251111](Firmware/TCD1304Device_Controller_251111)
+There are now two versions of the firmware in the repo.  The traditional version sends data frames as they are collected.  The new experimental firmware implements a ring buffer system.  We anticipate that this will be the standard version.  Meanwhile we post both with the understanding that the latter is a preview.
 
 ### Python user interface with graphical display
 
@@ -171,13 +169,14 @@ The firmware codes are found in the repo in the Firmware/ subdirectory
 
 (In the following, the "251111" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
 
-    TCD1304Device_Controller_ringbuffered_251127/
+    TCD1304Device_Controller_251111/
     
-      TCD1304Device_Controller_ringbuffered_251127.ino  - The Arduino program and CLI
+      TCD1304Device_Controller_251111.ino  - The Arduino program with the CLI
     
-      parselib.cpp    - The string parsing library for the CLI
+      TCD1304Device2.h  -  A header-only C++ library for the TCD1304 and Teensy4.x (iMXRT106x)
+      
+      parselib.cpp      - A string parsing library for the CLI
       parselib.h
-      TCD1304Device2.h - The header-only C++ library for the TCD1304 with FlexPWM
 
 The Arduino IDE requires that the "ino" file and directory have the same name.
 
@@ -186,12 +185,7 @@ To load firmware into the "All-In-One" board, open the file **TCD1304Device2.h**
       //#define ALLINONEBOARD
 
 
-The ring buffering system is presently configured for 32 slots.  You can change this in TCD1304Device_Controller_ringbuffered_251127 at line 590,
-
-	#define NBUFFERS 32
-	
-
-If you want to customize the firmware further, it is recommended to create a new directory, copy the files into that directory and rename the ino file per the above convention.
+If you want to customize the firmware, it is recommended to create a new directory, copy the files to that directory and rename the ino file per the above.
 
 After installing the Arduino IDE and Teensy package, you should be able to double click on the ino file to start an IDE session, or start the IDE and navigate to the directory and open the file.  
 
@@ -215,15 +209,12 @@ Here is a list of the files provided in the Python directory
 
     TCD1304Controller.py   - User interface and Class library
     
-    Accumulators.py        - Libraries used by TCD1304Controller.py
-    GraphicsWindow.py
+    GraphicsWindow.py      - Libraries used by TCD1304Controller.py
     GUIWindow.py
     TextWindow.py
 
     DataReader.py          - Offline library and graphics utility
 
-    TCD1304.help           - Output from the help command
-    
     SetupPATH.sh           - Adds the code directory to PATH
         
     GraphTCD130Spectrum.sh - Offline graphics using DataReader.py
@@ -256,9 +247,17 @@ Some of the commands are implemented in the Python code, the remainder are passe
 
 The firmware supports clocked, triggered and gated exposures, and triggered clocked series of exposures.  At a high level there are commands like **read \<n frames\> \<exposure (secs)\>**  which collects a clocked series of contiguously exposed frames and **trigger \<n frames\> \<exposure (secs)\>** which collects the same series initiated by an external trigger.  At the next level there are commands like **setup pulse ...** and **setup frameset...**, for configuring and launching precisely controlled gate pulse sequences and readout.  And at the lowest level there are commands that directly configure and access modules in the FlexPWM peripheral that serves as the timing generator.  A detailed command list is provided at the end of this readme.
 
+We have now added commands to implement signal averaging. After reading or triggering frames or framesets, and before issuing the command **save \<filespec\>**, you can reduce the dataset using the commands **add framesets** or **add all**.  The former will preserve the frameset structure and the latter collapses everything into a single frame.  After adding the frames, you can use **save** as usual.
+
+Following is an example of a single frame and the result of adding 100 frames at the same signal intensity.  The signal noise raise increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is capability that you have only when your instrument is linear.  We will discuss this in further detail in the next section.
+
+<p align="center">
+<img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
+</p>
+
 The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
 
-The Python program DataReader can be used as a library to work with data file or as a standalone program for graphics.  The command line accepts python language states to define x, y, y2 and etc.  See the bash commands included in the distribution for examples.
+The Python program DataReader.py can be used as a standalone program with graphics or as a library to work with data files.  The command line accepts python language states to define x, y, y2 and etc.  See the bash scripts included in the distribution for examples.
 
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
