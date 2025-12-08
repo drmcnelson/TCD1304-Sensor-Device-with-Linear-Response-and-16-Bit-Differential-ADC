@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 
 """
-LCCDController.py
+TCD1304DeviceMP.py
 
-Mitchell C. Nelson (c) 2023
+Mitchell C. Nelson (c) 2023, 2024, 2025
 
-November 26, 2023
+December 5, 2025
 
 Derived from LLCDController.py Copyright 2022 by M C Nelson
 Derived from TDAQSerial.py, TCD1304Serial.py, Copyrigh 2021 by M C Nelson
@@ -13,18 +13,20 @@ Derived from TDAQSerial.py, TCD1304Serial.py, Copyrigh 2021 by M C Nelson
 """
 
 __author__    = "Mitchell C. Nelson, PhD"
-__copyright__ = "Copyright 2023, Mitchell C, Nelson"
-__version__   = "0.3"
+__copyright__ = "Copyright 2025, Mitchell C, Nelson"
+__version__   = "0.4"
 __email__     = "drmcnelson@gmail.com"
 __status__    = "alpha testing"
 
 __all__ = [ 'TCD1304CONTROLLER' ]
 
-versionstring = 'TCD1304Device.py - version %s %s M C Nelson, PhD, (c) 2023'%(__version__,__status__)
+versionstring = 'TCD1304Device.py - version %s %s M C Nelson, PhD, (c) 2025'%(__version__,__status__)
 
 import sys
 import time
 import select
+
+import traceback
 
 import os
 import operator
@@ -42,8 +44,11 @@ from datetime import datetime
 from time import sleep, time, process_time, thread_time
 
 # from threading import Lock, Semaphore, Thread
+import multiprocessing as mp
+
 from queue import SimpleQueue, Empty
 from multiprocessing import Process, Queue, Value, Lock
+from threading import Thread
 
 import struct
 
@@ -57,12 +62,6 @@ import numpy as np
 from scipy.signal import savgol_filter as savgol
 
 import matplotlib.pyplot as plt
-
-try:
-    from Accumulators import Accumulators
-    has_accumulators = True
-except ModuleNotFoundError:
-    has_accumulators = False
 
 import faulthandler
 faulthandler.enable()
@@ -174,6 +173,507 @@ def split_bracketed(string, delimiter=' ', strip_brackets=False):
     assert depth == 0, f'You did not close all brackets in string {string}'
     yield current_string    
 
+# --------------------------------------------------------------------------------------------
+def parseFlt(s):
+    try:
+        return float(s)
+    except Exception as e:
+        print( e, s )
+        self.error += 1
+        return None
+
+def parseInt(s):
+    try:
+        return int(s)
+    except Exception as e:
+        print( e, s )
+        self.error += 1
+        return None
+
+        
+
+    
+# ======================================================================================================================
+class TCD1304DATAFRAME:
+
+    def __init__(self,old=None):
+
+        self.frame_mode = None
+        self.frame_every = 0
+        self.timestamp = None
+
+        self.data = None
+        self.offset = 0.
+        self.rawoffset = 0
+
+        self.frame_counter = 0
+        self.frame_counts = 0
+        self.frame_elapsed = 0.
+        self.frame_exposure = 0.
+        
+        self.frameset_counter = 0
+        self.frameset_counts = 0
+
+        self.trigger_counter = 0
+        self.trigger_counts = 0
+        self.trigger_elapsed = 0.
+        self.trigger_difference = 0.
+
+        self.timer_elapsed = 0
+        self.timer_difference = 0
+        self.timer_period  = 0
+        self.timer_subperiod = 0        
+
+        self.sh_period  = 0
+        
+        self.accumulator_counter = 0
+        self.is_accumulating = False;
+
+        self.adc = None
+        self.chip_temperature = None
+
+        self.error = None
+            
+        self.frameset_complete = False
+            
+        self.complete = False
+
+        if old is not None:
+            self.frame_mode = old.frame_mode
+            self.frame_counts = old.frame_counts
+            self.frameset_counts = old.frameset_counts
+            self.sh_period = old.sh_period
+            self.timer_period = old.timer_period
+            self.timer_subperiod = old.timer_subperiod
+            self.trigger_counts = old.trigger_counts
+            
+def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runflag, busyflag, errorflag, debug=False ):
+
+    # ----------------------------------------------
+    def sighandler( a, b ):
+        print( "readerwriter sighandler" )
+        runflag.value = 0
+            
+    signal.signal(signal.SIGINT, sighandler)    
+    
+    # ----------------------------------------------
+    write_get   = writequeue.get        
+    write_empty = writequeue.empty
+    
+    text_put     = textqueue.put
+    data_put     = dataqueue.put
+    graphics_put = graphicsqueue.put
+    
+    runflag_value = runflag.value
+    busyflag_value = busyflag.value
+    errorflag_value = errorflag.value
+
+    #local parameters
+    datalength = 0
+    pixelpitch = 0
+    darkstart = 0    
+    darklength = 0
+    darkstop = darkstart + darklength
+    invert = False
+    sensor = None
+    scale_offset = 0
+    scale_range = 0
+    bits = 16
+    vfs = 3.3
+    vperbit = vfs/(2**16-1)
+
+    # ----------------------------------------------
+    serialport = serial.Serial( portspec, timeout=1., write_timeout=1. )
+    if serialport is None:
+        runflag = 1
+        errorflag = 1
+        sleep(0.1)
+        sys.exit()
+        
+    read_until = serialport.read_until
+    readline = serialport.readline
+
+    # ----------------------------------------------
+    dataframe = TCD1304DATAFRAME()
+    
+    while runflag:
+
+        # write whatever is waiting to be written
+        while  not write_empty():
+
+            line = write_get().strip() + '\n'
+            if debug:
+                print( "TCD1304port sending", line)
+
+            serialport.write(line.encode())
+        
+        # Check bytes waiting
+        waiting = serialport.in_waiting
+        if waiting > 0:
+
+            try:
+                line  = readline()
+                line = line.decode('utf-8', errors='ignore').strip()
+
+                p = line.split()
+                
+                if debug:
+                    print( "TCD1304port read", line)
+
+                if len(p) == 0:
+                    continue
+
+                # --------------------------------------------------------
+                # We process data here
+                if p[0] == "BINARY16" :
+                    ndata = int(p[1])
+                    nbytes = 2*ndata
+
+                    # Read the data until we have all of the bytes
+                    data    = serialport.read(nbytes)
+                    nbytes -= len(data)
+                    while nbytes > 0:
+                        nextdata = serialport.read(nbytes)
+                        nbytes  -= len(nextdata)
+                        data.append(nextdata)
+
+                    timestamp = datetime.now()
+
+                    # Read the expected end of data message
+                    line  = readline()
+                    line = line.decode('utf-8', errors='ignore').strip()
+
+                    if  line.startswith( "END" ):
+
+                        data = struct.unpack( '<%dH'%(len(data)/2), data )
+                        # data = np.array(data, dtype=np.int64)
+                        data = np.array(data)
+
+                        dataframe.data = [data]
+                        dataframe.timestamp = timestamp
+
+                        #print("raw data type", type(dataframe.data[0]), np.dtype(dataframe.data[0][0]))
+                        
+                        # We put the raw data on the queue
+                        data_put(dataframe)
+
+                        # Prepare a record for the graphical display
+                        text = ""
+                        if dataframe.frame_mode is not None:
+                            text += dataframe.frame_mode
+                        text += '\ncounters: ' + str(dataframe.frame_counter) + '/' + str(dataframe.frame_counts)
+                        text += ' ' + str(dataframe.frameset_counter) + str(dataframe.frameset_counts)
+                        text += '\n' + dataframe.timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
+
+                        if debug:
+                            print("putting graphics", dataframe.data[0].shape, text )
+
+                        data = np.copy(dataframe.data)
+                            
+                        if vperbit:
+                            data = data * vperbit
+
+                        if scale_offset:
+                            data = data - scale_offset
+
+                        graphics_put( [[data], text] )
+
+                        
+                    else:
+                        print("binary16 transfer missing end")
+
+                    # New data frame (the old one is referenced from the queue!!!)
+                    dataframe = TCD1304DATAFRAME(dataframe)
+                    
+                # ---------------------------------
+                elif p[0] == "BINARY32":
+                    ndata = int(p[1])
+                    nbytes = 4*ndata
+
+                    # Read the data until we have all of the bytes
+                    data    = serialport.read(nbytes)
+                    nbytes -= len(data)
+                    while nbytes > 0:
+                        nextdata = serialport.read(nbytes)
+                        nbytes  -= len(nextdata)
+                        data.append(nextdata)
+
+                    timestamp = datetime.now()
+
+                    # Read the expected end of data message
+                    line  = readline()
+                    line = line.decode('utf-8', errors='ignore').strip()
+
+                    if  line.startswith( "END" ):
+
+                        data = struct.unpack( '<%dI'%(len(data)/4), data )
+                        # data = np.array(data, dtype=np.int64)
+                        data = np.array(data)
+
+                        dataframe.data = data
+                        dataframe.timestamp = timestamp
+
+                        # We put the raw data on the queue
+                        print( "putting frame counter", dataframe.frame_counter, dataframe.frame_elapsed)
+                        data_put(dataframe)
+
+                        # Prepare a record for the graphical display
+                        text = ""
+                        if dataframe.frame_mode is not None:
+                            text += dataframe.frame_mode
+                        text += '\ncounters: ' + str(dataframe.frame_counter) + '/' + str(dataframe.frame_counts)
+                        text += ' ' + str(dataframe.frameset_counter) + str(dataframe.frameset_counts)
+                        text += '\n' + dataframe.timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
+
+                        if vperbit:
+                            data = data * vperbit
+
+                        if scale_offset:
+                            data = data - scale_offset
+                        
+                        graphics_put( [dataframe.data, text] )
+
+                    else:
+                        print("binary32 transfer missing end")
+                        
+                    # New data frame (the old one is referenced from the queue!!!)
+                    dataframe = TCD1304DATAFRAME(dataframe)
+                    
+                # ---------------------------------
+                elif p[0] == "DATA":
+                    ndata = int(p[1])
+
+                    # Read the actual text format data buffer(s)
+                    data_buffers = []
+                    while len(data_buffers) < ndata:
+                        data_buffers.append( ser.readline( ) )
+
+                    timestamp = datetime.now()
+
+                    # Read the expected end of data message
+                    endbuffer = serialport.read_until( )
+
+                    line  = readline()
+                    line = line.decode('utf-8', errors='ignore').strip()
+
+                    if line.startswith( "END" ):
+
+                        data = []
+                        for buffer in data_buffers:
+                            buffer = buffer.decode('utf-8', errors='ignore').strip()
+                            data.append( int(buffer) )
+
+                        dataframe.data = np.array(data)
+                        dataframe.timestamp = timestamp
+
+                        # We put the raw data onto the queue
+                        print( "putting frame counter", dataframe.frame_counter, dataframe.frame_elapsed)
+                        data_put(dataframe)
+
+                        # Prepare a record for the graphical display
+                        text = ""
+                        if dataframe.frame_mode is not None:
+                            text += dataframe.frame_mode
+                        text += '\ncounters: ' + str(dataframe.frame_counter) + '/' + str(dataframe.frame_counts)
+                        text += ' ' + str(dataframe.frameset_counter) + str(dataframe.frameset_counts)
+                        text += '\n' + dataframe.timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
+                        
+                        graphics_put( [dataframe.data, text] )
+
+                    else:
+                        print("ascii data transfer missing end")
+
+                    # New data frame (the old one is referenced from the queue!!!)
+                    dataframe = TCD1304DATAFRAME(dataframe)
+                    
+                # ---------------------------------------                
+                # Mode keywords
+                elif p[0] == "START":
+
+                    # start a new one
+                    #dataframe = TCD1304DATAFRAME()
+                
+                    dataframe.frame_mode = p[1]
+
+                    busyflag.value = 1
+
+                # --------------------------------
+                elif p[0] == "FRAMESET":
+
+                    if p[0] == "START":
+
+                        dataframe.frameset_complete = False
+
+                    elif p[0] == "END":
+
+                        dataframe.frameset_complete = True
+
+                    elif p[1] == "COUNTER":
+
+                        dataframe.frameset_counter = parseInt(p[2])
+
+                    elif p[1] == "COUNTS":
+
+                        dataframe.frameset_counts = parseInt(p[2])
+
+                # --------------------------------
+                elif p[0] == "FRAME":
+
+                    if p[1] == "COUNTER":
+
+                        dataframe.frame_counter = parseInt(p[2])
+
+                    elif p[1] == "COUNTS":
+
+                        dataframe.frame_counts = parseInt(p[2])
+
+                    elif p[1] == "ELAPSED":
+
+                        dataframe.frame_elapsed = parseFlt(p[2])
+
+                    elif p[1] == "EXPOSURE":
+
+                        dataframe.frame_exposure = parseFlt(p[2])
+
+                # --------------------------------
+                elif p[0] == "SH":
+                    
+                    if p[1] == "PERIOD":
+
+                        dataframe.sh_period = parseFlt(p[2])
+                        
+                # --------------------------------
+                elif p[0] == "TIMER":
+
+                    if p[1] == "PERIOD":
+
+                        dataframe.timer_period = parseFlt(p[2])
+
+                    elif p[1] == "SUBPERIOD":
+
+                        dataframe.timer_subperiod = parseFlt(p[2])
+
+                    elif p[1] == "ELAPSED":
+
+                        dataframe.timer_elapsed = parseFlt(p[2])
+
+                    elif p[1] == "DIFFERENCE":
+
+                        dataframe.timer_difference = parseFlt(p[2])
+
+                # --------------------------------
+                elif p[0] == "TRIGGER":
+
+                    if p[1] == "COUNTER":
+
+                        dataframe.trigger_counter = parseInt(p[2])
+
+                    elif p[1] == "COUNTS":
+
+                        dataframe.trigger_counts = parseInt(p[2])
+
+                    elif p[1] == "ELAPSED":
+
+                        dataframe.trigger_elapsed = parseFlt(p[2])
+
+                    elif p[1] == "DIFFERENCE":
+
+                        dataframe.trigger_difference = parseFlt(p[2])
+
+                # --------------------------------
+                elif p[0] == "ICG":
+
+                    if p[1] == "ELAPSED":
+
+                        dataframe.icg_elapsed = parseFlt(p[2])
+
+                # --------------------------------
+                elif p[0] == "OFFSET":
+
+                    dataframe.offset = parseFlt(p[1])
+                    
+                elif p[0] == "RAWOFFSET":
+
+                    dataframe.rawoffset = parseFlt(p[1])
+                    
+                # --------------------------------
+                elif p[0] == "ACCUMULATING":
+                    dataframe.is_accumulating = True
+
+                elif p[0] == "ACCUMULATOR":
+
+                    dataframe.accumulator_counter = sef.partInt(p[1])
+
+                # ---------------------------------------
+                elif p[0] == "ADC":
+
+                    dataframe.adc = line
+
+                    text_put(line)
+
+                elif p[0] == "CHIPTEMPERATURE":
+
+                    dataframe.chip_temperature = line
+
+                    text_put(line)
+
+                elif p[0] == "COMPLETE":
+
+                    # start a new dataframe
+                    dataframe = TCD1304DATAFRAME()
+                
+                    busyflag.value = 0
+
+                elif p[0] == "Error":
+
+                    dataframe.error = line
+                    
+                    errorflag.value += 1
+
+                    text_put( line )
+
+
+                elif p[0] == "PIXELS":
+
+                    # local copy of the configurawtion
+
+                    datalength = key_in_list( p, "PIXELS", int )
+                    pixelpitch = 8.0E-3
+                    darkstart = 0    
+                    darklength = key_in_list( p, "DARK", int )
+                    invert = key_in_list( p, "INVERT", float )
+                    sensor = key_in_list( p, "SENSOR", str )
+                    scale_offset = key_in_list( p, "OFFSET", float )
+                    scale_range = key_in_list( p, "RANGE", float )
+                    bits = key_in_list( p, "BITS", int )
+                    vfs = key_in_list( p, "VFS", float )
+                    vperbit = key_in_list( p, "VPERBIT", float )
+
+                    if vfs and bits:
+                        vperbit = vfs/(2**bits - 1)
+
+                    text_put(line)
+
+                else:
+
+                    if debug:
+                        print( "TCD1304port put", line)
+
+                    text_put(line)
+
+            except KeyboardInterrupt:
+                break
+
+            except Exception as e:
+                print(f"SerialPort Read error: {e}")
+                print(traceback.format_exc())
+                line = None
+
+
+
+    sys.exit()
+            
+                
 # ======================================================================================================================
 # This is the class for the instrument
 
@@ -203,7 +703,12 @@ class TCD1304CONTROLLER:
         self.instance = next( self._ids )
         
         self.name= portspec
-        
+
+        # used by the reader thread
+        self.readqueue = Queue()
+        self.writequeue = Queue()
+        self.graphicsqueue = Queue()
+
         self.textqueue = Queue()
         self.dataqueue = Queue()
         
@@ -216,10 +721,6 @@ class TCD1304CONTROLLER:
 
         self.flag = Value( 'i', 1 )
         self.busyflag = Value( 'i', 0 )
-        self.localaccumulatorflag = Value( 'i', 0 )
-
-        # Local accumulators for the command line
-        self.accumulators = Accumulators( self.dataqueue, ycol0=0, parentinstance = self )
                 
         self.pulsetimingdevice = None
         
@@ -247,95 +748,44 @@ class TCD1304CONTROLLER:
         self.debug = debug
         
         # ---------------------------------
+        self.readerthread = Process( target = TCD1304port,
+                                     args=(
+                                         portspec,
+                                         self.writequeue,
+                                         self.textqueue,
+                                         self.dataqueue,
+                                         self.graphicsqueue,
+                                         self.flag,
+                                         self.busyflag,
+                                         self.errorflag,
+                                         self.debug)
+                                    )
+        self.readerthread.start()
+
+        sleep(0.1)
+        print("readerthread started")
+        
+        # ---------------------------------
         # First, stop
-        buffer = self.rawcommand( 'stop' )
-        if buffer is not None:
-            print( buffer )
+        buffer = self.command('stop')
+        print('stop command', buffer)
         
         # ---------------------------------
         # Query for Identifier        
-        buffer = self.rawcommand( 'identifier', 'Identifier' )
-        if buffer is not None:
-            print( 'lccd identifier: ', buffer )
-            self.identifier = buffer.split(maxsplit=1)[1]
+        buffer = self.command('identifier')
+        print(buffer)
         
         # Query for Version
-        print( "querying for version" )
-        buffer = self.rawcommand( 'version' )
-        if buffer is not None:
-            if type(buffer) is list:
-                print("buffer is list")
-                for b in buffer:
-                    b = b.strip()
-                    if b != 'version':
-                        self.version = b
-                        print( 'version found', self.version )
-                        break
-                    print(b)
-            print( 'lccd version: ', buffer )
-            #self.version = buffer.split(maxsplit=1)[1]
+        buffer = self.command( 'version' )
+        print(buffer)
         
         # ---------------------------------
         # Query for the configuration
-        buffer = self.rawcommand( 'configuration' )
-        if buffer is None:
-            raise ValueError( "configuration, not found in response" )
-        print( buffer )
-        
-        if type(buffer) is list:
-            if buffer[-1].startswith("Ack:"):
-                buffer = buffer[1]
-            else:
-                buffer = buffer[-1]
-            buffer = buffer.strip()
-        print( 'configuration buffer:', buffer )
-            
-        parts = buffer.split()
-        self.datalength = key_in_list( parts, "PIXELS", int )
-        self.darkstart = 0
-        if self.version == "T4LCD vers 0.3":
-            print( "has early version datastart 12 instead of 16")
-            self.darkstart = 4
-
-        self.pixelpitch = 8.0E-3
-
-        self.darklength = key_in_list( parts, "DARK", int )
-        self.invert = key_in_list( parts, "INVERT", float )
-        self.sensor = key_in_list( parts, "SENSOR", str )
-        self.scale_offset = key_in_list( parts, "OFFSET", float )
-        self.scale_range = key_in_list( parts, "RANGE", float )
-        
-        self.bits = key_in_list( parts, "BITS", int )
-        self.vfs = key_in_list( parts, "VFS", float )
-
-        if  "VPERBIT" in parts:
-            self.vperbit = key_in_list( parts, "VPERBIT", float )
-            print( "Vperbit", self.vperbit )
-            
-        if "BITS" in parts and "VFS" in parts :
-            self.vperbit = self.vfs/(2**self.bits - 1)
-            print( "BITS", self.bits, "VFS", self.vfs, "Vperbit", self.vperbit )
-
-        if self.scale_offset is None:
-            self.scale_offset = 0.
-        
-        if self.scale_range is None:
-            self.scale_range = self.vfs
-            
-        print( "pixels", self.datalength,
-               "dark", self.darklength,
-               "invert", self.invert,
-               "vperbit", self.vperbit,
-               "offset", self.scale_offset,
-               "range", self.scale_range,
-               "sensor", self.sensor )
+        buffer = self.command( 'configuration' )
+        print(buffer)
 
         # ----------------------------------------
-        # Query for coefficients
-        
-        self.xdata = np.linspace( 0, self.datalength, self.datalength )
-        self.xlabel = 'Pixels'
-
+        # Query for coefficients        
         if coefficients is not None:
             print( 'using specified coefficients', coefficients )
             self.coefficients = coefficients
@@ -343,24 +793,16 @@ class TCD1304CONTROLLER:
             self.xlabel = graph_xlabel
             
         else:
-            buffer = self.rawcommand( 'coefficients', 'coefficients' )
-            if buffer is not None:
-                if self.debug:
-                    print( 'coefficients buffer', buffer )
-                # Also sets self.xdata
-                if self.parsecoefficients( buffer ):
-                    self.xlabel = 'Wavelength'
-                print( 'coefficients', self.coefficients )
-                print( self.xdata )
-            
-            buffer = self.rawcommand( 'units', 'units' )
-            if buffer is not None:
-                if self.debug:
-                    print( 'units buffer', buffer )
-                if len(buffer.split()) > len("units:"):
-                    self.units = buffer.split(maxsplit=1)[1:]
-                print( 'units:', self.units )
-            
+            buffer = self.command('coefficients')
+            print(buffer)
+
+            buffer = self.command('units')[0]
+            print(buffer)
+
+            if self.units == "nm":
+                self.xlabel = "Wavelength"
+            else:
+                self.xlabel = "Position"
 
         # ---------------------------------
         if xrange is None:
@@ -376,6 +818,7 @@ class TCD1304CONTROLLER:
                                              ycols = [ np.zeros(self.datalength) ],
                                              yrange = yrange,
                                              ylabels = [graph_ylabel],
+                                             queue = self.graphicsqueue,
                                              flag = self.flag,
                                              parentinstance = self,
                                              filespec = os.path.join( 'datafile', self.filesuffix ),
@@ -390,6 +833,7 @@ class TCD1304CONTROLLER:
                                                   ycols = [ np.zeros(self.datalength) ],
                                                   yrange = yrange,
                                                   ylabels = [graph_ylabel],
+                                                  queue = self.graphicsqueue,
                                                   flag = self.flag,
                                                   debug = self.debug )
             self.GraphicsWindow.start( )
@@ -397,65 +841,130 @@ class TCD1304CONTROLLER:
         if monitor:
             self.monitorthread = Process( target = self.textmonitor, args=(portspec, self.flag ) )
             self.monitorthread.start()
-            
-        self.readerthread = Process( target = self.reader,
-                                     args=(portspec, self.flag, self.busyflag,
-                                           self.baselineflag,
-                                           self.localaccumulatorflag,
-                                           self.errorflag, self.debug ) )
-        self.readerthread.start()
+
 
         atexit.register(self.exit, None )
 
-    # ------------------------------------------
-    def parseunits(self, buffer):
-        if not buffer.startswith("units") or len(buffer.split()) < 2:
-            return False
-        try:
-            self.units = buffer.split(maxsplit=1)[1].strip()
-            print("new units: ", self.units)
-            return True
-        except Exception as e:
-            print("parsing units", e)
-        return False
-    
-    def parsecoefficients( self, buffer ):
+    # ===========================================
+    def close( self, ignored=None ):
 
-        if not buffer.startswith("coefficients") or len(buffer.split()) < 2:
+        self.flag.value = 0
+        sleep( 0.1 )
+        #self.ser.reset_input_buffer()
+        #self.ser.close()
+
+        self.readerthread.terminate()        
+        self.readerthread.join( )
+
+        if self.monitorthread:
+            self.monitorthread.terminate()
+            self.monitorthread.join()
+
+        if self.GraphicsWindow:
+            self.GraphicsWindow.close()
+
+    def exit( self, ignored=None ):
+        print( self.name + ' exit()' )
+        self.write( 'stop' )
+        self.close()
+
+    # ======================================================================================
+    def parseparameters(self,line):
+
+        if not line or line is None:
             return False
         
-        if 'nan' in buffer:
-            print("resetting coefficients to 0,1")
-            self.coefficients = [ 0., 1., 0., 0. ]
-            self.xdata = generate_x_vector( self.datalength, None )
-            return False
-
-        try:
-            print("loading new coefficients")
-            self.coefficients = [ a for a in map( float, buffer.split()[1:] ) ]            
-            print("setting new xdata")
-            self.xdata = generate_x_vector( self.datalength, self.coefficients )
-        except Exception as e:
-            print( e )
-            return False
-
-        return True
-    
-    def parseflexpwm(self,line):
         line=line.strip()
-        if line.startswith('flexpwm:'):
-            #print("found flexpwm")
+        if len(line) == 0:
+            return False
+
+        if line.startswith("Identifier"):
+            self.__dict__["identifier"] = line.split(maxsplit=1)[1]
+            print("Identifier", self.identifier)
+            return True
+
+        if line.startswith("TCD1304Device vers"):
+            self.__dict__["version"] = line
+            print("Version", self.identifier)
+            return True
+
+        if line.startswith("PIXELS"):
+
+            parts = line.split()
+
+            self.datalength = key_in_list( parts, "PIXELS", int )
+            self.pixelpitch = 8.0E-3
+            self.darkstart = 0    
+            self.darklength = key_in_list( parts, "DARK", int )
+            self.invert = key_in_list( parts, "INVERT", float )
+            self.sensor = key_in_list( parts, "SENSOR", str )
+            self.scale_offset = key_in_list( parts, "OFFSET", float )
+            self.scale_range = key_in_list( parts, "RANGE", float )
+            self.bits = key_in_list( parts, "BITS", int )
+            self.vfs = key_in_list( parts, "VFS", float )
+            self.vperbit = key_in_list( parts, "VPERBIT", float )
+
+            if self.vfs and self.bits:
+                self.vperbit = self.vfs/(2**self.bits - 1)
+                print( "BITS", self.bits, "VFS", self.vfs, "Vperbit", self.vperbit )
+
+            if self.version == "T4LCD vers 0.3":
+                print( "has early version datastart 12 instead of 16")
+                self.darkstart = 4
+
+            if self.scale_offset is None:
+                self.scale_offset = 0.
+
+            if self.scale_range is None:
+                self.scale_range = self.vfs
+
+            print( "pixels", self.datalength,
+                   "dark", self.darklength,
+                   "invert", self.invert,
+                   "vperbit", self.vperbit,
+                   "offset", self.scale_offset,
+                   "range", self.scale_range,
+                   "sensor", self.sensor )
+
+            return True
+
+        elif line.startswith("units"):
+            parts = line.split(maxsplit=1)
+            if len(parts) > 1:
+                self.units = parts[1]
+            print("units", self.units)
+            return True
+
+        elif line.startswith("coefficients"):
+
+            print( "parsing coefficients", line)
+
+            parts = line.split()
+            if len(parts) < 3:
+                print( "coefficients line is blank")
+            
+            elif 'nan' in line:
+                self.coefficients = [ 0., 1., 0., 0. ]
+                print( "coefficients", self.coefficients)
+                self.xdata = generate_x_vector( self.datalength, None )
+                return True
+
+            else:
+                self.coefficients = [ a for a in map( float, parts[1:] ) ]
+                print( "coefficients", self.coefficients)
+                self.xdata = generate_x_vector( self.datalength, self.coefficients )
+                return True
+
+        elif line.startswith('flexpwm:'):
+
             pars=line.split(maxsplit=3)
             if len(pars)==4:
                 parname="flexpwm_"+pars[1]+"_"+pars[2]
-                #print("parname ", parname)
-                #print("value ", pars[3])
                 self.__dict__[parname]=pars[3]
                 return True
+
             elif len(pars)==3:
                 parname="flexpwm_"+pars[1]
-                #print("parname ", parname)
-                #print("value ", pars[2])
                 try:
                     self.__dict__[parname]=int(pars[2])
                 except:
@@ -463,51 +972,51 @@ class TCD1304CONTROLLER:
                 return True
             else:
                 print("flexpwm line not processed: ", line)
-                
+                return False
+
         return False
-    
-    # ===========================================
-    def rawcommand( self, command, key=None ):
 
-        print( "sending:", command )
-        self.write( command + '\n' )
+    # --------------------------------------------------------------------------------------
+    def write(self,line):
+        print("sending:", line)
+        self.writequeue.put(line)
 
-        response = []
-        while True:
+    def read(self, untildone=True, timeout=1,parsepars=True):
+        if untildone:
+            responses = []
+            while True:
+                try:
+                    buffer = self.textqueue.get(timeout=timeout)
+                    if buffer.startswith("DONE"):
+                        return responses
+                    self.parseparameters(buffer)
+                    responses.append(buffer)
+                except Empty:
+                    #print("read timeout")
+                    return [None]
+        else:
             try:
-                buffer = self.ser.read_until( )
-                buffer = buffer.decode()[:-1]
-                print( "rcvd:", buffer )
-            except Exception as e:
-                print( "rawread", e )
-                break            
-            if buffer.startswith( "DONE" ):
-                break
-            response.append( buffer )
+                buffer = self.textqueue.get(timeout=timeout)
+                self.parseparameters(buffer)
+                return buffer
+            except Empty:
+                #print("read timeout")
+                return [None]
 
-        if key is not None:
-            print( 'rawcommand scanning response for ', key )
-            # return the selected line or None
-            candidate = None
-            for s in response:
-                print( 'rawcommand line:', s )
-                if s.startswith( key ):
-                    candidate = s
-            if candidate is not None:
-                return candidate
-            print( key, ' not found in response', response )
-            return None
-            
-        return response
+        return [None]
 
-    # ===========================================
-    def exit( self, ignored=None ):
-        print( self.name + ' exit()' )
-        self.write( 'stop\n' )
-        self.close()
+    def command(self,line,untildone=True,timeout=1,parsepars=True):
+        self.cleartextqueue()
+        
+        self.writequeue.put(line)
+        sleep(0.1)
+        return self.read(untildone,timeout)
+        
 
+    # --------------------------------------------
     def busy(self):
         return self.busyflag.value
+
 
     # Wait for completion of data frames
     def wait(self, timeout=None, interruptible=False ):
@@ -536,6 +1045,79 @@ class TCD1304CONTROLLER:
 
         return True
         
+    def checkerrors( self ):
+
+        counter = self.errorflag.value
+        self.errorflag.value = 0
+
+        return counter
+    
+    # --------------------------------------------
+    def cleartextqueue(self):
+        lines = []
+        n = 0
+        while not self.textqueue.empty():
+            line = self.textqueue.get()
+            print("clear got line", line)
+            self.parseparameters(line)
+            lines.append(line)
+            n += 1
+            while not self.textqueue.empty():
+                line = self.textqueue.get()
+                print("clear got line", line)
+                self.parseparameters(line)
+                lines.append(line)
+                n += 1
+            sleep(0.1)
+        #print("cleared ", n, " textqueue entries")
+
+        return lines
+    
+    def cleardataqueue(self):
+        records = []
+        n = 0
+        while not self.dataqueue.empty():
+            record = self.dataqueue.get()
+            records.append(record)
+            n += 1
+            while not self.dataqueue.empty():
+                record = self.dataqueue.get()
+                records.append(record)
+                n += 1
+            sleep(0.1)
+        #print("cleared ", n, " dataqueue entries")
+        return records
+        
+    def clear( self ):
+
+        print("clearing text and data queues")
+
+        n = 0
+        while not self.textqueue.empty():
+            self.textqueue.get()
+            n += 1
+            while not self.textqueue.empty():
+                self.textqueue.get()
+                n += 1
+            sleep(0.1)
+        print("cleared ", n, " textqueue entries")
+
+        n = 0
+        while not self.dataqueue.empty():
+            self.dataqueue.get()
+            n += 1
+            while not self.dataqueue.empty():
+                self.dataqueue.get()
+                n += 1
+            sleep(0.1)
+        print("cleared ", n, " dataqueue entries")
+
+        self.busyflag.value = 0
+
+        #self.writeread("clear accumulator")
+
+        return True
+            
     # ===========================================
     def textmonitor( self, name, flag ):
 
@@ -564,811 +1146,157 @@ class TCD1304CONTROLLER:
             sleep(0.1)
         self.monitorWindow.close()
 
-    # =======================================
-    # this is used by the accumulators library
-    def enqueueGraphics(self, record ):
+    # =============================================================================================
+    # Condense all of the acquired frames into a single frame
+    def addall(self,framerecords=None):
 
-        ycols \
-            , frame_counter \
-            , frame_counts \
-            , frameset_counter \
-            , frameset_counts \
-            , trigger_counter \
-            , trigger_counts \
-            , frame_elapsed \
-            , timer_elapsed \
-            , trigger_elapsed \
-            , frame_exposure \
-            , timer_difference \
-            , trigger_difference \
-            , timer_period \
-            , timer_subperiod \
-            , frameset_complete \
-            , frame_mode \
-            , frame_every \
-            , accumulator_counter \
-            , timestamp = record
+        # Fetch everything that is on the queue
+        if framerecords is None:
+            framerecords = self.cleardataqueue()
+
+        if framerecords is None or len(framerecords) < 1 :
+            return []
         
-        text = frame_mode
-        text += '\ncounters: ' + str(frame_counter) + '/' + str(frame_counts)
-        text += ' ' + str(frameset_counter) + str(frameset_counts)
-        text += '\n' + timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
+        if len(framerecords) == 1 :
+            self.dataqueue.put(framerecords[0])
+            return framerecords[0]
+
+        oldframe = framerecords[0]
+        for newframe in framerecords[1:]:
+            # for the new frame, make sure we have at least one for accumulator counts
+            newframe.accumulator_counter = max(newframe.accumulator_counter,1)
+
+            # Add  the previous data
+            newdata = [ np.add(newcol,oldcol) for newcol,oldcol in zip(newframe.data,oldframe.data) ]
+            newframe.data      = newdata
+            # Add from previous offsets, exposure, accumulator counts
+            newframe.offset   += oldframe.offset
+            newframe.rawoffset += oldframe.rawoffset
+            newframe.frame_exposure  += oldframe.frame_exposure
+            newframe.accumulator_counter += oldframe.accumulator_counter
+
+        self.dataqueue.put(newframe)
         
-        #print( "enqueue graphics" )
-        self.GraphicsWindow.queue.put( [ ycols, text ] )
-        #self.GraphicsWindow.queue.put( record  )
-        
-        return True
-    
+        return newframe
         
     # =============================================================================================
-    # this is the asyncronous usb port monitoring thread
-    def reader( self, name, flag, busyflag, baselineflag, localaccumulatorflag, errorflag, debug=False ):
+    # enqueue frame
 
-        # ----------------------------------------------
-        def sighandler( a, b ):
-            print( "reader sighandler" )
-            flag.value = 0
+    def enqueue_dataframes(self, dataframe):
+
+        if type(dataframe) is list:
+            print("is list")
+            for f in dataframe:
+                self.enqueue_dataframes(f)
+            return True
+
+        else:
+            text = ""
+            text += dataframe.frame_mode
+            text += '\ncounters: ' + str(dataframe.frame_counter) + '/' + str(dataframe.frame_counts)
+            text += ' ' + str(dataframe.frameset_counter) + str(dataframe.frameset_counts)
+            text += '\n' + dataframe.timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
+
+            data = np.copy(dataframe.data)
             
-        signal.signal(signal.SIGINT, sighandler)
-
-        # ----------------------------------------------
-        # Fast access to queues
-        dataqueue_get = self.dataqueue.get
-        dataqueue_put = self.dataqueue.put
-        dataqueue_empty = self.dataqueue.empty
-
-        graphics_put = self.GraphicsWindow.queue.put
-
-        # ----------------------------------------------
-        # Fast acces to data parameters
-        datalength = self.datalength
-        darkstart = self.darkstart
-        darklength = self.darklength
-        darkstop = darkstart + darklength
-
-        # ----------------------------------------------
-        # Data stream is from firmware accumulator
-        is_accumulating = False
-        accumulator_counter = 0
-        
-        # ----------------------------------------------
-        # local accumulators
-        local_accumulator = np.zeros(self.datalength)
-        local_accumulator_counter = 0
-        
-        # ----------------------------------------------
-        # Record processing
-        def recordProcessingInitialization():
-
-            print("recordProcessingInitialization")
-            
-            if debug:
-                print( 'lccd setting busyflag' )
-            busyflag.value = 1
-            try:
-                n = 0
-                while not dataqueue_empty():
-                    dataqueue_get()
-                    n += 1
-                    while not dataqueue_empty():
-                        dataqueue_get()
-                        n += 1
-                    sleep(0.1)
-                    
-                print("recordProcessingInitialization cleared %d data queue entries"%(n))
-                    
-            except Exception as e:
-                print( 'Error while clearing dataqueue', e )
-
-        def recordProcessing( ):
-
-            nonlocal is_accumulating
-            nonlocal accumulator_counter
-            nonlocal data
-
-            nonlocal local_accumulator
-            nonlocal local_accumulator_counter
-
-            #print("processing frame counter", frame_counter)
-            
-            if localaccumulatorflag.value:
-
-                if frame_counter <= 1:
-                    local_accumulator = data
-                    local_accumulator_counter = 1
-                else:
-                    local_accumulator += data
-                    local_accumulator_counter += 1
-                
-                    if local_accumulator_counter > 1:
-                        data = local_accumulator/local_accumulator_counter
-                
-                if frame_counter == frame_counts:
-                        
-                    record = [ [data]
-                               , frame_counter
-                               , frame_counts
-                               , frameset_counter
-                               , frameset_counts
-                               , trigger_counter
-                               , trigger_counts
-                               , frame_elapsed \
-                               , timer_elapsed \
-                               , trigger_elapsed \
-                               , frame_exposure \
-                               , timer_difference \
-                               , trigger_difference \
-                               , timer_period
-                               , timer_subperiod
-                               , frameset_complete
-                               , frame_mode
-                               , frame_every
-                               , local_accumulator_counter,
-                               timestamp ]
-
-                    dataqueue_put( record )
-                    
-                    local_accumulator = np.zeros(self.datalength)
-                    local_accumulator_counter = 0
-                    
-                #  ----------------------------------------
-                if self.GraphicsWindow:
-                    text = frame_mode
-                    text += '\ncounters: '
-                    text += str(frame_counter) + '/' + str(frame_counts)
-                    text += ' ' + str(frameset_counter) + '/' + str(frameset_counts)
-                    text += '\n' + timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
-
-                    #print( "enqueue graphics" )
-                    graphics_put( [ [data], text ] )
-
-                return
-
-            # ---------------------------------
-            # from here it is the hardware accumulator
-            elif accumulator_counter > 1:
-                data /= accumulator_counter
-
-            if not is_accumulating:                   
-                record = [ [data]
-                           , frame_counter
-                           , frame_counts
-                           , frameset_counter
-                           , frameset_counts
-                           , trigger_counter
-                           , trigger_counts
-                           , frame_elapsed \
-                           , timer_elapsed \
-                           , trigger_elapsed \
-                           , frame_exposure \
-                           , timer_difference \
-                           , trigger_difference \
-                           , timer_period        
-                           , timer_subperiod        
-                           , frameset_complete
-                           , frame_mode
-                           , frame_every
-                           , accumulator_counter,
-                           timestamp ]
-
-                dataqueue_put( record )
-
-            #  ----------------------------------------
-            if self.GraphicsWindow:
-                text = frame_mode
-                text += '\ncounters: '
-                text += str(frame_counter) + '/' + str(frame_counts)
-                text += ' ' + str(frameset_counter) + '/' + str(frameset_counts)
-                text += '\n' + timestamp.strftime('%Y-%m-%d.%H%M%S.%f')
-
-                #print( "enqueue graphics" )
-                graphics_put( [ [data], text ] )
-
-            #  ----------------------------------------
-            is_accumulating = False
-            accumulator_counter = 0;
-        
-        # -------------------------------------------------
-        # The read loop parameters
-        frame_counter = 0
-        frame_counts = 0
-        frameset_counter = 0
-        frameset_counts = 0
-
-        trigger_counter = 0
-        trigger_counts = 0
-        
-        frame_elapsed = 0
-        timer_elapsed = 0
-        trigger_elapsed = 0
-        frame_exposure = 0
-        timer_difference = 0
-        trigger_difference = 0
-        
-        timer_period = 0        
-        timer_subperiod = 0        
-        frameset_complete = False
-        frame_mode = ""
-        frame_every = 0
-        accumulator_counter = 0
-
-        frameset_complete = False
-
-        testdata = False
-
-        crc = None
-        
-        def initialize_parameters():
-            nonlocal frame_counter
-            nonlocal frame_counts
-            nonlocal frameset_counter
-            nonlocal frameset_counts
-
-            nonlocal trigger_counter
-            nonlocal trigger_counts
-            
-            nonlocal frame_elapsed
-            nonlocal timer_elapsed
-            nonlocal trigger_elapsed
-            nonlocal frame_exposure
-            nonlocal timer_difference
-            nonlocal trigger_difference
-
-            nonlocal timer_period     
-            nonlocal timer_subperiod
-            nonlocal frameset_complete
-            nonlocal frame_mode
-            nonlocal frame_every
-            nonlocal accumulator_counter
-
-            frame_counter = 0
-            frame_counts = 0
-            frameset_counter = 0
-            frameset_counts = 0
-
-            trigger_counter = 0
-            trigger_counts = 0
-            
-            frame_elapsed = 0
-            timer_elapsed = 0
-            trigger_elapsed = 0
-            frame_exposure = 0
-            timer_difference = 0
-            trigger_difference = 0
-            
-            timer_period = 0        
-            timer_subperiod = 0        
-            frameset_complete = False
-            frame_mode = ""
-            frame_every = 0
-            accumulator_counter = 0
-                
-        # ----------------------------------------------
-        # The read loop
-        print( "lccd reader start", name, 'debug', debug )
-
-        # fast access to the serial read until routine
-        read_until = self.ser.read_until
-        
-        while flag.value:
-
-            buffer = read_until( )
-            
-            if buffer is not None and len(buffer) >1 and flag.value:
-
-                try:
-                    buffer = buffer.decode()[:-1]
-                except:
-                    print( 'failed decode', buffer[:10], buffer[-10:] )
-                    continue
-
-                if debug:
-                    print( "lccd reader: ", buffer )
-
-                if buffer.startswith( "DONE" ):
-                    self.textqueue.put( buffer )
-                
-                elif buffer.startswith( "READY" ):
-                    self.write("send data\n")
-
-                elif buffer.startswith( "CRC" ):
-                    try:
-                        crc = int( buffer[3:],0 )
-                    except Exception as e:
-                        print( 'error parsing', buffer )
-
-                    print( "crc 0x%02x"%(crc) )
-                    
-                # Receive Ascii Formatted Data
-                elif buffer.startswith( "DATA" ):
-                        
-                    ndata = int(buffer[4:])
-                    print( 'ndata', ndata )
-
-                    # Read the actual text format data buffer(s)
-                    data_buffers = []
-                    while len(data_buffers) < ndata:
-                        data_buffers.append( self.ser.read_until( ) )
-
-                    timestamp = datetime.now()
-
-                    # Read(Expect) the end of data message
-                    endbuffer = self.ser.read_until( )
-
-                    try:
-                        endbuffer = endbuffer.decode()[:-1]
-                        end_ok = endbuffer.startswith( "END" )
-                    except Exception as e:
-                        print( "Error: data endbuffer", e)
-                        end_ok = False
-                    
-                    # If valid, process the data
-                    if end_ok:
-                        
-                        data = []
-                        for b in data_buffers:
-                            data.append( int(b.decode()) )
-                            
-                        data = np.array(data)
-
-                        if self.vperbit:
-                            data = data * self.vperbit
-
-                        if self.scale_offset:
-                            data = data - self.scale_offset
-
-                        if baselineflag.value and self.darklength:
-                            if debug:
-                                print('baseline processing')
-                            data -= np.median( data[darkstart:darkstop] )
-                            #data -= np.sum( data[:self.darklength] ) / self.darklength
-
-                        #  ----------------------------------------
-                        recordProcessing()
-                        #  ----------------------------------------
-
-                    else:
-                        #print('reader ' + name +  ' ', buffer, len(data), ' without END')
-                        print('reader ' + name +  ' ', len(data), ' without END')
-                        self.textqueue.put( "ERROR: data not completed" )
-                        if self.monitorqueue:
-                            self.monitorqueue.put( "ERROR: data not completed\n" )  
-
-                # --------------------------------
-                # Receive Binary Formatted 16 bit Data Buffer
-                elif buffer.startswith( "BINARY16" ):
-                    ndata = int(buffer[8:])
-                    nbytes = ndata * 2
-
-                    # Read the data
-                    data = self.ser.read(nbytes)
-                    nread = len(data)
-                    while nread < nbytes:
-                        nbytes -= nread
-                        nextdata = self.ser.read(nbytes)
-                        data.append(nextdata)
-
-                    timestamp = datetime.now()
-
-                    # Read(Expect) the end of data message
-                    endbuffer = self.ser.read_until( )
-
-                    try:
-                        endbuffer = endbuffer.decode()[:-1]
-                        end_ok = endbuffer.startswith( "END" )
-                    except Exception as e:
-                        print( "BINARY16 endbuffer", e)
-                        end_ok = False
-
-                    # Update the text display, begin and end mesages
-                    if end_ok:
-                        
-                        data = struct.unpack( '<%dH'%(len(data)/2), data )
-
-                        data = np.array(data)
-
-                        if testdata:
-                            for n,d in enumerate(data):
-                                if d != n:
-                                    printf( "aberrant test data at %d (0x%04x) read  %d (0x%04x)"%(n,n,d,d) )
-                            testdata = False
-                        
-                        if self.vperbit:
-                            data = data * self.vperbit
-
-                        if self.scale_offset:
-                            data = data - self.scale_offset
-                            
-                        if baselineflag.value and self.darklength:
-                            if debug:
-                                print('baseline processing')
-                            data -= np.median( data[darkstart:darkstop] )
-                            #data -= np.sum( data[:self.darklength] ) / self.darklength
-                            
-                        #data = self._mapdata( data )
-
-                        #  ----------------------------------------
-                        recordProcessing()
-                        #  ----------------------------------------
-                        
-                    else:
-                        print('reader BINARY16' + name +  ' ', len(data), "/", ndata, 'FRAME_COUNTER', frame_counter, ' without END')
-                        
-                        self.textqueue.put( "ERROR: data not completed" )
-                        if self.monitorqueue:
-                            self.monitorqueue.put( "ERROR: data not completed\n" )
-
-                # --------------------------------
-                # Receive Binary Formatted 32 bit Data Buffer
-                elif buffer.startswith( "BINARY32" ):
-
-                    ndata = int(buffer[8:])
-                    
-                    # Read the data
-
-                    data = self.ser.read( ndata*4 )
-
-                    timestamp = datetime.now()
-
-                    # Read(Expect) the end of data message
-                    endbuffer = self.ser.read_until( )
-
-                    try:
-                        endbuffer = endbuffer.decode()[:-1]
-                        end_ok = endbuffer.startswith( "END" )
-                    except Exception as e:
-                        print("Error: binary32 decode", e)
-                        end_ok = False
-
-                    # Update the text display, begin and end mesages
-                    if end_ok:
-
-                        data = struct.unpack( '<%dI'%(len(data)/4), data )
-
-                        data = np.array(data)
-
-                        if testdata:
-                            for n,d in enumerate(data):
-                                if d != n:
-                                    printf( "aberrant test data at %d (0x%04x) read  %d (0x%04x)"%(n,n,d,d) )
-                            testdata = False
-                        
-                        if self.vperbit:
-                            data = data * self.vperbit
-
-                        if self.scale_offset:
-                            data = data - self.scale_offset
-                            
-                        if baselineflag.value and self.darklength:
-                            if debug:
-                                print('baseline processing')
-                            data -= np.median( data[darkstart:darkstop] )
-                            #data -= np.sum( data[:self.darklength] ) / self.darklength
-                            
-                        #data = self._mapdata( data )
-
-                        #  ----------------------------------------
-                        recordProcessing()
-                        #  ----------------------------------------
-                        
-                    else:
-                        print('reader ' + name +  ' ', len(data), ' without END')
-                        
-                        self.textqueue.put( "ERROR: data not completed" )
-                        if self.monitorqueue:
-                            self.monitorqueue.put( "ERROR: data not completed\n" )
-
-                # ===================================================
-                # Command flags               
-                elif buffer.startswith( "ACCUMULATING" ):
-                    is_accumulating = True
-                    
-                elif buffer.startswith( "TESTDATA" ):
-                    testdata = True
-                
-                elif buffer.startswith( "FRAME COUNTER" ):
-
-                    #print( buffer )
-                    try:
-                        frame_counter = int(buffer[13:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "ACCUMULATOR" ):
-
-                    #print( buffer )
-                    try:
-                        accumulator_counter = int(buffer[11:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "FRAMESET COUNTER" ):
-
-                    #print( buffer )
-                    try:
-                        frameset_counter = int(buffer[16:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "ICG ELAPSED" ):
-                    #print( buffer )
-                    try:
-                        icg_elapsed = float(buffer[11:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "FRAME ELAPSED" ):
-                    #print( buffer )
-                    try:
-                        frame_elapsed = float(buffer[13:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "FRAME EXPOSURE" ):
-                    #print( buffer )
-                    try:
-                        frame_exposure = float(buffer[14:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "TIMER ELAPSED" ):
-                    #print( buffer )
-                    try:
-                        timer_elapsed = float(buffer[13:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-                        
-                elif buffer.startswith( "TIMER DIFFERENCE" ):
-                    #print( buffer )
-                    try:
-                        timer_difference = float(buffer[16:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-                        
-                elif buffer.startswith( "TRIGGER ELAPSED" ):
-                    #print( buffer )
-                    try:
-                        trigger_elapsed = float(buffer[15:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-                        
-                elif buffer.startswith( "TRIGGER DIFFERENCE" ):
-                    #print( buffer )
-                    try:
-                        trigger_difference = float(buffer[18:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-                        
-                elif buffer.startswith( "TRIGGER COUNTER" ):
-                    #print( buffer )
-                    try:
-                        trigger_counter = int(buffer[15:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-                        
-                elif buffer.startswith( "TIMER PERIOD" ):
-                    #print( buffer )
-                    try:
-                        timer_period = float(buffer[12:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "TIMER SUBPERIOD" ):
-                    #print( buffer )
-                    try:
-                        timer_subperiod = float(buffer[15:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                # ---------------------------------------
-                # This come at the start and end of each frameset
-                elif buffer.startswith( "FRAMESET START" ):
-                    frameset_complete = False
-
-                elif buffer.startswith( "FRAMESET END" ):
-                    frameset_complete = True
-
-                elif buffer.startswith( "FRAME COUNTS" ):
-                    try:
-                        frame_counts = int(buffer[12:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "FRAMESET COUNTS" ):
-                    try:
-                        frameset_counts = int(buffer[15:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-
-                elif buffer.startswith( "TRIGGER COUNTS" ):
-                    #print( buffer )
-                    try:
-                        trigger_counts = int(buffer[14:])
-                    except Exception as e:
-                        print( buffer, e )
-                        self.errorflag.value += 1
-                        self.textqueue.put( 'Error: ' + buffer )
-                        
-                # ---------------------------------------
-                # Mode keywords
-                elif buffer.startswith( "START " ):
-                    initialize_parameters()
-                    recordProcessingInitialization()
-
-                    frame_mode = buffer[6:]
-                        
-                # ---------------------------------------
-                elif buffer.startswith( "ADC" ) or buffer.startswith( "CHIPTEMPERATURE" ):
-                    if busyflag.value:
-                        dataqueue_put( buffer )
-                    else:
-                        self.textqueue.put( buffer )
-                        if self.monitorqueue:
-                            self.monitorqueue.put( buffer.strip() + '\n' )
-                        
-                elif buffer.startswith( "COMPLETE" ):
-
-                    # ---------------------
-                    if debug:
-                        print( 'lccd clearing busyflag' )
-                    busyflag.value = 0
-                
-                # --------------------------------
-                # Receive Ascii Formatted Text
-                #elif ( buffer[0] == '#' ):
-                #    print( buffer[1:] )
-
-                elif ( buffer.startswith( "Error:") ):
-
-                    #print( buffer )
-                    self.errorflag.value += 1
-                    
-                    self.textqueue.put( buffer )
-                    if self.monitorqueue:
-                        self.monitorqueue.put( buffer.strip() + '\n' )
-
-                else:
-                    
-                    self.textqueue.put( buffer )
-                    if self.monitorqueue:
-                        self.monitorqueue.put( buffer.strip() + '\n' )
-
-        print( "reader exit" )
-        sys.exit()
-
-    # --------------------------------------------
-    def checkerrors( self ):
-
-        counter = self.errorflag.value
-        self.errorflag.value = 0
-
-        return counter
-        
-    def read_all_( self ):
-        resp = []
-        while not self.textqueue.empty():
-            resp.append( self.textqueue.get() )  
-        return resp
-
-    def read_to_done_( self ):
-        resp = []
-        while True:
-            line = self.textqueue.get()
             if self.debug:
-                print( "read_to_done_, got:", line )
-            if line.startswith( "DONE"):
-                break
-            resp.append( line )
-        return resp
+                print("putting graphics", dataframe.data[0].shape, text )
 
-    def read( self ):
+            if self.vperbit:
+                data = data * self.vperbit
 
-        while self.textqueue.empty() and not input_ready():
-            sleep(.1)
+            if self.scale_offset:
+                data = data - self.scale_offset
 
-        return self.read_to_done_()
+            if dataframe.accumulator_counter > 1:
+                data /= dataframe.accumulator_counter
+                text += '\n accumulator counter ' + str(dataframe.accumulator_counter)
 
-    def read_nowait( self ):
-        return self.read_all_()
+            self.graphicsqueue.put([[data], text])
 
-    def write( self, buffer ):
-        self.ser.write( buffer.encode() )
-
-    def writeread( self, line, parsepars=False ):
-
-        print("sending:", line)
-        
-        self.write( line + '\n' )
-    
-        response = self.read()
-        for line in response:
-            print("response:", line )
-            if parsepars:
-                if self.parseflexpwm(line) or \
-                   self.parsecoefficients(line) or \
-                   self.parseunits(line):
-                    pass
-
-        return response
-        
-    def clear( self ):
-
-        print("clearing text and data queues and device accumulator(s)")
-
-        n = 0
-        while not self.textqueue.empty():
-            self.textqueue.get()
-            n += 1
-            while not self.textqueue.empty():
-                self.textqueue.get()
-                n += 1
-            sleep(0.1)
-        print("cleared ", n, " textqueue entries")
-
-        n = 0
-        while not self.dataqueue.empty():
-            self.dataqueue.get()
-            n += 1
-            while not self.dataqueue.empty():
-                self.dataqueue.get()
-                n += 1
-            sleep(0.1)
-        print("cleared ", n, " dataqueue entries")
-
-        self.busyflag.value = 0
-
-        #self.writeread("clear accumulator")
-
-        return True
+            return True
             
-    def close( self, ignored=None ):
+    # =============================================================================================
+    # Condense all of the acquired framesets into a single frameset
+    def addframesets(self,framerecords=None):
 
-        self.flag.value = 0
-        sleep( 0.1 )
-        #self.ser.reset_input_buffer()
-        #self.ser.close()
+        # Fetch everything that is on the queue
+        if framerecords is None:
+            framerecords = self.cleardataqueue()
 
-        self.readerthread.terminate()        
-        self.readerthread.join( )
+        if not len(framerecords) :
+            return []
 
-        if self.monitorthread:
-            self.monitorthread.terminate()
-            self.monitorthread.join()
+        if self.debug:
+            for record in framerecords:
+                print("frame_counter", record.frame_counter, record.frame_counts,
+                      "frameset_counter", record.frameset_counter, record.frameset_counts)
+        
+        # Verify that it all has the same setting for frame counts
+        frame_counts = set([ f.frame_counts for f in framerecords ])
+        frame_counts = list(frame_counts)
+        if len(frame_counts) > 1:
+            if self.debug:
+                print("Error: cannot add framesets with different lengths")
+            for r in framerecords:
+                self.dataqueue.put(r)
+            return []
+        print( "framecounts", frame_counts)
+        frame_counts = frame_counts[0]
 
-        if self.GraphicsWindow:
-            self.GraphicsWindow.close()
+        # Verify that all of the frame counters are within the setting for frame counts
+        frame_counters = set([ f.frame_counter for f in framerecords ])
+        frame_counters = list(frame_counters)
+        if max(frame_counters) > frame_counts:
+            if self.debug:
+                print("Error: cannot add framesets with frame counters greater than length of the frameset")
+            for r in framerecords:
+                self.dataqueue.put(r)
+            return []
+                
+        # Now we do the accumulation, continue in the same basis wether binary or volts
+        #  Reading BINARY16 seems to produce np.int64 by default.   Keep alert to this and
+        #  consider whether to edit TCD1304PORT to enforce 64 bits, data = np.array(data,dtype=np.int64)
 
+        working_frames = [None] * frame_counts
+
+        for newframe in framerecords:
+            #index by frame_counter
+            n = newframe.frame_counter
+            oldframe = working_frames[n]
+            if self.debug:
+                print( "adding to working_frames at", n)
+
+            # for the new frame, make sure we have at least one for accumulator counts
+            newframe.accumulator_counter = max(newframe.accumulator_counter,1)
+
+            # If this is not the first frame in this slot, then
+            #   add the previous data, offsets, exposure and accumulation counter
+            if oldframe is not None:
+                # Add  the previous data
+                newdata = [ np.add(newcol,oldcol) for newcol,oldcol in zip(newframe.data,oldframe.data) ]
+                newframe.data      = newdata
+                # Add from previous offsets, exposure, accumulator counts
+                newframe.offset   += oldframe.offset
+                newframe.rawoffset += oldframe.rawoffset
+                newframe.frame_exposure  += oldframe.frame_exposure
+                newframe.accumulator_counter += oldframe.accumulator_counter
+
+            # And store as the new working freame
+            working_frames[n] = newframe
+
+        # Put the reduced set back onto the queue, no further processing
+        # The new total represents the toral photon number of the accumulated exposure
+        for frame in working_frames:
+            if self.debug:
+                print("putting frame_counter",
+                      frame.frame_counter, frame.frame_counts,
+                      "frameset_counter", frame.frameset_counter, frame.frameset_counts,
+                      "accumulator counter", frame.accumulator_counter)
+            self.dataqueue.put(frame)
+
+        return working_frames
+            
     # =============================================================================================
     def savetofile( self, file, timestamp=None, comments = None, write_ascii=True, framesetindex = None, records = None ):
 
@@ -1380,6 +1308,9 @@ class TCD1304CONTROLLER:
                         continue
 
                 key = key.strip()
+
+                if key == "data":
+                    continue
                     
                 if type(val) in [ float, int ] :
                     file.write( '# ' + key + ' = ' + str(val) + '\n' )
@@ -1396,7 +1327,16 @@ class TCD1304CONTROLLER:
                             file.write( '# ' + key + ' = [ ' + ', '.join( [ str(v) for v in values ] ) + ' ]\n'  )
                         elif type(values[0]) in [ str ] :
                             file.write( '# ' + key + ' = [ "' + '", "'.join( [ str(v) for v in values ] ) + '" ]\n'  )
+                            
 
+        def writedictionary( file, d, exclude=None):
+            keys, vals = zip(*d.items())
+            formattedwrites( file, keys, vals, exclude )
+
+        def writeclass( file, c, exclude=None):
+            keys, vals = zip(*c.__dict__.items())
+            formattedwrites( file, keys, vals, exclude )
+                            
         # -------------------------
         
         newfile = False
@@ -1440,7 +1380,7 @@ class TCD1304CONTROLLER:
             
         # ------------------------------------------------
             
-        file.write( '# TCD1304Controller.py version %s\n'% __version__ )
+        file.write( '# TCD1304DeviceMP.py version %s\n'% __version__ )
 
         file.write( '# ' + timestamp.strftime('%Y-%m-%d %H:%M:%S.%f') + '\n' )
 
@@ -1451,8 +1391,7 @@ class TCD1304CONTROLLER:
             file.write( '# identifier = "' + s + '"\n' )
 
         # Save all of the numerical and string values in the header portion of the class
-        keys, vals = zip(*self.__dict__.items())
-        formattedwrites( file, keys, vals, exclude=['identifier','filesuffix'] )
+        writeclass(file,self,exclude=['identifier','filesuffix'])
         
         if comments is not None:
             if type(comments) not in [list,tuple]:
@@ -1465,14 +1404,12 @@ class TCD1304CONTROLLER:
         file.write( '# header end\n' )
 
         if records is None:
-            records = []
-            while not self.dataqueue.empty():
-                record = self.dataqueue.get()
-                records.append(record )
-                if self.dataqueue.empty():
-                    sleep(0.2)
+            records = self.cleardataqueue()
 
-        print( 'lccd writing', len(records), 'records' )
+        print( 'writing', len(records), 'records' )
+
+        for record in records:
+            print("record frame_counter", record.frame_counter, record.frame_elapsed)
             
         wroterecord = False
         for record in records:
@@ -1486,66 +1423,27 @@ class TCD1304CONTROLLER:
             # ----------------------------
             if type(record) is str:
                 file.write( '# ' + record.strip() + '\n' )
-                    
-            else:
-                ycols \
-                    , frame_counter \
-                    , frame_counts \
-                    , frameset_counter \
-                    , frameset_counts \
-                    , trigger_counter \
-                    , trigger_counts \
-                    , frame_elapsed \
-                    , timer_elapsed \
-                    , trigger_elapsed \
-                    , frame_exposure \
-                    , timer_difference \
-                    , trigger_difference \
-                    , timer_period \
-                    , timer_subperiod \
-                    , frameset_complete \
-                    , frame_mode \
-                    , frame_every \
-                    , accumulator_counter \
-                    , timestamp = record
 
-                vals = record[1:]
+            elif isinstance(record,TCD1304DATAFRAME):
                 
-                keys = \
-                    [ "frame_counter" \
-                    , "frame_counts" \
-                    , "frameset_counter" \
-                    , "frameset_counts" \
-                    , "trigger_counter" \
-                    , "trigger_counts" \
-                    , "frame_elapsed" \
-                    , "timer_elapsed" \
-                    , "trigger_elapsed" \
-                    , "frame_exposure" \
-                    , "timer_difference" \
-                    , "trigger_difference" \
-                    , "timer_period" \
-                    , "timer_subperiod" \
-                    , "frameset_complete" \
-                    , "frame_mode" \
-                    , "frame_every" \
-                    , "accumulator_counter" \
-                    , "timestamp" ]
+                writeclass(file, record, exclude=['data'] )
 
-                formattedwrites( file, keys, vals )
-
-                if write_ascii:
-                    for n, ycol in enumerate(ycols):
-                        file.write( "# DATA ASCII %d COL %d\n"%(len(ycol),n) )
-                        for y in ycol:
-                            file.write( '%.8f\n'%(y) )
+                try:
+                    ycols = record.data
+                    if len(ycols):
+                        datatypestring = str(ycols[0].dtype)
+                        file.write( "# DATA %s %d COLS %d\n"%(datatypestring,len(ycols[0]),len(ycols)) )
+                        if len(ycols) > 1:
+                            yrows = np.array(ycols).T
+                            for row in yrows:
+                                file.write( ' '.join([str(r) for r in row]) )
+                        else:
+                            for y in ycols[0]:
+                                file.write( str(y) + '\n' )
                         file.write( "# END DATA\n" )
-                else:
-                    for n, ycol in enumerate(ycols):
-                        file.write( "# DATA %s %d COL %d\n"%(type(ycol[0]), len(ycol),n) )
-                    file.write( "# END DATA\n" )                    
-                
-                wroterecord = True
+                        wroterecord = True
+                except Exception as e:
+                    print("error writing data", e)
 
         if newfile:
             file.close()
@@ -1593,69 +1491,76 @@ class TCD1304CONTROLLER:
 
             
         
-        if line in [ 'h', 'help' ]:
+        if line.startswith("help"):
+
+            response = self.command( line, parsepars=False )
             
-            self.write( 'help\n' )           
-            response = self.read()
             for r in response:
                 r = r.rstrip()
                 if r[0] == '#':
                     r = r[1:]
                 print(r)
 
-            print( "  " )
+            if len(line.split()) == 1:
+                print( "  " )
 
-            print( "Commands implemented in the CLI/host computer:" )
-            print( "   h|help                      - produces this help text" )
-            print( "" )
-            print( "   baseline on | off           - turn baseline correction on/off" )
-            print( "" )
-            print( "   clear                       - empty the data and text queues" )
-            print( "" )
-            print( "   save fileprefix comments... - save contents of data queue to diskfile" )
-            print( "   wait                        - wait for \"complete\" message from sensor" )
-            print( "   wait read | trigger         - for the tcd1304 firmware wait functions" )
-            print( "   wait                        - wait for \"complete\" message from sensor" )
-            print( "" )
-            print( "   tcd1304 ....                - pass command to the tcd1304" )
-            print( "" )
-            print( "   Pass command to operation system shell" )
-            print( "     !command                  - execute shell command" )
-            print( "" )
-            print( "   Pass instruction to python intepretor" )
-            print( "     a = 3                     - '=' causes evaluation as python" )
-            print( "     = python statement        -  pass to python interprator" )
-            print( "      these commands have access to local() and class name spaces" )
-            print( "" )
-            print( "   Execute commands from text file, parameters appear as a list, batchpars" )
-            print( "" )
-            print( "     @filespec [parameter list] - read and execute commands from a file" )
-            print( "" )
-            print( "     Example" )
-            print( "" )
-            print( "       @testscrpt 1 2" )
-            print( "" )
-            print( "       testscript:" )
-            print( "         =print(batchpars)" )
-            print( "" )
-            print( "       output:")
-            print("           [\'testscript\', \'1\', \'2\']" )
-            print( "" )
-            print( "   Loops and string substitution, by example" )
-            print( "" )
-            print( "     for a_ in [0,.1,.2]: @testscript \"%.2f\"%(a_)")
-            print( "     for a_ in [0,.1,.2]: for b_ in [ .3,.4,.5]: @testscript \"%.2f\"%(a_) \"%.2f\"%(b_)")
-            print( "" )
-            print( "      testscript:" )
-            print( "         =print(batchpars)" )
-            print( "" )
-            print( "       output:")
-            print("           [\'testscript\', \'0.00\', \'0.30\']" )
-            print("           [\'testscript\', \'0.00\', \'0.40\']" )
-            print( "          etc" )
-            print( "" )
-            print( "   q[uit]                      - exit the cli program" )
-            print( "" )
+                print( "Commands implemented in the CLI/host computer:" )
+                print( "   h|help                        - produces this help text" )
+                print( "" )
+                print( "   Process frames from the data queue" )
+                print( "     add all                     - leaves one frame for save"  )
+                print( "     add frameset                - leaves one frameset for save"  )
+                print( "" )
+                print( "     clear                       - empty the data and text queues" )
+                print( "" )
+                print( "     save fileprefix comments... - save contents of data queue to diskfile" )
+                print( "" )
+                print( "  Wait for data collection" )
+                print( "    wait                         - wait for \"complete\" message from sensor" )
+                print( "    wait read | trigger          - for the tcd1304 firmware wait functions" )
+                print( "    wait                         - wait for \"complete\" message from sensor" )
+                print( "" )
+                print( "   baseline on | off             - turn baseline correction on/off" )
+                print( "" )
+                print( "   tcd1304 ....                  - pass command to the tcd1304" )
+                print( "" )
+                print( "   Pass command to operation system shell" )
+                print( "     !command                  - execute shell command" )
+                print( "" )
+                print( "   Pass instruction to python intepretor" )
+                print( "     a = 3                     - '=' causes evaluation as python" )
+                print( "     = python statement        -  pass to python interprator" )
+                print( "      these commands have access to local() and class name spaces" )
+                print( "" )
+                print( "   Execute commands from text file, parameters appear as a list, batchpars" )
+                print( "" )
+                print( "     @filespec [parameter list] - read and execute commands from a file" )
+                print( "" )
+                print( "     Example" )
+                print( "" )
+                print( "       @testscrpt 1 2" )
+                print( "" )
+                print( "       testscript:" )
+                print( "         =print(batchpars)" )
+                print( "" )
+                print( "       output:")
+                print("           [\'testscript\', \'1\', \'2\']" )
+                print( "" )
+                print( "   Loops and string substitution, by example" )
+                print( "" )
+                print( "     for a_ in [0,.1,.2]: @testscript \"%.2f\"%(a_)")
+                print( "     for a_ in [0,.1,.2]: for b_ in [ .3,.4,.5]: @testscript \"%.2f\"%(a_) \"%.2f\"%(b_)")
+                print( "" )
+                print( "      testscript:" )
+                print( "         =print(batchpars)" )
+                print( "" )
+                print( "       output:")
+                print("           [\'testscript\', \'0.00\', \'0.30\']" )
+                print("           [\'testscript\', \'0.00\', \'0.40\']" )
+                print( "          etc" )
+                print( "" )
+                print( "   q[uit]                      - exit the cli program" )
+                print( "" )
             
         elif line.startswith( '#' ):
             #print( "rcvd comment line" )
@@ -1699,7 +1604,13 @@ class TCD1304CONTROLLER:
             print( "device is busy, try stop and clear busy")
             return False
 
-            
+
+        elif line.startswith('add framesets'):
+            self.addframesets()
+        
+        elif line.startswith('add all'):
+            self.addall()
+        
         elif line.startswith('save'):
 
             pars = line.split( maxsplit = 2 )
@@ -1723,15 +1634,6 @@ class TCD1304CONTROLLER:
             elif 'on' in line:
                 self.baselineflag.value = 1
             print("baseline processing", self.baselineflag.value)
-
-        elif line.startswith( 'accumulator on' ):
-            self.localaccumulatorflag.value = 1
-            
-        elif line.startswith( 'accumulator off' ):
-            self.localaccumulatorflag.value = 0
-            
-        elif line.startswith( 'accumulator clear' ):
-            self.localaccumulatorflag.value = -1
 
         elif line.startswith('@'):
 
@@ -1886,30 +1788,14 @@ class TCD1304CONTROLLER:
             if line.startswith("tcd1304") and len(line.split()) > 1:
                 line = line.split(maxsplit=1)[1]
 
-            self.writeread(line,parsepars=True)
-
-            '''
-            self.write( line + '\n' )
-            
-            response = self.read()
-            for line in response:
-                print("response:", line )
-                if self.parseflexpwm(line) or \
-                   self.parsecoefficients(line) or \
-                   self.parseunits(line):
-                    pass
-            '''
+            self.command(line)
             
         else:
             # Nothing was sent, read any pending responses
-            response = self.read_nowait()
+            response = self.cleartextqueue()
             if len(response) :
                 for line in response:
                     print(">response:", line )
-                    if self.parseflexpwm(line) or \
-                       self.parsecoefficients(line) or \
-                       self.parseunits(line):
-                        pass
 
         if self.checkerrors():
             print( 'checkerrors found errors' )
@@ -1943,6 +1829,8 @@ class TCD1304CONTROLLER:
 
 if __name__ == "__main__":
 
+    mp.set_start_method('spawn')
+    
     import argparse
 
     try:

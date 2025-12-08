@@ -535,9 +535,9 @@ class LCCDDATA( DATA ):
         
         try:
             self.shutter_periods = list(self.getset('sh_period'))
-            print( self.shutter_periods)
+            #print( self.shutter_periods)
             s = list(set(self.shutter_periods))
-            if len(s) == 1:
+            if len(s) == 1 and not self.exposure:
                 self.exposure = float(s[0])*1.E-6
                 print( "set exposure from shutter period", self.exposure)
         except Exception as e:
@@ -547,7 +547,7 @@ class LCCDDATA( DATA ):
             self.timer_periods = list(self.getset('timer_period'))
             print( self.timer_periods)
             s = list(set(self.timer_periods))
-            if len(s) == 1 and s[0] > 0:
+            if len(s) == 1 and s[0] > 0 and not self.exposure:
                 # timer overrides exposure if present
                 self.exposure = float(s[0])*1.E-6  
                 print( "set exposure from timer period", self.exposure)
@@ -555,9 +555,10 @@ class LCCDDATA( DATA ):
             print( 'shutter_period', e )
 
         try:
-            self.frame_exposures = list(self.getset('frame_exposure'))
-            print( self.frame_exposures)
-            s = list(set(self.frame_exposures))
+            self.frame_exposures = [ round(f.frame_exposure,7) for f in self.frames ]
+            print( "frame_exposures", self.frame_exposures)
+            s = set(self.frame_exposures)
+            s = list(s)
             if len(s) == 1:
                 self.exposure = float(s[0])
                 print( "set exposure from frame_exposure", self.exposure)
