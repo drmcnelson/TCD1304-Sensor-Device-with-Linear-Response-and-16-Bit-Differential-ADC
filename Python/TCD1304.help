@@ -1,4 +1,4 @@
-TCD1304 CLI:help
+TCD1304 CLI: TCD1304 CLI: help
 
 Report device, version and configuration
   version           - report software version
@@ -68,8 +68,11 @@ LCCD commands:
 
     gate frame <n>
 
-    configure trigger pin <n> | pullup | nopullup | rising | falling | change
+    configure trigger pin <n> | pullup | pulldown | nopull | rising | falling | change
 
+  ============================================================================
+  Middle level commands for optional manual setup and operation
+  
   2) Single pulse setup (time syntax: 1E-6, 0.000001 or 1u)
 
     setup pulse [<clk_period> <sh_width> <sh_offset> <icg_width> <icg>_offset> [nframes [nframesets]]] (in secs)
@@ -121,8 +124,9 @@ LCCD commands:
 
     configure trigger [args ....]
 
-      args:  pin <n>,  pullup | nopullup,  rising | falling | change
+      args:  pin <n>,  pullup | pulldown | nopull,  rising | falling | change
 
+  ============================================================================
   More commands
 
        set sync on | off - enable or disable sync pin output
@@ -155,6 +159,7 @@ LCCD commands:
       args:    prescale <n>, period <n>, onA|B <n>, offA|B <n>, [no]invertA|B, ctrl2 <n>
                master, slave, sync, print, list, check, load
 
+  ============================================================================
   Low level TCD1304 FlexPWM Commands, refer to flexpwm section of the processor manual
 
      All of the submodules:
@@ -185,6 +190,7 @@ LCCD commands:
        flexpwm <submodule> set init <value>      - set counter init register to value (16 bits)
        flexpwm <submodule> set val<n> <value>    - set comparison register 0 to 5, to value
 
+  ============================================================================
   Processor reference manual:
 
        i.MX RT1060 Processor Reference Manual
@@ -192,47 +198,58 @@ LCCD commands:
 
        Chapter 55 Enhanced Flex Pulse Width Modulator (eFlexPWM) page 3091
 
+  ============================================================================
   Pin controls - <pin> = sync | busy trigger | <n>
 
      read pin <pin>
-     set pin <pin> hi|low|input|pullup|output
+     set pin <pin> hi|low|input|pullup|pulldown|output
      pulse pin  <pin>  [usecs]
      toggle pin <pin>
 
-Preconfigured pins
-  Trigger(input)2  Busy 1  Sync 0  ~OverCurrent 23
+  ============================================================================
+  Preconfigured pins
+     Trigger(input)2  Busy 1  Sync 0  ~OverCurrent 23
 
-Help subcommands
+  ============================================================================
+  Help subcommands
 
-  help [all | report | coefficients | data | microcontroller | adcs
+    help [all | report | coefficients | data | microcontroller | adcs
            lccd | pulse | frameset | trigger | help]
 
   
-Commands implemented in the CLI/host computer:
-   h|help                      - produces this help text
+  ============================================================================
+  Commands implemented in the CLI/host computer:
+  
+      h|help                        - produces this help text
 
-   baseline on | off           - turn baseline correction on/off
+  Process frames from the data queue
+     add all                     - adds and leaves one frame for save
+     add frameset                - adds and leaves one frameset for save
 
-   clear                       - empty the data and text queues
+     clear                       - empty the data and text queues
 
-   save fileprefix comments... - save contents of data queue to diskfile
-   wait                        - wait for "complete" message from sensor
-   wait read | trigger         - for the tcd1304 firmware wait functions
-   wait                        - wait for "complete" message from sensor
+     save fileprefix comments... - save contents of data queue to diskfile
 
-   tcd1304 ....                - pass command to the tcd1304
+  Wait for data collection
+     wait                        - wait for "complete" message from sensor
+     wait read | trigger         - for the tcd1304 firmware wait functions
+     wait                        - wait for "complete" message from sensor
 
-   Pass command to operation system shell
-     !command                  - execute shell command
+  Pass command explicitly to the TCD1304 firmware
+  
+    tcd1304 ....                 - pass command to the tcd1304
 
-   Pass instruction to python intepretor
-     a = 3                     - '=' causes evaluation as python
-     = python statement        -  pass to python interprator
+  Pass command to operation system shell
+     !command                    - execute shell command
+
+  Pass instruction to python intepretor
+     a = 3                       - '=' causes evaluation as python
+     = python statement          -  pass to python interprator
       these commands have access to local() and class name spaces
 
-   Execute commands from text file, parameters appear as a list, batchpars
+  Execute commands from text file, parameters appear as a list, batchpars
 
-     @filespec [parameter list] - read and execute commands from a file
+     @filespec [parameter list]  - read and execute commands from a file
 
      Example
 
@@ -244,9 +261,10 @@ Commands implemented in the CLI/host computer:
        output:
            ['testscript', '1', '2']
 
-   Loops and string substitution, by example
+  Loops and string substitution, by example
 
      for a_ in [0,.1,.2]: @testscript "%.2f"%(a_)
+     
      for a_ in [0,.1,.2]: for b_ in [ .3,.4,.5]: @testscript "%.2f"%(a_) "%.2f"%(b_)
 
       testscript:
@@ -257,6 +275,7 @@ Commands implemented in the CLI/host computer:
            ['testscript', '0.00', '0.40']
           etc
 
-   q[uit]                      - exit the cli program
-
+  Exit the program
+  
+    q[uit]                       - exit the cli program
 
