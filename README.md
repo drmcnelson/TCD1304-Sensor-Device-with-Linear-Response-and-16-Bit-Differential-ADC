@@ -90,7 +90,7 @@ Total cost of materials for the spectrometer is under $400, including the electr
 ### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
-The T4/NXP platform is somewhat unique ampng MCU boards in the Arduino ecosystem for both its speed at 600MHZ and its high speed USB at 480Mhz.   Additionally it provides a flexible timing generator (FlexPWM) which we feel is better suited to the task of operating the TCD1304 compared to the PWM peripherals offered in other MCU boards.   In the present system, including firmware and software, we are able to produce well controlled exposure times to as short as 10usec and frame rates to as fast as 100fps.
+The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for both its speed at 600MHZ and its high speed USB at 480Mhz.   Additionally it provides a flexible timing generator (FlexPWM) which we feel is better suited to the task of operating the TCD1304 compared to the PWM peripherals offered in other MCU boards.   In the present system, including firmware and software, we are able to produce well controlled exposure times to as short as 10usec and frame rates a little faster than 100fps. 
 
 ### Firmware
 
@@ -158,6 +158,7 @@ The various parameters that accompany a data record are organized into a C struc
 The Python code running in the host, represents the sensor device and its controller through a class object, TCD1304CONTROLLER.  A multiprocessing thread TCD1304port listens to the port to receive data frames and responses to commands, and interacts with the main thread through a set of queues, the data queue, a queue for commands to send to the controller and a graphics queue for real time display.  The graphics window runs in a separate thread also.
 
 Thus we have two levels of buffering, one in the controller and one in the host software, and commands and data are serialized on both ends of the interconnection between the host and conroller.  The commands and responses are all simple human readable ASCII.  Data can be transferred as binary or ASCII.
+<br>
 
 ***
 ## Getting it all up and running
@@ -264,7 +265,11 @@ The controller should open a grahics window.  The desktop will look something li
 
 Notice that in the console window, we have a prompt.  This is the command line interface presented by the Python program.  The Python CLI provides commands to wait, save to disk, run commands from a file, run shell commands, and etc., and passes all other commands to the hardware.  The command **help**, produces a listing of the commands recognized by the hardware and Python CLIs.   A listing of the help output can be found in the repo [here](Python/TCD1304.help).  A summary of some of the most often used commands can be found at the [bottom of this readme](#appendix-a---quick-command-list).
 
-The firmware CLI provides commands at three levels.  The high level commands include **read \<n frames\> \<exposure\>** and **trigger \<n frames\> \<exposure\>** which collect a series of back-to-back exposures,  and **read \<n frames\> \<exposure\> \<frame interval\>** and **trigger \<n frames\> \<exposure\> \<frame interval\>** which produce frames with shorter exposure times (down to 10usec).   Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **triggger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
+The firmware CLI provides commands at three levels.  The high level commands include **read \<n frames\> \<exposure\>** and **trigger \<n frames\> \<exposure\>** which collect a series of back-to-back exposures,  and **read \<n frames\> \<exposure\> \<frame interval\>** and **trigger \<n frames\> \<exposure\> \<frame interval\>** which produce frames with shorter exposure times (down to 10μsec).   Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
+
+<p style="margin-left:2em;margin-right:2em">
+(In the above, the shortest physically possible interval between frames is the time it takes to read a frame from the sensor plus a small increment to operate the gates.  For back to back exposures, the minimum is around 10msecs. There is not a hard upper limit (even compared to cosmic time scales).  But there is a practical limit in terms of dark noise and cosmic rays.  For very short exposures, specifying both exposure and frame-interval for the read and trigger commands, the limits are set by the configured pulse widths and by the timers being based on 16 bit counters and 7 bit dividers with a 150MHz clock.  The shortest exposure is about 10μsecs. The longest frame interval is about 55 msecs. The firmware will send you an error message if you ask for a setting or combination that it recognizes as being not physically possible.)
+</p>
 
 In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.
 
