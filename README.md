@@ -9,7 +9,7 @@
 - [Introduction](#introduction)
 	- [SPI Instrumentation Project](#-the-spi-instrumentation-project---open-instruments-for-open-science)
 	- [Permissions](#-permissions-no-warranty-or-guarantee-and-etc)
-- [Contents of this repo](#contents-of-this-repo) 
+- [High-level description of the hardware-firmware-software architecture](#high-level-description-of-the-hardware-firmware-software-architecture)
 - [Getting it all up and running](#getting-it-all-up-and-running)
 	- [Assembling or obtaining boards](#assembling-or-obtaining-boards)
 	- [USB connection](#usb-connection)
@@ -90,16 +90,13 @@ Total cost of materials for the spectrometer is under $400, including the electr
 ### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
-The T4/NXP platform provides a flexible timing generator (FlexPWM), fast CPU clock (600MHz) and high-speed USB (480 Mbps).
-The former is helpful for optimal operation of the TCD1304DG. 
-The latter enable signal averaging and 100fps transfers for the large 3664 pixel frames produced by the TCD1304DG.
+The T4/NXP platform is somewhat unique ampng MCU boards in the Arduino ecosystem for both its speed at 600MHZ and its high speed USB at 480Mhz.   Additionally it provides a flexible timing generator (FlexPWM) which we feel is better suited to the task of operating the TCD1304 compared to the PWM peripherals offered in other MCU boards.   In the present system, including firmware and software, we are able to produce well controlled exposure times to as short as 10usec and frame rates to as fast as 100fps.
 
 ### Firmware
 
 The firmware [(here)](Firmware/), written for the T4, includes a header-only library to operate the sensor, and a "sketch" file (Arduino source code, similar to C++) that implements human readable commands and responses, operates the sensor to produce frames by clock or hardware trigger, and sends the data back to a host computer.
-The T4 controller is supported by the Arduino IDE and the code is easily modified to reprogram or reconfigure any or all of the above.
 
-There are now two versions of the firmware in the repo.  The traditional version sends data frames as they are collected.  The new experimental firmware implements a ring buffer system.  We anticipate that this will be the standard version.  Meanwhile we post both with the understanding that the latter is a preview.
+We expect that the firmware provides all of the functionality you may want for almost any sort of experiment.  However, we provide the TCD1304 library and the complete source code so that you can modify it if you wish.   We work with the code using the Arduino IDE for compilation and Emacs as an external editor. 
 
 ### Python user interface with graphical display
 
@@ -144,12 +141,30 @@ Permission for use in a product or other commercial effort
 
 And of course, no warranty or guarantee is given whatsoever.  We did our best.
 
-If you have questions, please feel free to contact me.  And of course, don't forget to click the "Sponsor" button.
+If you have questions, please feel free to contact me.  And of course, don't forget to click the "Sponsor" button (or contact me directly).
+
+ ***
+## High-level description of the hardware-firmware-software architecture
+
+The sensor is operated through four input pins, a clock and two gates plus a fourth for "convert" pin of the ADC, and an SPI interface which retrieves the data from the ADC.  These connect to the controller and the controller in turn connects to the host as a serial port device over USB.  The controller also provides a trigger input and sync output and additional pins that can be used to interact with other equipment.  
+
+<p align="center">
+<img src="Images/High-Level-Architecture.jpg" width="50%">
+</p>
+
+The controller operates the sensor device with its FlexPWM  module programmed to serve as timing generator for the clock, gates and ADC convert signals, and its SPI module to read the ADC. A small set of interrupt service routines maintain frame counters, measure exposure times, and so forth.
+The various parameters that accompany a data record are organized into a C struct and put onto a ring buffer.  The program main() runs a loop() that checks the ring buffer, sends data frames to the host, and processes command inputs from the host computer.
+
+The Python code running in the host, represents the sensor device and its controller through a class object, TCD1304CONTROLLER.  A multiprocessing thread TCD1304port listens to the port to receive data frames and responses to commands, and interacts with the main thread through a set of queues, the data queue, a queue for commands to send to the controller and a graphics queue for real time display.  The graphics window runs in a separate thread also.
+
+Thus we have two levels of buffering, one in the controller and one in the host software, and commands and data are serialized on both ends of the interconnection between the host and conroller.  The commands and responses are all simple human readable ASCII.  Data can be transferred as binary or ASCII.
 
 ***
 ## Getting it all up and running
 This sensor board is intended to be used with our new [Teensy 4 (T4) based controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3). 
 The files provided here (gerbers and code) and in the controller repo, plus some trivial cabling and a host computer (we recommend Linux for the best frame rate perfomance) should be sufficient to build and operate the boards. 
+
+If you are using the "All-In-One", then you have the TCD1304 and circuitry and the Teensy 4.0 all on one module. The gerbers are provided in their own directory in this repo.  There is one macro switch in the firmware that you need to uncomment to compile for the "All-In-One" board.
 
 ### Assembling or Obtaining boards
 You can assemble the boards yourself, or if you prefer, please feel free to contact me for pre-assembled boards.
