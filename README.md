@@ -261,7 +261,7 @@ Following is an example that compares the data produced with a single frame at l
 <img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
 </p>
 
-After saving the data to disk, the Python program **DataReader.py** can be used to work with the data and produce graphs.  The command line accepts python language states to define x, y, y2 and etc.  See the bash scripts included in the distribution for examples.
+After saving the data to disk, the Python program **DataReader.py** can be used to work with the data and produce graphs.  The command line accepts python language statements to define the graph vectors x, y, y2 and etc.  See the bash scripts included in the distribution for examples.
 
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
