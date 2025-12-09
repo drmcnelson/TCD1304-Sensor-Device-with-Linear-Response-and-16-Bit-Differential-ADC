@@ -251,9 +251,9 @@ Notice that in the console window, we have a prompt.  This is the command line i
 
 The firmware CLI provides commands at three levels.  The high level commands include **read \<n frames\> \<exposure\>** and **trigger \<n frames\> \<exposure\>** which collect a series of back-to-back exposures,  and **read \<n frames\> \<exposure\> \<frame interval\>** and **trigger \<n frames\> \<exposure\> \<frame interval\>** which produce frames with shorter exposure times (down to 10usec).   Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **triggger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
 
-In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves the data frames and writes the data to disk.  The command **clear** empties the data queue without writing to disk.
+In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.
 
-While the data still resides in the queue, the frames can be added using **add all** which condenses the data to one frame, or using **add framesets** which sums the data to produce a set of frames corresponding to a frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  However, the **add framesets** command requires that all of the data have the same number of frames in each frame set.
+While still in the queue, the data frames can be added using **add all** which sums all of the data to one frame, or using **add framesets** which sums the data to produce a set of frames corresponding to a frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  The **add framesets** command requires that all of the data have the same number of frames in each frame set.
 
 Following is an example that compares the data produced with a single frame at low intensity to that produced by adding 100 frames collected at the same signal intensity.  The signal to noise ratio increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is possible only when your instrument is linear.  We will discuss this in further detail in the next section.
 
@@ -261,9 +261,7 @@ Following is an example that compares the data produced with a single frame at l
 <img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
 </p>
 
-The Python user utility also supports shell commands, scripting, loops and string substitution.  See the help for details, and see the sample script files including in the distribution.
-
-The Python program DataReader.py can be used as a standalone program with graphics or as a library to work with data files.  The command line accepts python language states to define x, y, y2 and etc.  See the bash scripts included in the distribution for examples.
+After saving the data to disk, the Python program **DataReader.py** can be used to work with the data and produce graphs.  The command line accepts python language states to define x, y, y2 and etc.  See the bash scripts included in the distribution for examples.
 
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
