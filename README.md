@@ -29,9 +29,13 @@
 ## Introduction
 
 This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
+  
+The sensor device is offered in three versions (high-end 16 bit, lower cost 12 bit, and analog), along with firmware ("sketch" file and header library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three version of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response over 5 orders of magnitude in exposure time (from 10usec) in clocked or triggered data collection.
+ 
+As scientists it is important to have confidence in the data that we report.  When others repeat our work they should see the same spectra that we see, the same ratios of peak heights, the same yields, and so forth.  However, in some instruments there are non-linearities for which there is no simple "correction" that restores these basic elements of linearity.  (We will show you examples of this in a widely used commercial instrument.) Needless to say, this touches on the basic question of whether a dataset is meaningful.
+The goal of this project was to produce a definitive design for the TCD1304 that addresses the issues and produces data that is solidly reproducible and linear that we could believe in for the purposes of our own work.
 
-As scientists it is important to have confidence in the data that we report.  When others repeat our work they should see the same spectra that we see, the same ratios of peak heights, even the same intensities, and so forth. 
-As it turns out (and we will show an example), that is a significant challenge for a CCD spectrometer and has been since they first appeared in science in the 1980's.   However, as we found in our studies leading to the present design, the TCD1304DG itself can be remarkably linear.  The challenge is in electrical design and operation of the chip in a way that allows it to perform and preserves that level of linearity from sensor to analog-digital conversion.  It is perhaps not too complicated, but it does require attention to detail and careful analysis.  We offer the present design with the hope that this will "set a new bar" for linear response for a CCD based spectrometer.
+In our studies leading to the present design, the TCD1304 itself proved to be remarkably linear. (Some vendors attribute their non-linearities to the sensor. As you will see, it is not true.)  Rather, the challenge is in electrical design to account for both the nature of the signals produced on reading a spectrum or technical image from the CCD and the stricter requirements on linearity of various types for purposes of a scientific instrument.  There is a second challenge described as a phantom or "carry-over" that has to be addressed in how the sensor is operated.  These challenges are  perhaps not too complicated, but they do require experience in having actually used these instruments as a scientist, and meticulously attention to detail and careful analysis in designing an instrument to do the job properly.  We offer the present design with the hope that this will "set a new bar" for linear response for a CCD based spectrometer.
 
 In this README we cover a lot of ground, from getting and working with the boards, to documenting what linearity and non-linearity look like in real instruments and why it is important, explaining why the problem is especially tied to spectrometers, and providing a tutorial in electrical design with example circuits. We use SPICE models to illustrate key points and we include a collection of these in this repo so that you can explore the ideas for yourself.
 
@@ -41,13 +45,17 @@ We begin with a summary of what is contained in the rest of the readme and repo.
 
 ### Implementations
 
-We provide two implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), and (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board.
-Both run from a common set of firmware and Python codes.
+We provide three implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
+All can be operated using the firmware and Python codes that we provide in this repo.
 
-#### Two board set, 16 bit sensor board and controller
-The sensor board, shown here, offers very low electrical noise, a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  Fiduciary marks are provided on both sides of the sensor board to facilitate optical alignment.
+The following shows pictures of each version and discusses the costs associated with each. These include the sensor and microcontroller, currently running at $40 and $24 respectively and the PCB which generally runs around $12/board including shipping plus $6 tariffs.
 
-Component costs for the boards are currently $50 and $45 plus  TCD1304 and Teensy, $30 and $24.  We most often assemble the controller in house. For the sensor we assemble in house or use a PCBA service depending on time and tariffs.
+#### Two board system, 16 bit sensor board and controller
+The high end sensor system shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic and VDD (logical level power) and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
+
+Component costs are currently $110 for the sensor board and $88 for the controller, or $198 for the set, plus the time it takes to do the assembly work.  It takes us a few hours for each board, or about one day per board set.
+
+We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to $290.  With tariffs our cost per set is now $395-$422 depending on the clearance agent.  But, compared to hand assembly, it is still a bargain.
  
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
@@ -61,9 +69,9 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </p>
 
 #### "All-in-one", sensor and controller on a single board.
-The single board device, with sensor, electronics and controller all on one board, offers similar performance in terms of linearity to the two board system, but with 12 bit precision (and fewer parts) using the on-board analog input of the T4.
+The following pictures show the single board device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
 
-The component costs are currently $22 plus TCD1304 and Teensy, $30 and $24. We generally assemble this one in house.
+The component costs are currently $86 including TCD1304 and Teensy, plus $18 for the PCB, for a total of $104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
@@ -76,9 +84,27 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 </p>
 </p>
 
+
+#### Analog sensor board with gate drivers
+The following shows the analog sensor board which hosts the sensor with the single ended analog circuit and gate drivers similar to that used in the "all-in-one" board shown in the preceding. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic. Alternatively, by opening a jumper, the gate and analog sections can be powered separately.  The output is intended to be compatible with typical Arduino board analog inputs.  It is recommended to use the Teensy, but an ARM processor with sufficiently fast cpu should work also.
+
+Parts costs are currently $65 including the TCD1304, plus $18 for the PCB per the above, for a total of $83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes perhaps 3 hours to build.
+
+<p align="center">
+<img src="Images/TCD1304_Analog.top.p600.jpg" width="37%">
+&nbsp;
+<img src="Images/TCD1304_Analog.bottom.p600.jpg" width="38%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+TCD1304 Analog Board, (a) top showing the circuits and connectors, (b) bottom showing the sensor.
+</i>
+</p>
+</p>
+
+
 ### Reproducibility and linearity
 
-Reproducibility is vitally important for any instrument.  For spectrometers linearity is a pre-requisite for reproducibility as well as for important capabilities such as signal averaging.  Linearity is especially challenging for a CCD spectrometer due to the nature of the signals produced on readout. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the connection between linearity and reproducibility and being able produce meaningful data.
+Reproducibility is vitally important for any instrument.  For spectrometers linearity is a pre-requisite for reproducibility. And of course, linearity is also a pre-requisite for important capabilities such as signal averaging.  CCD spectrometers are historically challenged for linearity and reproducibility. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
@@ -146,18 +172,18 @@ If you have questions, please feel free to contact me.  And of course, don't for
  ***
 ## High-level description of the hardware-firmware-software architecture
 
-The sensor is operated through four input pins, a clock and two gates plus a fourth for "convert" pin of the ADC, and an SPI interface which retrieves the data from the ADC.  These connect to the controller and the controller in turn connects to the host as a serial port device over USB.  The controller also provides a trigger input and sync output and additional pins that can be used to interact with other equipment.  
+The sensor is operated through four input pins, a clock and two gates plus a fourth for the "convert" pin of the ADC, and an SPI interface which retrieves the data from the ADC.  These connect to the controller and the controller in turn connects to the host as a serial port device over USB.  The controller also provides a trigger input and sync output and additional pins that can be used to interact with other equipment.  
 
 <p align="center">
 <img src="Images/High-Level-Architecture.jpg" width="50%">
 </p>
 
 The controller operates the sensor device with its FlexPWM  module programmed to serve as timing generator for the clock, gates and ADC convert signals, and its SPI module to read the ADC. A small set of interrupt service routines maintain frame counters, measure exposure times, and so forth.
-The various parameters that accompany a data record are organized into a C struct and put onto a ring buffer.  The program main() runs a loop() that checks the ring buffer, sends data frames to the host, and processes command inputs from the host computer.
+At the end of the readout, the data record and the various parameters that accompany the data record are organized into a C struct as a "frame" and put onto a ring buffer.  In the main thread, the function loop() checks the ring buffer, sends pending data frames to the host, and processes command inputs from the host computer.  Every command is acknowledged by sending "DONE" back to the host.
 
-The Python code running in the host, represents the sensor device and its controller through a class object, TCD1304CONTROLLER.  A multiprocessing thread TCD1304port listens to the port to receive data frames and responses to commands, and interacts with the main thread through a set of queues, the data queue, a queue for commands to send to the controller and a graphics queue for real time display.  The graphics window runs in a separate thread also.
+The Python code running in the host, represents the sensor device and its controller through a class object, TCD1304CONTROLLER.  A multiprocessing thread TCD1304port listens to the port to receive data frames and messages sent in response to commands, and interacts with the main thread through a set of queues; the data queue, a queue for commands to send to the controller and a graphics queue for real time display.  The graphics window runs in a separate thread also.
 
-Thus we have two levels of buffering, one in the controller and one in the host software, and commands and data are serialized on both ends of the interconnection between the host and conroller.  The commands and responses are all simple human readable ASCII.  Data can be transferred as binary or ASCII.
+Thus we have two levels of buffering, one in the controller and one in the host software, and commands and data are serialized on both ends of the interconnection between the host and controller.  The commands and responses are all simple human readable ASCII.  Data can be transferred as binary or ASCII.
 <br>
 
 ***
