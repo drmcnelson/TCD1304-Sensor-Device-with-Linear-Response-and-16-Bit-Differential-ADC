@@ -190,7 +190,21 @@ def parseInt(s):
         self.error += 1
         return None
 
-        
+# -----------------------------------
+def isint( s):
+    try:
+        val = int(s)
+        return True
+    except:
+        return False
+
+def isfloat( s):
+    try:
+        val = float(s)
+        return True
+    except:
+        return False
+
 
     
 # ======================================================================================================================
@@ -1147,41 +1161,7 @@ class TCD1304CONTROLLER:
         self.monitorWindow.close()
 
     # =============================================================================================
-    # Condense all of the acquired frames into a single frame
-    def addall(self,framerecords=None):
-
-        # Fetch everything that is on the queue
-        if framerecords is None:
-            framerecords = self.cleardataqueue()
-
-        if framerecords is None or len(framerecords) < 1 :
-            return []
-        
-        if len(framerecords) == 1 :
-            self.dataqueue.put(framerecords[0])
-            return framerecords[0]
-
-        oldframe = framerecords[0]
-        for newframe in framerecords[1:]:
-            # for the new frame, make sure we have at least one for accumulator counts
-            newframe.accumulator_counter = max(newframe.accumulator_counter,1)
-
-            # Add  the previous data
-            newdata = [ np.add(newcol,oldcol) for newcol,oldcol in zip(newframe.data,oldframe.data) ]
-            newframe.data      = newdata
-            # Add from previous offsets, exposure, accumulator counts
-            newframe.offset   += oldframe.offset
-            newframe.rawoffset += oldframe.rawoffset
-            newframe.frame_exposure  += oldframe.frame_exposure
-            newframe.accumulator_counter += oldframe.accumulator_counter
-
-        self.dataqueue.put(newframe)
-        
-        return newframe
-        
-    # =============================================================================================
-    # enqueue frame
-
+    # enqueue frame to graphics
     def enqueue_dataframes(self, dataframe):
 
         if type(dataframe) is list:
@@ -1216,6 +1196,68 @@ class TCD1304CONTROLLER:
 
             return True
             
+    # =============================================================================================
+    # Condense all of the acquired frames into a single frame
+    def addall(self,framerecords=None, after=1):
+
+        # Fetch everything that is on the queue
+        if framerecords is None:
+            framerecords = self.cleardataqueue()
+
+        # no records, return empty list
+        if framerecords is None:
+            return None
+
+        # only one record, put it back
+        if len(framerecords) == 1 :
+            self.dataqueue.put(framerecords[0])
+            return framerecords[0]
+
+        # keep only frames counters after the "after"
+        frame_counters = set([ f.frame_counter for f in framerecords ])
+        frame_counters = list(frame_counters)
+        if len(frame_counters) > 1:
+            temp = []
+            for f in framerecords:
+                if f.frame_counter >= after:
+                    temp.append(f)                    
+            framerecords = temp
+
+        # if there are no such frames, do nothing
+        if len(framerecords) < 1 :
+            return []
+        
+        # if there is only frame, don't add
+        if len(framerecords) == 1 :
+            self.dataqueue.put(framerecords[0])
+            return framerecords[0]
+
+        # Here is the loop where we add frames, accumulate into the new frame
+        oldframe = framerecords[0]
+        for newframe in framerecords[1:]:
+            # for the new frame, make sure we have at least one for accumulator counts
+            newframe.accumulator_counter = max(newframe.accumulator_counter,1)
+
+            # Add  the previous data
+            newdata = [ np.add(newcol,oldcol) for newcol,oldcol in zip(newframe.data,oldframe.data) ]
+            newframe.data = newdata
+
+            # Add from previous offsets, exposure, accumulator counts
+            newframe.offset += oldframe.offset
+            newframe.rawoffset += oldframe.rawoffset
+            newframe.frame_exposure += oldframe.frame_exposure
+            newframe.accumulator_counter += oldframe.accumulator_counter
+
+            oldframe = newframe
+
+            print("accumulator_counter", newframe.accumulator_counter)
+
+        # Put the result back onto the queue
+        print("final accumulator_counter", newframe.accumulator_counter)
+        self.dataqueue.put(newframe)
+        
+        return newframe
+        
     # =============================================================================================
     # Condense all of the acquired framesets into a single frameset
     def addframesets(self,framerecords=None):
@@ -1508,7 +1550,7 @@ class TCD1304CONTROLLER:
                 print( "   h|help                        - produces this help text" )
                 print( "" )
                 print( "   Process frames from the data queue" )
-                print( "     add all                     - leaves one frame for save"  )
+                print( "     add all [after n]           - leaves one frame for save, (option skip first n frames)"  )
                 print( "     add frameset                - leaves one frameset for save"  )
                 print( "" )
                 print( "     clear                       - empty the data and text queues" )
@@ -1606,11 +1648,31 @@ class TCD1304CONTROLLER:
 
 
         elif line.startswith('add framesets'):
-            self.addframesets()
+            frames = self.addframesets()
+            if frames and len(frames):
+                self.enqueue_dataframes(frames)
         
+        elif line.startswith('add all after'):
+            
+            try:
+                pars = line.split()            
+                zero = int(pars[3])
+            except Exception as e:
+                print(e)
+                return False
+            
+            print( "adding from", zero)
+                
+            frame = self.addall(None, zero)
+            if frame is not None:
+                self.enqueue_dataframes(frame)
+            
         elif line.startswith('add all'):
-            self.addall()
-        
+                
+            frame = self.addall()
+            if frame is not None:
+                self.enqueue_dataframes(frame)
+            
         elif line.startswith('save'):
 
             pars = line.split( maxsplit = 2 )
