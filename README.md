@@ -202,12 +202,12 @@ Here are some notes on how we do assembly in our shop.
 We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about \$200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
 ### USB connection
-We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.  
+We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it supports high-speed (at least USB2.0) and can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.  
 
 ### Loading the firmware
 After the boards are assembled, you will need to install the Teensy board in the controller, and compile and load the code into the Teensy.  You will most likely want to use the Arduino IDE for this.  Teensy is well integrated into the IDE. [See here for setup instructions.](https://www.pjrc.com/teensy/td_download.html)   The Teensy needs to be connected by USB to your host computer for this step.
 
-The firmware codes are found in the repo in the Firmware/ subdirectory
+The firmware codes are found in the repo in the Firmware subdirectory
 
 (In the following, the "251208" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
 
@@ -275,13 +275,13 @@ Here is a list of the files provided in the Python directory
 
 You will want to add the directory for the Python and bash scripts to your PATH. You can do this by adding the following line to your .bashrc.  Alternatively you can run this from a command terminal, but you would then need to do it each time.  Note that the command begins with ". "
 
-    \$ . pythoncodesdirectory/SetupPATH.sh
+    $ . pythoncodesdirectory/SetupPATH.sh
   
 After all of the above, make sure that your sensor controller is connected to your compute with a USB cable, that the cables are connected correctly if you are using the two board implementation, and then turn on the power and wait about 1/2 minute.
 
 Now you can run the controller program.
 
-    \$ TCD1304Controller.py
+    $ TCD1304Controller.py
 
 The controller should open a grahics window.  The desktop will look something like this (this is from an earlier instrument with similar software):
 
@@ -291,17 +291,23 @@ The controller should open a grahics window.  The desktop will look something li
 
 Notice that in the console window, we have a prompt.  This is the command line interface presented by the Python program.  The Python CLI provides commands to wait, save to disk, run commands from a file, run shell commands, and etc., and passes all other commands to the hardware.  The command **help**, produces a listing of the commands recognized by the hardware and Python CLIs.   A listing of the help output can be found in the repo [here](Python/TCD1304.help).  A summary of some of the most often used commands can be found at the [bottom of this readme](#appendix-a---quick-command-list).
 
-The firmware CLI provides commands at three levels.  The high level commands include **read \<n frames\> \<exposure\>** and **trigger \<n frames\> \<exposure\>** which collect a series of back-to-back exposures,  and **read \<n frames\> \<exposure\> \<frame interval\>** and **trigger \<n frames\> \<exposure\> \<frame interval\>** which produce frames with shorter exposure times (down to 10μsec).   Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
+The firmware CLI provides commands at three levels.  The high level commands include
 
-<p style="margin-left:2em;margin-right:2em">
-(In the above, the shortest physically possible interval between frames is the time it takes to read a frame from the sensor plus a small increment to operate the gates.  For back to back exposures, the minimum is around 10msecs. There is not a hard upper limit (even compared to cosmic time scales).  But there is a practical limit in terms of dark noise and cosmic rays.  For very short exposures, specifying both exposure and frame-interval for the read and trigger commands, the limits are set by the configured pulse widths and by the timers being based on 16 bit counters and 7 bit dividers with a 150MHz clock.  The shortest exposure is about 10μsecs. The longest frame interval in this mode is about 55 msecs. The firmware will send you an error message if you ask for a setting or combination that it recognizes as being not physically possible.)
-</p>
+       tcd1304cli> read <n frames> <exposure>
+       tcd1304cli> read <n frames> <exposure> <frame interval>
+       
+       tcd1304cli> trigger <n frames> <exposure>
+       tcd1304cli> trigger <n frames> <exposure> <frame interval>
+
+The first form collects back to back exposures, the second collects a fast series of short exposures.  The frame interval in either has to be at least as long as the time required to read the sensor (about 10msec).  The shortest exposure is set by the pulse widths.  For the fast series, there are upper limits set by the 16 bit counters in the timing generator and its 7 bit clock dividers.
+
+Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
 
 In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.
 
-While still in the queue, the data frames can be added using **add all** which sums all of the data to one frame, or using **add framesets** which sums the data to produce a set of frames corresponding to a frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  The **add framesets** command requires that all of the data have the same number of frames in each frame set.
+Data frames can be added using **add all** which sums all of the data into one frame, or by using **add framesets** which sums the data to produce a set of frames corresponding to a frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  The **add framesets** command requires that all of the data have the same number of frames in each frame set.
 
-Following is an example that compares the data produced with a single frame at low intensity to that produced by adding 100 frames collected at the same signal intensity.  The signal to noise ratio increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is possible only when your instrument is linear.  We will discuss this in further detail in the next section.
+Following is an example that shows the data produced with a single frame at low intensity compared to that produced by adding 100 frames collected at the same signal intensity.  The signal to noise ratio increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is possible only when your instrument is linear.  We will discuss this in further detail in the next section.
 
 <p align="center">
 <img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
