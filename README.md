@@ -309,9 +309,9 @@ In steady state observations the effect may be seen in the first few frames and 
 
 Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
 
-In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.
+In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
 
-Data frames can be added using **add all** which sums all of the data into one frame, or by using **add framesets** which sums the data to produce a set of frames corresponding to a frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  The **add framesets** command requires that all of the data have the same number of frames in each frame set.
+Data frames can be added using **add all** which sums all of the data into one frame, or **add all after n** which sums all the frames after the first "n" frames, or **add framesets** which sums the data at each index in the frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  
 
 Following is an example that shows the data produced with a single frame at low intensity compared to that produced by adding 100 frames collected at the same signal intensity.  The signal to noise ratio increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is possible only when your instrument is linear.  We will discuss this in further detail in the next section.
 
@@ -865,6 +865,7 @@ See <b>help</b> for more details
 | **CLI functions:** | **command:** |
 | *Data summing*| **add frameset** - add queued data collating by frame number |
 | | **add all** - adds all of the queued data resulting in a single frame|
+| | **add all after <n>** - adds all of the queued data after the first n frames|
 | *Clear data and text queues* | **clear** |
 | | |
 | *Wait for completion* | **wait** |
