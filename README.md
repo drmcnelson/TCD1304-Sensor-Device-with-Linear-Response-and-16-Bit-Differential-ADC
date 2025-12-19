@@ -301,6 +301,10 @@ The firmware CLI provides commands at three levels.  The high level commands inc
 
 The first form collects back to back exposures, the second collects a fast series of short exposures.  The frame interval in either has to be at least as long as the time required to read the sensor (about 10msec).  The shortest exposure is set by the pulse widths.  For the fast series, there are upper limits set by the 16 bit counters in the timing generator and its 7 bit clock dividers.
 
+For back-to-back exposures, the following command can be used to reduce the carry-over effect.  This runs a rapid series of pulses to the SH gate to clear charge left over from the previous frame.  This effect is part of the physics of the sensor device and is universal to CCD detectors.  Data quantifying the effect can be seen at the end of the readme [here](#charge-clearance-carry--over-and-relationship-to-gate-driver).
+
+      tcd1304cli> configure clearing pulses <n>
+
 Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
 
 In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.
@@ -787,11 +791,13 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
 #### Charge clearance, carry-over and relationship to gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.  In the third figure we pulse the SH pin a few times before starting the exposure to further reduce the carry over.
 
-Notice that the "carry-over" signal falls off with the same time constant as the RC formed by the SH gate (600pF) and our series resistor (200).  At 1 usec the contamination is better than 1 part in 10,000 and so carry-over is small compared to dark noise.  In our case, our gate driver can provide 50mA, so the time constant really is set by the RC.
+Notice that the "carry-over" signal falls off with approximately the time constant of SH gate (600pF) and our series resistor (200).  The 200 ohm resistor gives us a time constant of about 120nsecs provided we supply at least 20mA for a 4V pulse.
+At lower current, time constant becomes current limited to 600pF/I<sub>max</sub>.
+Notice that we need a pulse width of about 5 times the RC to reach a minimum carry over per pulse.
 
-This is a caution that the gates should not be driven directly from low current sources where the time constant will be current limited, for example from the digital I/O pins of a microcontroller, but rather from a proper gate driver that can deliver enough current to achieve a sufficiently rapid charging curve on the SH pin.
+In the third figure where we pulse the SH pin before starting the exposure, we see the an interplay between pulse width and the number of times we need to pulse the SH gate to reach the limiting carry over.
 
 <p align="center">
 <img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
@@ -803,11 +809,19 @@ Carry-over appears with inadequate gate drive.
 <br>
 
 <p align="center">
-<img src="Images/CarryOverGraph.jpg" width="65%">
+<img src="Images/CarryOver_PulseWidth.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 Carry-over decreases with SH pulse width.
 </p>
 </p>
+
+<p align="center">
+<img src="Images/CarryOver_N.jpg" width="65%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+Carry-over decreases with number of SH (clearing) pulses.
+</p>
+</p>
+
 
 ***
 ## Appendix A - Quick command list
