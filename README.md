@@ -301,7 +301,7 @@ The firmware CLI provides commands at three levels.  The high level commands inc
 
 The first form collects back to back exposures, the second collects a fast series of short exposures.  The frame interval in either has to be at least as long as the time required to read the sensor (about 10msec).  The shortest exposure is set by the pulse widths.  For the fast series, there are upper limits set by the 16 bit counters in the timing generator and its 7 bit clock dividers.
 
-For quantitative studies of dynamic phenomena with back to back to exposures, the following command might be useful.  This runs a rapid series of pulses to the SH gate to clear charge left over from the previous frame.  This effect is part of the physics of the sensor device and is universal to CCD detectors.  See the end of the readme [here](#charge-clearance-carry--over-and-relationship-to-gate-driver) for more detail.
+For quantitative studies of dynamic phenomena with back to back to exposures, the following command might be useful.  This runs a rapid series of pulses to the SH gate to clear charge left over from the previous frame.  This effect is part of the physics of the sensor device and is universal to CCD detectors.  See the end of the readme [here](#charge-clearance-carry-over-and-relationship-to-gate-driver) for more detail.
 
       tcd1304cli> configure clearing pulses <n>
 
