@@ -30,7 +30,7 @@
 
 This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
   
-The sensor device is offered in three versions (high-end 16 bit, lower cost 12 bit, and analog), along with firmware ("sketch" file and header library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three version of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response over 5 orders of magnitude in exposure time (from 10usec) in clocked or triggered data collection.
+The sensor device is offered in three versions (high-end 16 bit, lower cost 12 bit, and analog), along with firmware ("sketch" file and header library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three versions of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response over 5 orders of magnitude in exposure time (from 10usec) in clocked or triggered data collection.
  
 Reproducibility is fundamental to doing science, and especially so when it comes to collecting data that we plan to include in a paper.  Other researchers should find the same spectra, the same ratios of peak heights, the same yields, and so forth.  As is well known, meeting these basic criteria has been a challenge for CCD spectrometers since their inception in the late 1980's. (We will show examples of this in a widely used commercial instrument.) Needless to say, this touches on the basic question of whether a dataset is meaningful. But if these issues were addressed, CCD spectrometers with their "all at once" spectral capability and potentially low cost, would be an important contribution to the scientist's toolbox.
 The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible.
@@ -45,17 +45,17 @@ We begin with a summary of what is contained in the rest of the readme and repo.
 
 ### Implementations
 
-We provide three implementations of the sensor system (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
-All can be operated using the firmware and Python codes that we provide in this repo.
+We provide three implementations of the sensor system hardware (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
+The firmware and Python codes provided in this repo, can be used with any of the three hardware implementations.
 
-The following shows pictures of each version and discusses the costs associated with each. These include the sensor and microcontroller, currently running at $40 and $24 respectively and the PCB which generally runs around $12/board including shipping plus $6 tariffs.
+In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at \$40 and \$24 respectively and the PCB which generally runs around \$18/board in small quantities.
 
 #### Two board system, 16 bit sensor board and controller
-The high end sensor system shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic and VDD (logical level power) and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
+The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic signals and VDD, and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
 
-Component costs are currently $110 for the sensor board and $88 for the controller, or $198 for the set, plus the time it takes to do the assembly work.  It takes us a few hours for each board, or about one day per board set.
+%Component costs are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  It takes us a few hours for each board, or about one day per board set.
 
-We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to $290.  With tariffs our cost per set is now $395-$422 depending on the clearance agent.  But, compared to hand assembly, it is still a bargain.
+We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.  With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  But, compared to hand assembly, it is still a bargain.
  
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
@@ -69,9 +69,9 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </p>
 
 #### "All-in-one", sensor and controller on a single board.
-The following pictures show the single board device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
+The following showd the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
 
-The component costs are currently $86 including TCD1304 and Teensy, plus $18 for the PCB, for a total of $104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
+The component costs are currently \$86 including TCD1304 and Teensy, plus \$18 for the PCB, for a total of \$104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
@@ -88,7 +88,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 #### Analog sensor board with gate drivers
 The following shows the analog sensor board which hosts the sensor with the single ended analog circuit and gate drivers similar to that used in the "all-in-one" board shown in the preceding. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic. Alternatively, by opening a jumper, the gate and analog sections can be powered separately.  The output is intended to be compatible with typical Arduino board analog inputs.  It is recommended to use the Teensy, but an ARM processor with sufficiently fast cpu should work also.
 
-Parts costs are currently $65 including the TCD1304, plus $18 for the PCB per the above, for a total of $83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes perhaps 3 hours to build.
+Parts costs are currently \$65 including the TCD1304, plus \$18 for the PCB per the above, for a total of \$83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes perhaps 3 hours to build.
 
 <p align="center">
 <img src="Images/TCD1304_Analog.top.p600.jpg" width="37%">
@@ -104,14 +104,14 @@ TCD1304 Analog Board, (a) top showing the circuits and connectors, (b) bottom sh
 
 ### Reproducibility and linearity
 
-Reproducibility is vitally important for any instrument.  For spectrometers linearity is a pre-requisite for reproducibility. And of course, linearity is also a pre-requisite for important capabilities such as signal averaging.  CCD spectrometers are historically challenged for linearity and reproducibility. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
+As noted, reproducibility is vitally important for any instrument and for a spectrometer linearity is a pre-requisite for reproducibility.  Of course, linearity is also a pre-requisite for important capabilities such as signal averaging. And CCD spectrometers are historically challenged for both linearity and reproducibility. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
 
 Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
-Total cost of materials for the spectrometer is under $400, including the electronics (this repo), optics and mechanical parts.
+Total cost of materials for the spectrometer is under \$400, including the electronics (this repo), optics and mechanical parts.
 
 ### Controller
 
@@ -199,7 +199,7 @@ You can assemble the boards yourself, or if you prefer, please feel free to cont
 If you want to assemble your boards, and this is your first time assembling an SMT board, search for an introduction to DIY SMT assembly, [for example here](https://www.kingfieldpcb.com/essential-tips-for-diy-smt-assembly/).
 
 Here are some notes on how we do assembly in our shop.
-We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about $200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
+We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about \$200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
 ### USB connection
 We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.  
@@ -247,7 +247,7 @@ The codes have been used with the Fedora Cinnamon Spin, which you can [download 
 
 The command to install the Python environment and libraries used by the codes is as follows (in Fedora, use apt-get or aptitude in Ubuntu):
 
-    $ sudo dnf install python python-numpy python-scipy python-matplotlib python-pyserial
+    \$ sudo dnf install python python-numpy python-scipy python-matplotlib python-pyserial
       
 
 #### Setting up the user software for the TCD1304 boards
@@ -275,13 +275,13 @@ Here is a list of the files provided in the Python directory
 
 You will want to add the directory for the Python and bash scripts to your PATH. You can do this by adding the following line to your .bashrc.  Alternatively you can run this from a command terminal, but you would then need to do it each time.  Note that the command begins with ". "
 
-    $ . pythoncodesdirectory/SetupPATH.sh
+    \$ . pythoncodesdirectory/SetupPATH.sh
   
 After all of the above, make sure that your sensor controller is connected to your compute with a USB cable, that the cables are connected correctly if you are using the two board implementation, and then turn on the power and wait about 1/2 minute.
 
 Now you can run the controller program.
 
-    $ TCD1304Controller.py
+    \$ TCD1304Controller.py
 
 The controller should open a grahics window.  The desktop will look something like this (this is from an earlier instrument with similar software):
 
@@ -484,7 +484,7 @@ The following describes the instrument that we used to test the new sensor devic
 The parts list for the above is:
 
 <ol>
-<li>Grating, 1200 grooves/mm, Thorlabs GT50-12, $250</li>
+<li>Grating, 1200 grooves/mm, Thorlabs GT50-12, \$250</li>
 <li>200μm entrance slit, DIY-Optics.com, ~$30</li>
 <li>Plano Convex lenses (50 to 60mm fl for this design), ebay, ~$20</li>
 <li>SMA905 fitting, Amazon, Digikey, Mouser, Ebay ~$15</li>
@@ -636,7 +636,7 @@ The following shows a design that appears from time to time in DIY postings.  Th
 </p>
 
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
-And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about $3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
+And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about \$3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
 
 ### Interfacing to an ADC
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
