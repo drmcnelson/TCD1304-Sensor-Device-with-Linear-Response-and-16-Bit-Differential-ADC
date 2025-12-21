@@ -291,7 +291,7 @@ The controller should open a grahics window.  The desktop will look something li
 
 Notice that in the console window, we have a prompt.  This is the command line interface presented by the Python program.  The Python CLI provides commands to wait, save to disk, run commands from a file, run shell commands, and etc., and passes all other commands to the hardware.  The command **help**, produces a listing of the commands recognized by the hardware and Python CLIs.   A listing of the help output can be found in the repo [here](Python/TCD1304.help).  A summary of some of the most often used commands can be found at the [bottom of this readme](#appendix-a---quick-command-list).
 
-The firmware CLI provides commands at three levels.  The high level commands include
+**The firmware** provides commands at three levels.  The high level commands include the following to collect clocked or triggered data.
 
        tcd1304cli> read <n frames> <exposure>
        tcd1304cli> read <n frames> <exposure> <frame interval>
@@ -299,17 +299,18 @@ The firmware CLI provides commands at three levels.  The high level commands inc
        tcd1304cli> trigger <n frames> <exposure>
        tcd1304cli> trigger <n frames> <exposure> <frame interval>
 
-The first form collects back to back exposures, the second collects a fast series of short exposures.  The frame interval in either has to be at least as long as the time required to read the sensor (about 10msec).  The shortest exposure is set by the pulse widths.  For the fast series, there are upper limits set by the 16 bit counters in the timing generator and its 7 bit clock dividers.
+The first form collects "back-to-back" frames with exposure time congruent with the frame interval.  This accommodates intervals as short as about 8-10 msecs (the time it takes to read the sensor) and without any practical upper limit.  SNR for a single frame is optimal from about 20 msec to around 1/2 sec.  Signal averaging can be done on line or after data is save to a file.
 
-For quantitative studies of dynamic phenomena with back to back to exposures, the following command might be useful.  This runs a rapid series of pulses to the SH gate to clear charge left over from the previous frame.  This effect is part of the physics of the sensor device and is universal to CCD detectors.  See the end of the readme [here](#charge-clearance-carry-over-and-relationship-to-gate-driver) for more detail.
+The second form collects fast "frame sets" with short exposure times.  The exposure time can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the exposure time plus the time needed to read the sensor after the exposure has concluded, c.f. an exposure of 1ms or less with a frame interval of 10&nbsp;ms.  The maximum frame interval is about 55&nbsp;msecs for frame set mode. Signal averaging is available for this mode too.
+
+For slow kinetic series using back to back operation, the following command maybe useful for setting up "cleaning pulses". This refers to a universal characteristic of CCD detectors in which the process of harvesting charge from the photo-detector always leaves a small population behind (depending on materials, physical dimensions, temperature, voltage and duration of the shift gate). If we are looking at something that is sufficiently constant, the net effect soon adds up to zero. For studies of kinetic phenomenon we can pulse the shift gate to clear the residual charge before each exposure.
+We include more detail and results of quantitative studies [here](#charge-clearance-carry-over-and-relationship-to-gate-driver).
 
       tcd1304cli> configure clearing pulses <n>
 
-In steady state observations the effect may be seen in the first few frames and after that it is absorbed. Some vendors, for aesthetic reasons run clearing pulses all the time and don't tell you.  As scientists we prefer to know what is going on and have control. So, we leave it up to you.
-
 Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
 
-In the Python program, incoming data is saved onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
+**The Python program** saves incoming data onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
 
 Data frames can be added using **add all** which sums all of the data into one frame, or **add all after n** which sums all the frames after the first "n" frames, or **add framesets** which sums the data at each index in the frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  
 
