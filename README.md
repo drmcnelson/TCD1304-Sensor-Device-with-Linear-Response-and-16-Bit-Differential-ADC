@@ -388,6 +388,7 @@ Lets look at the normalized response for the three lines 546nm, 542nm, and 487nm
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
 Normalized response for (a) the present design and (b) the commercial instrument. <br> In the present design (a) the line at 546nm clips at 0.6 sec, see the "Intensity" graph above.
+(The first few points are effected by noise for this incident intensity.)
 </i>
 </p>
 </p>
@@ -404,6 +405,7 @@ The following shows ratios among the above three peaks as a function of exposure
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
 Peak height ratios for (a) the present design and (b) the commercial instrument versus exposure time.  <br>In the present design (a) the line at 546nm clips at 0.6 sec, see the "Intensity" graph above.
+(The first few points are effected by noise for this incident intensity.)
 </i>
 </p>
 </p>
