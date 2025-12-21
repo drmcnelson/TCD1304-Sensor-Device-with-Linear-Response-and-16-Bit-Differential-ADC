@@ -53,9 +53,9 @@ In the following we provide a high level description of each of the three implem
 #### Two board system, 16 bit sensor board and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic signals and VDD, and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
 
-%Component costs are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  It takes us a few hours for each board, or about one day per board set.
+Component costs are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  It takes us a few hours for each board, or about one day per board set.
 
-We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.  With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  But, compared to hand assembly, it is still a bargain.
+We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.  With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
  
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
@@ -69,7 +69,7 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </p>
 
 #### "All-in-one", sensor and controller on a single board.
-The following showd the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
+The following shows the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
 
 The component costs are currently \$86 including TCD1304 and Teensy, plus \$18 for the PCB, for a total of \$104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
@@ -104,7 +104,7 @@ TCD1304 Analog Board, (a) top showing the circuits and connectors, (b) bottom sh
 
 ### Reproducibility and linearity
 
-As noted, reproducibility is vitally important for any instrument and for a spectrometer linearity is a pre-requisite for reproducibility.  Of course, linearity is also a pre-requisite for important capabilities such as signal averaging. And CCD spectrometers are historically challenged for both linearity and reproducibility. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
+As noted, reproducibility is vitally important for any instrument and for a spectrometer linearity is a pre-requisite for reproducibility (as well as for basic capabilities such as signal averaging). And CCD spectrometers are historically challenged for both linearity and reproducibility. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
@@ -795,11 +795,9 @@ Note that the trace for voltage pulse on the supply side of the gate drivers is 
 #### Charge clearance, carry-over and relationship to gate driver
 Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.  In the third figure we pulse the SH pin a few times before starting the exposure to further reduce the carry over.
 
-Notice that the "carry-over" signal falls off with approximately the time constant of SH gate (600pF) and our series resistor (200).  The 200 ohm resistor gives us a time constant of about 120nsecs provided we supply at least 20mA for a 4V pulse.
-At lower current, time constant becomes current limited to 600pF/I<sub>max</sub>.
-Notice that we need a pulse width of about 5 times the RC to reach a minimum carry over per pulse.
+The "carry-over" signal falls off with pulse width with a phenomenological time constant of about 100nsec, or about twice the RC time constant for the SH gate (600 pf x 82 ohms = 49 nsec).  We need a pulse width of about 500nsec to approach the minimum carry over.
 
-In the third figure where we pulse the SH pin before starting the exposure, we see the an interplay between pulse width, number of clearing pulses, and residual carry over.  There are other parameters involved, for example pulse spacing, temperature, drive voltage, etc. If your experiment is sensitive to 2% carry over, you should contrive to measure it in your experimental setup.
+In the third figure where we pulse the SH pin before starting the exposure, we see an interplay between pulse width, number of clearing pulses, and residual carry over.  There are other parameters involved, for example pulse spacing, temperature, drive voltage, etc. If your experiment is sensitive to 2% carry over, you should contrive to measure it in your experimental setup.
 
 Accounting for carry over is relevant for kinetic studies.  For back to back exposures studying steady state phenomena, the carry over effect is absorbed after the first 4 to 8 frames.  
 
