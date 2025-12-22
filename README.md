@@ -366,7 +366,7 @@ The following is the spectrum from above from the new instrument,expanded to sho
 ### Intensity
 The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra for the present design and the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.  The vertical scale for the present design is volts read from the sensor.
 
-In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. In the present design, the curves are indeed straight lines from near the origin until near the limiting output voltage of the sensor at 0.6V.   For the commercial instrument, most of the range is not linear.  We will see more explicitly, how this effects relative peak heights.
+In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. In the present design, the curves are indeed straight lines from near the origin until near the limiting output voltage of the sensor.   For the commercial instrument, most of the range is not linear.  We will see more explicitly, how this effects relative peak heights.
 
 <p align="center" >
 <img src="Images/Comparison_peaks.jpg" width="90%">
