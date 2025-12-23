@@ -796,18 +796,17 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
 #### Charge clearance, carry-over and relationship to gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the following figure we toggle an LED on and off in synchrony with the gate driver, vary the duration of the pulse on the SH gate and graph the fraction of signal that appears in the next frame after the LED is off.  In the third figure we pulse the SH pin a few times before starting the exposure to further reduce the carry over.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the first figure we show the spectrum from an LED and with the next frame which is recorded after the LED is turned off. The LED is on for a portion of the exposure to ensure that we are looking at the residual charge in the detector and not a relaxation tail in the LED or its driver circuit.  We find that the residual image in the detector is a scaled copy of the preceding frame, with lower SNR of course.  In the next figures we study the effects of pulse length and repeated shift gate pulses in clearing the residual charge.
 
 <p align="center">
 <img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 LED spectrum, orange curve is with LED off.
-Carry-over appears with inadequate gate drive.
 </p>
 </p>
 <br>
 
-In the following figure we pulse the shift gate once and start the readout, and measure the carry-over intensity as a function of the width of the pulse applied to the shift gate.  We find that the "carry-over" signal decreases with an exponential time constant that corresponds to that of the charging curve for the shift gate and its driving circuit, 600 pf x 82 ohms = 49 nsec.  In other words, phenomenologically the carry-over signal seems to follow the voltage that would be reached on the SH gate by the end of the pulse.  By 500 nsecs we are close to lower limit for a single SH pulse.
+In the following figure we pulse the shift gate once and start the readout, and measure the carry-over intensity as a function of the width of the pulse applied to the shift gate.  We find that the "carry-over" signal decreases with an exponential time constant that corresponds to that of the charging curve for the shift gate and its driving circuit, 600 pf x 82 ohms = 49 nsec.  In other words, phenomenologically the carry-over signal seems to follow the voltage that would be reached on the SH gate by the end of the pulse.  By 500 nsecs we are close to the lower limit for a single SH pulse.
 
 <p align="center">
 <img src="Images/CarryOver_PulseWidth.jpg" width="65%">
@@ -816,7 +815,7 @@ Carry-over decreases with SH pulse width.
 </p>
 </p>
 
-In this next figure, we pulse the shift gate a few times before we start the exposure, the hypothesis being that the carry over follows the distribution of charge in an electric field, and assuming it is cleared away by the clear gate between pulses, we can clear more of the left over charge by repeatedly pulsing the shift gate.  Accordingly, we expect to reach an asymptotic limit. We see that indeed for pulse lengths of 1usec or greater, the behavior is fairly consistent and we can reduce the carry-over to 1% of the signal from the preceding exposure.
+In this next figure, we pulse the shift gate a few times before we start the exposure, the hypothesis being that the carry over follows the distribution of charge in an electric field, and assuming it is cleared away by the clear gate between pulses, that we can clear more of the left over charge by repeatedly pulsing the shift gate.  Accordingly, we expect to reach an asymptotic limit. We see that indeed for pulse lengths of 1usec or greater, the behavior is fairly consistent and we can reduce the carry-over to 1% of the signal from the preceding exposure.
 
 <p align="center">
 <img src="Images/CarryOver_N.jpg" width="65%">
