@@ -299,16 +299,21 @@ Notice that in the console window, we have a prompt.  This is the command line i
        tcd1304cli> trigger <n frames> <exposure>
        tcd1304cli> trigger <n frames> <exposure> <frame interval>
 
-The first form collects "back-to-back" frames with exposure time congruent with the frame interval.  This accommodates intervals as short as about 8-10 msecs (the time it takes to read the sensor) and without any practical upper limit.  SNR for a single frame is optimal from about 20 msec to around 1/2 sec.  Signal averaging can be done on line or after data is save to a file.
+The first form collects "back-to-back" frames with exposure time congruent with the frame interval.  This accommodates intervals as short as about 8-10 msecs (the time it takes to read the sensor).  
+Dark noise has a minimum at about 10-20 msecs.
+There is no effective upper limit on exposure time in this mode, apart from the increase in registering cosmic rays. Signal averaging can be done on line (see **add**) or after data is save to a file.
 
-The second form collects fast "frame sets" with short exposure times.  The exposure time can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the exposure time plus the time needed to read the sensor after the exposure has concluded, c.f. an exposure of 1ms or less with a frame interval of 10&nbsp;ms.  The maximum frame interval is about 55&nbsp;msecs for frame set mode. Signal averaging is available for this mode too.
+The second form collects fast "frame sets" with short exposure times. The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. The maximum frame interval in this node is about 55&nbsp;msecs. Signal averaging is available for this mode, too.
 
-For slow kinetic series using back to back operation, the following command maybe useful for setting up "cleaning pulses". This refers to a universal characteristic of CCD detectors in which the process of harvesting charge from the photo-detector always leaves a small population behind (depending on materials, physical dimensions, temperature, voltage and duration of the shift gate). If we are looking at something that is sufficiently constant, the net effect soon adds up to zero. For studies of kinetic phenomenon we can pulse the shift gate to clear the residual charge before each exposure.
-We include more detail and results of quantitative studies [here](#charge-clearance-carry-over-and-relationship-to-gate-driver).
+The trigger input can be configured as follows, where \<option\> can be any of rising, falling or change, pullup or nopullup, or pin \<pin-number\>.
+
+       tcd1304> configure trigger <option>
+
+For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#charge-clearance-carry-over-and-relationship-to-gate-driver).
 
       tcd1304cli> configure clearing pulses <n>
 
-Middle level commands **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection with detailed control of the timing for the pulse sequence that operates the sensor.  A set of low level commands provide register level access to the FlexPWM timing generator in the MCU.
+Middle level commands including **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection capabilities with detailed control of the timing for the pulse sequence that operates the sensor.  There is also a complete set of low level commands for register level access to the FlexPWM timing generator in the MCU.
 
 **The Python program** saves incoming data onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
 
@@ -335,7 +340,9 @@ Notably our linearity criterion was expressed as a change in P and S.  Normally 
 
 That said, there are a few ways in which spectrometer response can be non-linear. Some of these can be corrected numerically provided the non-linearity meets certain mathematical criteria.  For example, measured values should at least be monotonically increasing in exposure time so that there can exist a unique mapping between a measurement and its corrected value.
 
-However, some non-linearities involve bandwidth or line shape. And while a *valid* correction might exist, it is most often far easier and far more reliable to start with an instrument that has linear response.
+However, some non-linearities involve bandwidth or line shape. And while a valid correction might exist, it is most often far easier and far more reliable to start with an instrument that has linear response.
+
+So far we have talked about linear reproducible response to the signal produced by the sensor. We will next show some examples, give mention to another class of behaviours associated with the physics of moving charge within the sensor, and then finish with some further discussion of [linearity and electrical characteristics of signals in spectroscopy](#on-origins-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers). Detailed discussion of anomalies associated with charge distribution, is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
 
 Let's look at some data.
 
@@ -410,34 +417,57 @@ Peak height ratios for (a) the present design and (b) the commercial instrument 
 </p>
 </p>
 
+### Some further phenomena
+The above are examples of non-linearity in the conventional sense of linear response of a circuit and digitizer to an analog signal.  There are two further issues that can effect linearity in a different way.
 
-### Baseline integrity
+#### Baseline integrity
 Baseline or background subtraction is often a necessary step in extracting intensity data from spectra.  There are a number of ways to do this, for example using dark spectra or regions of spectra where the experiment produces little intensity.  The former assumes the background is independent of the signal of interest and the latter assumes background is dominated by the dark noise of the detector rather than light.
 
 The following shows a fluorescent lamp spectrum from [Wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/83/Fluorescent_lighting_spectrum_peaks_labelled.png).
-Notice the anomalous baseline to the blue side of the sharp peak at 631nm.  The shape is not like dark noise nor any sort of room lighting. We can speculate about its origin, but the important point is that it is not easily corrected.
+
+Notice the anomalous baseline to the blue side of the sharp peak at 631nm.  The shape is not like dark noise nor any sort of room lighting.  The important point about this for the present discussion is that it is not easily corrected.
 <p align="center">
-<img src="Images/Fluorescent_lighting_spectrum_peaks_highlighted.jpg" alt="Fluorescent lamp spectrum, HR2000" width="60%" >
+<img src="Images/Fluorescent_lighting_spectrum_peaks_highlighted.jpg" alt="Fluorescent lamp spectrum, HR2000" width="50%" >
 <p align="center" style="margin-left:5em;margin-right:5em">
 Fluorescent lamp spectrum.<br>
-<a href="https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.png">Original:  Deglr6328 at English WikipediaDerivative work:  H Padleckas</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>, via Wikimedia Commons
+<a href="https://commons.wikimedia.org/wiki/File:Fluorescent_lighting_spectrum_peaks_labelled.png">Original:  Deglr6328 at English WikipediaDerivative work:  H Padleckas</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>,<br>via Wikimedia Commons
 </p>
 </p>
 
+#### Carry-over intensity (for kinetic studies)
+In studies of dynamic phenomenon, we are interested in the intensity registered in the detector during the time of a particular exposure.
+In CCD detectors there is always some charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  In steady state phenomenon this effect can balance out after a few frames. As noted above, a detailed discussion is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
 
-### On origins of non-linearity and electrical characteristics of CCD spectrometers
-The following provides some insight into how the above phenomena may emerge in   a CCD spectrometer (or imaging system).  We start with nature of the signal produced on reading a CCD detector and in particular the case where the instrument has good resolution and can produce narrow lines.
+### On the origins of non-linearity and electrical characteristics of CCD spectrometers
+The following provides some insight into how the above phenomena may emerge in a CCD spectrometer (or imaging system) and how they can be addressed.  For simplicity of exposition, we can think in terms of a simplified notional CCD sensor architecture. (The full TCD1304 architecture is described in a later section.)  Note that here we are discussing only the analog response.
 
-A simple way to think of a CCD is as an array of photodectors that produce charge when exposed to light, backed by a kind of shift register that preserves the quantity of charge while it is shuttled along the register towards one end in response to a clock signal. At the last pixel, charge is converted to voltage and presented at the output pin.  The response up to this last step, depends on  the combined transfer efficiencies from photodetector to readout register and then along the length of the readout register.
+The following depicts a circuit model for our simplified linear CCD. An array of pixels each compromising a photodiode and capacitor connected by a switch to one element of an analog shift register.
+
 <p align="center">
-<img src="Images/ccdclockedreadout.jpg" alt="CCD Readout" width="85%">
+<img src="Images/Device_simplified_single_channel.jpg" alt="CCD Readout" width="45%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+(From an archived application note, Toshiba)
+</p>
 </p>
 
-An important "takeaway" is that a CCD records a discrete spatial patten of light induced electric charge and on readout converts it to a discrete time series of voltages.  In this way, a sharp spectral line becomes a short pulse in time.  And that is what makes spectroscopy different from other signal acquisition scenarios.
+The following shows a pixel in our simplified notional CCD, pink indicates n-doping. The shift gate (SH) moves charge from the photodiode region to the shift register.  The electrode labeled φ belongs to the readout register.
 
+<p align="center">
+<img src="Images/DeviceInternals_pixel.jpg" alt="CCD Readout" width="25%">
+</p>
+
+The following depicts the process for moving charge along the readout register (in the direction orthogonal to the plane of the above diagram). At the completion of each clock cycle (typically 2 or 4 clock pulses) charge has been shifted one step to the right. The charge at the last element is converted to a voltage and presented at the output.
+
+<p align="center">
+<img src="Images/ccdclockedreadout.jpg" alt="CCD Readout" width="70%">
+</p>
+
+A this juncture, the important point is that a CCD records a discrete spatial patten of light in space (or wavelength) and on readout presents this pattern as a discrete series of voltages in time.  Accordingly, a sharp spectral line becomes a short pulse in time.  And that is what makes spectroscopy different from other signal acquisition scenarios.
+
+#### What does this mean for circuit design?
 In designing circuits for acoustics or radio frequency work, we might think in terms of a Nyquist frequency and we might accept some small non-linearity for signals approaching this "cutoff". But in a CCD spectrometer (or imaging system) a full scale step in voltage from one sample to the next can be a legitimate feature that has to rendered to a meaningful digital representation. We can think of this in terms in of bandwidth or dV/dt.
 
-The following shows the Fourier transform of the above spectrum (blue), and on the second "y" axis we graph a response curve (orange) calculated for a simple low pass filter (single pole) with cutoff frequency at 1/2 of the sample rate much. As you can see, naive filtering produces about 10% attenuation for high frequency components that may be important for linear response to narrow spectral lines.
+For bandwidth considerations, we graph the Fourier transform of the above spectrum (blue) with the response curve (orange, y2 axis) for a simple low pass filter (single pole) with cutoff frequency at 1/2 of the sample rate much. We find that naive filtering produces only about 10% attenuation for the high frequency components that may be important for linear response to narrow spectral lines.
 
 <p align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.rfft-tscaled.jpg" alt="CCD Readout" width="40%">
@@ -448,7 +478,7 @@ Fourier transform of the fluorescent lamp spectrum (blue) and single pole f/2 fi
 </p>
 </p>
 
-A more intuitive way to look at this is shown in the following where we graph the spectrum as its first derivative, dV/dt.  We see that the line at 435nm which is markedly stronger in the present design instrument also has the largest dV/dt.
+A perhaps more revealing way to look at this is through dV/dt. Here we graph the spectrum as dV/dt versus time corresponding to sensor readout. The spectral line at 435nm that is markedly stronger in the present design instrument also has the largest dV/dt.
 In electronics, dV/dt is related to *slew*.
 
 <p align="center">
@@ -460,14 +490,11 @@ First derivative (dV/dt) of the fluorescent lamp spectrum.
 </p>
 </p>
 
-Circuits can be slew limited through the choice of OPAMP and by any of several ways of current starving the sampling capacitor in the input stage to the ADC.
-Maximum slew and output current are characteristics usually listed in the datasheet for an OPAMP.
+Circuits can be slew-limited through the choice of OPAMP and by any of several ways of current starving the sampling capacitor in the input stage to the ADC.
+Maximum slew and output current are characteristics usually listed in the datasheet for an OPAMP. But circuit design can limit slew as well.
 
-Before leaving this topic, we should mention another phenomenon that also effects linearity.
-The CCD sensors used in spectroscopy can be 2K to 4K in length.  After  N steps along the CCD, single step transfer efficiency ε becomes ε<sup>N</sup>.  Lost charge at each step appears in the next pixel.  Generally and remarkably, this effect is usually small if the manufacturers specs for clocking the chip are followed.
-An easily much larger effect arises in moving charge from the photodiodes into the readout register.  This appears as a weak copy of the previous frame added to the next frame.  It is very important to drive the shift gate properly to minimize the effect.  After that, a typical method to further reduce the effect is to quickly pulse the shift gate a few times before starting the next exposure.
-
-
+For purposes of a scientific instrument, we require linear behavior for dV/dt spanning the full range of lines that we might see in our measurements. There are some surprising challenges to this which we discuss in the section on electrical design.
+ 
 ---
 ## Setup for linearity testing
 
@@ -499,7 +526,7 @@ The following describes the instrument that we used to test the new sensor devic
 The parts list for the above is:
 
 <ol>
-<li>Grating, 1200 grooves/mm, Thorlabs GT50-12, \$250</li>
+<li>Grating, 1200 grooves/mm, Thorlabs GT50-12, $250</li>
 <li>200μm entrance slit, DIY-Optics.com, ~$30</li>
 <li>Plano Convex lenses (50 to 60mm fl for this design), ebay, ~$20</li>
 <li>SMA905 fitting, Amazon, Digikey, Mouser, Ebay ~$15</li>
@@ -589,7 +616,7 @@ As depicted, exposure begins and ends on the trailing end of pulses asserted on 
 
 A table of capacitances for these pins is found on page 5. Without going into the details of how CCDs are constructed [(see here](https://www.chronix.co.jp/chronixjp/material/pdf/chronix/CCD-Image-Sensor-English.pdf)), we can infer that the large capacitance of the SH and ICG pins are consistent with these playing an important role in harvesting charge in the device. Four clock cycles per pixel readout further indicates a 4 cycle type CCD register. 
 
-We discuss how to drive the gates, and in particular shift gate [here](#gate-driver-and-analog-signal-integrity).  The present discussion focuses on the analog signal conditioning part of the design.
+We discuss how to drive the gates, and in particular the shift gate [here](#gate-driver-and-analog-signal-integrity).  The present discussion focuses on the analog signal conditioning part of the design.
 
 <p align="center">
 <img src="Images/TCD1304_gatecapacitance.jpg" alt="TCD1304 internal diagram" width="80%">
@@ -795,8 +822,15 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
-#### Charge clearance, carry-over and relationship to gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In the first figure we show the spectrum from an LED and with the next frame which is recorded after the LED is turned off. The LED is on for a portion of the exposure to ensure that we are looking at the residual charge in the detector and not a relaxation tail in the LED or its driver circuit.  We find that the residual image in the detector is a scaled copy of the preceding frame, with lower SNR of course.  In the next figures we study the effects of pulse length and repeated shift gate pulses in clearing the residual charge.
+### Charge clearance, carry-over and relationship to the gate driver
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the shift register.  The following shows what that looks like in action.
+Light produces charge, pulsing the shift gate moves charge to the shift register, which is then shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
+
+<p align="center">
+<img src="Images/DeviceInternals_shiftout.gif" width="40%">
+</p>
+
+Here is an example of what this effect can look like in practice.  In this figure we show two spectra; blue is the spectrum of a red LED and orange is the next frame after the LED has been turned off.  The frames and LED are timed to ensure that we are not looking at the relaxation tail in the LED or its driver circuit.  The data is collected with no clearing pulses.  We find that the carry-over image in the detector is a faithful scaled though somewhat noisier copy of the preceding frame.
 
 <p align="center">
 <img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
@@ -806,7 +840,7 @@ LED spectrum, orange curve is with LED off.
 </p>
 <br>
 
-In the following figure we pulse the shift gate once and start the readout, and measure the carry-over intensity as a function of the width of the pulse applied to the shift gate.  We find that the "carry-over" signal decreases with an exponential time constant that corresponds to that of the charging curve for the shift gate and its driving circuit, 600 pf x 82 ohms = 49 nsec.  In other words, phenomenologically the carry-over signal seems to follow the voltage that would be reached on the SH gate by the end of the pulse.  By 500 nsecs we are close to the lower limit for a single SH pulse.
+In the following figure we measure the carry-over intensity as a function of the width of the pulse applied to the shift gate.  We find that the "carry-over" signal decreases with an exponential time constant that corresponds to that of the charging curve for the shift gate and its driving circuit, 600 pf x 82 ohms = 49 nsec.  In other words, phenomenologically the carry-over signal seems to follow the voltage that would be reached on the SH gate by the end of the pulse. By 500 nsecs we are close to the lower limit for a single SH pulse.
 
 <p align="center">
 <img src="Images/CarryOver_PulseWidth.jpg" width="65%">
@@ -824,8 +858,11 @@ Carry-over decreases with number of SH (clearing) pulses.
 </p>
 </p>
 
+#### Mitigation
+We can see that carry-over, in most instances will be a necessary part of the physics of the CCD detector device.  However, for simple back to back exposures on a steady state phenomenon, the net effect can be essentially zero after the first few frame.  For kinetic studies we need to take a little more care.
 
-
+The above shows that clearing pulses can reduce the effect to 1%. 
+We usually start a kinetic series with a few blank exposures so that the contribution is near zero in the first active frame.  In post processing we calibrate and subtract when needed. (We always preserve primary data.)  Other mitigation strategies are possible depending on how you design your experiment.
 
 ***
 ## Appendix A - Quick command list
