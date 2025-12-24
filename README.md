@@ -827,7 +827,7 @@ Now lets take a look at another way in which the gate driver effects performance
 Light produces charge, pulsing the shift gate moves charge to the shift register, which is then shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
 
 <p align="center">
-<img src="Images/DeviceInternals_shiftout.gif" width="40%">
+<img src="Images/DeviceInternals_shiftout.gif" width="60%">
 </p>
 
 Here is an example of what this effect can look like in practice.  In this figure we show two spectra; blue is the spectrum of a red LED and orange is the next frame after the LED has been turned off.  The frames and LED are timed to ensure that we are not looking at the relaxation tail in the LED or its driver circuit.  The data is collected with no clearing pulses.  We find that the carry-over image in the detector is a faithful scaled though somewhat noisier copy of the preceding frame.
