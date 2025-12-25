@@ -311,11 +311,11 @@ The trigger input can be configured as follows, where \<option\> can be any of r
 
 For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#charge-clearance-carry-over-and-relationship-to-gate-driver).
 
-      tcd1304cli> configure clearing pulses <n>
+       tcd1304cli> configure clearing pulses <n>
 
 Middle level commands including **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection capabilities with detailed control of the timing for the pulse sequence that operates the sensor.  There is also a complete set of low level commands for register level access to the FlexPWM timing generator in the MCU.
 
-**The Python program** saves incoming data onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
+**The Python controller program** saves incoming data onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
 
 Data frames can be added using **add all** which sums all of the data into one frame, or **add all after n** which sums all the frames after the first "n" frames, or **add framesets** which sums the data at each index in the frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  (See the next section "On Linearity and Reproducibility...")
 
@@ -325,7 +325,24 @@ Following is an example that shows the data produced with a single frame at low 
 <img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
 </p>
 
-After saving the data to disk, the Python program **DataReader.py** can be used to work with the data and produce graphs.  The command line accepts python language statements to define the graph vectors x, y, y2 and etc.  See the bash scripts included in the distribution for examples.
+The program and class library **DataReader.py** can be used to work the offline data.  The command line accepts python language statements and can produce graphs.  Setting variables x, y, y2, etc., generates a 2-d graph.  Setting surface or image generates a 3d surface or heatmap.
+
+The following example generates a simple 2-d graph of electron counts divided by exposure time. Omitting --output sends the graph to the screen.  More examples are included in the bash scripts in the distribution.
+       
+       bash# DataReader.py mydatafile \
+               d=dataset[0] \
+               x=d.xdata \
+               y="d.frames[-1].dataCounts()/d.exposure" \
+               xlabel="\"Wavelength(nm)\"" \
+               ylabel="\"Counts/sec\"" \
+               --output mydatafile.png
+
+To list all of the available variable names and data associated with a file,
+
+       bash# DataReader.py mydatafile --dump
+
+The data files are in ASCII and human readable.  If you wish, you can  work with the files using a spreadsheet program.  The advantage of DataReader.py, whether you use it from the command line or as a library, is that it parses the file into Class objects and you can use the full power of the Python libraries to work with the data.
+
 
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
@@ -387,10 +404,10 @@ Intensity versus exposure time for four spectral lines for (a) the present desig
 
 ### Normalized response
 
-Lets look at the normalized response for the three lines 546nm, 542nm, and 487nm.  Dividing by exposure time, we expect the curves to be flat or at least monotonically increasing until they reach saturation.  Again we see that the present design does indeed provide flat response until it reaches the voltage limit of the chip.
+Lets look at the normalized response for these lines.  Dividing by exposure time, we expect the curves to be flat or at least monotonically increasing until saturation.  Our new instrument does indeed exhibit flat response until saturation.  The commercial instrument is not monotonic.
 
 <p align="center" >
-<img src="Images/Comparison_responses_3peaks.jpg" width="90%">
+<img src="Images/Comparison_responses.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
@@ -859,10 +876,12 @@ Carry-over decreases with number of SH (clearing) pulses.
 </p>
 
 #### Mitigation
-We can see that carry-over, in most instances will be a necessary part of the physics of the CCD detector device.  However, for simple back to back exposures on a steady state phenomenon, the net effect can be essentially zero after the first few frame.  For kinetic studies we need to take a little more care.
+We can see that carry-over, in most instances will be a necessary part of the physics of the CCD detector device. But the effect is linear reproducible.  This means that for simple back-to-back exposures recording steady state spectra, the net effect can be essentially zero after the first few frames. For kinetic studies we need to take a little more care.
 
-The above shows that clearing pulses can reduce the effect to 1%. 
-We usually start a kinetic series with a few blank exposures so that the contribution is near zero in the first active frame.  In post processing we calibrate and subtract when needed. (We always preserve primary data.)  Other mitigation strategies are possible depending on how you design your experiment.
+We also see that clearing pulses can reduce the effect to 1%. 
+In our lab, we usually setup our triggered data collections to include  a few blank exposures on the principle that 1% of a small number is a very small number.  For a timed series of exposures we might configure clearing pulses depending on the time scale, and if needed we can calibrate the carry over and remove it in post processing.  Other mitigation strategies are possible depending on how you design your experiment.
+
+Following the dictum "always preserve primary data" we refrain from doing data manipulation inside the instrument.  This is easily done off line, using the program and class library DataReader.py which also  provides 2-d and 3-d graphics.
 
 ***
 ## Appendix A - Quick command list
