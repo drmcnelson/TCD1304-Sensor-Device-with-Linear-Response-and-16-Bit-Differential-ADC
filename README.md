@@ -188,6 +188,14 @@ At the end of the readout, the data record and the various parameters that accom
 The Python code running in the host, represents the sensor device and its controller through a class object, TCD1304CONTROLLER.  A multiprocessing thread TCD1304port listens to the port to receive data frames and messages sent in response to commands, and interacts with the main thread through a set of queues; the data queue, a queue for commands to send to the controller and a graphics queue for real time display.  The graphics window runs in a separate thread also.
 
 Thus we have two levels of buffering, one in the controller and one in the host software, and commands and data are serialized on both ends of the interconnection between the host and controller.  The commands and responses are all simple human readable ASCII.  Data can be transferred as binary or ASCII.
+
+The sensor board internals include the TCD1304DG sensor, gate drivers, analog signal conditioning and ADC.  The external interface comprises the three gate inputs, an input to command the ADC and SPI to retrieve the data.
+
+<p align="center">
+<img src="Images/High-Level-SensorBoard.jpg" width="25%">
+</p>
+
+Achieving linearity and reproducibility requires correct design and operation of the gate drivers and signal path.
 <br>
 
 ***
