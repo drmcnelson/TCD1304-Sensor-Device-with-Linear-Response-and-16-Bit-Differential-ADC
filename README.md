@@ -421,7 +421,7 @@ Normalized response for (a) the present design and (b) the commercial instrument
 ### Peak height ratios
 We reasonably expect that in a reliable instrument ratios of intensity should not change when we change intensity or exposure time. We expect that spectra should look the same when we repeat a measurement. On a more serious level, quantitative comparison of intensities is a basic element of many experimental protocols.
 
-The following shows ratios among the above three peaks as a function of exposure time.  The present design does indeed show roughly constant peak height ratios from above noise until the line at 546nm reaches the limiting voltage of the sensor (the purple and blue curves both have the intensity at 546nm in the denominator).
+The following shows ratios among three of the peaks as a function of exposure time.  The present design shows roughly constant peak height ratios until one of the peaks in the ratio reaches saturation. The data from the commercial instrument does not seem to provide a useful peak ratio measurement.
 
 <p align="center" >
 <img src="Images/Comparison_ratios.jpg" width="90%">
