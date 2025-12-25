@@ -194,9 +194,9 @@ The sensor board internals include the TCD1304DG sensor, gate drivers, analog si
 <p align="center">
 <img src="Images/High-Level-SensorBoard.jpg" width="25%">
 </p>
-
-Achieving linearity and reproducibility requires correct design and operation of the gate drivers and signal path.
 <br>
+
+Achieving linearity and reproducibility is to a large extent a function of hardware and firmware. The analog subsystem and ADC provide linear response to spectroscopic signals, the gate drivers enable effective retrieval of charge and the firmware provides effective operation.
 
 ***
 ## Getting it all up and running
