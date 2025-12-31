@@ -53,10 +53,6 @@ In the following we provide a high level description of each of the three implem
 #### Two board system, 16 bit sensor board and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic signals and VDD, and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
 
-Component costs are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  It takes us a few hours for each board, or about one day per board set.
-
-We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.  With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
- 
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
 <br>
@@ -67,11 +63,13 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </i>
 </p>
 </p>
+Component costs for the high end 16bit system are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
+
+We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.  With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
+ 
 
 #### "All-in-one", sensor and controller on a single board.
 The following shows the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
-
-The component costs are currently \$86 including TCD1304 and Teensy, plus \$18 for the PCB, for a total of \$104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
@@ -83,12 +81,10 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 </i>
 </p>
 </p>
-
+The component costs are currently \$86 including TCD1304 and Teensy, plus \$18 for the PCB, for a total of \$104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
 #### Analog sensor board with gate drivers
 The following shows the analog sensor board which hosts the sensor with the single ended analog circuit and gate drivers similar to that used in the "all-in-one" board shown in the preceding. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic. Alternatively, by opening a jumper, the gate and analog sections can be powered separately.  The output is intended to be compatible with typical Arduino board analog inputs.  It is recommended to use the Teensy, but an ARM processor with sufficiently fast cpu should work also.
-
-Parts costs are currently \$65 including the TCD1304, plus \$18 for the PCB per the above, for a total of \$83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes perhaps 3 hours to build.
 
 <p align="center">
 <img src="Images/TCD1304_Analog.top.p600.jpg" width="37%">
@@ -100,6 +96,8 @@ TCD1304 Analog Board, (a) top showing the circuits and connectors, (b) bottom sh
 </i>
 </p>
 </p>
+Parts costs are currently \$65 including the TCD1304, plus \$18 for the PCB per the above, for a total of \$83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes us perhaps 3 hours to build.
+
 
 
 ### Reproducibility and linearity
@@ -557,7 +555,7 @@ The parts list for the above is:
 <ol>
 <li>Grating, 1200 grooves/mm, Thorlabs GT50-12, $250</li>
 <li>200μm entrance slit, DIY-Optics.com, ~$30</li>
-<li>Plano Convex lenses (50 to 60mm fl for this design), ebay, ~$20</li>
+<li>Plano Convex lenses (50mm to 70mm bfl), ebay, ~$20</li>
 <li>SMA905 fitting, Amazon, Digikey, Mouser, Ebay ~$15</li>
 <li>Aluminum plate, OnlineMetals.com or Amazon</li>
 <li>Mounts produced with a 3-d printer</li>
@@ -565,48 +563,67 @@ The parts list for the above is:
 <li>TCD1304 sensor board and controller from this repo, with cables</li>
 </ol>
 
-Detailed discussions on designing a spectrometer are easily found by web search. We will mention a few important highlights as we go step by step through the design process for the above instrument.  Here is the geometry for reference.
+The following diagram shows the geometry for our instrument.  We have two lenses sandwiching a grating with an aperture at the focal point of the input and the sensor at the focal point of the output and oriented parallel to the grating. Functionally, at any specific wavelength within its operating range, the system images the aperture onto the sensor. The sensor which is an array of photodiodes samples the image.
 
 <p align="center">
 <img src="Images/SpectrometerTransmissionGeometry.jpg" width="60%">
 </p>
 
+We choose the **center wavelength** and **geometry** through the following equation, 
 
-First, let's choose a center wavelength.  For a grating with line density G (in lines/mm), the 1st order diffracted wavelength as a function of angle is given by
 <p align="center">
 λ<sub>0</sub> G = sin θ<sub>in</sub> + sin θ<sub>out</sub>. 
 </p>
 
-Setting the exit angle to zero (0) and our center wavelength at 500nm, with our 1200l/mm grating we have an incident angle of about 37 degrees. That happens to be the blaze angle for our grating, So, that works out very well.
+where G = 1200 l/mm is the line density of our grating.  Choosing our center wavelength at 500nm, the sum of the sines on the right is 0.6.  Setting the exit angle to zero (0) gives us an incident angle of about 37 degrees which happens to be the blaze angle for our grating.  
 
-The range in wavelength is set by the size of the detector and the focal length of the second lens,
+The **wavelength range** to be covered by the instrument is a function of  the geometry, the size of the detector and the focal length of the output (focusing) lens,
 
 <p align="center">
 G Δλ = cos(θ<sub>out</sub>) L<sub>D</sub>/L<sub>F</sub>
 </p>
 
-where L<sub>D</sub> is the length of the active region along the detector and L<sub>F</sub> is the focal length. We have G = 1,200 l/mm, θ<sub>out</sub> = 0, L<sub>D</sub> = 30mm and L<sub>F</sub> = 55mm fl. So our spectral range Δλ should be about 450nm.
+The size of the detector L<sub>D</sub> is about 30mm, the focal length at the output L<sub>F</sub> is 55mm and cos(0) = 1. So our spectral range Δλ should be about 450nm.
 
-For setup and alignment, the slit and sensor should be positioned at the foci of the lenses and the sensor should be parallel to the grating. (Note that the sensor is actually 0.7mm behind the face of its glass window.)
-You can use a flashlight and fiber as input to align the device. It should look like a well focused rainbow on the face of the sensor.
-An important concept is that the instrument in a sense, images the slit onto the detector.
-
-In this geometry, we have a magnification factor roughly equal to the ratio of the focal lengths of the lenses.
+The **optical resolution** for the system is a function of the geometry, the size of aperture, and the focal length of the input (collimating) lens,
 
 <p align="center">
-M = cos(θ<sub>in</sub>) L<sub>F</sub>/L<sub>C</sub>
+δλ = w<sub>slit</sub> cos(θ<sub>in</sub>) / G L<sub>C</sub>
 </p>
 
-That is about 0.8 for our geometry.  The TCD1304 pixel size is 8μmx200μm.  So a 200μm slit works makes good use of the pixel height but we give up some resolution.
+The focal length for the collimating lens L<sub>C</sub> is about 70mm, and cos(θ<sub>in</sub>) is 0.8.  So our optical resolution δλ should be about 10<sup>-5</sup> x w<sub>slit</sub>.  For a 200μm slit we expect δλ≈2nm.  A 50um slit would give us 0.5nm optical resolution.
+
+Now lets think about the sensor and spatial sampling.  Recall that the optical system images the slit onto the sensor.  The magnification factor **magnification M** is,
 
 <p align="center">
-δλ = cos(θ<sub>in</sub>) w<sub>slit</sub> / G L<sub>C</sub>
+M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>))(L<sub>F</sub>/L<sub>C</sub>)
 </p>
 
-where is w<sub>slit</sub> is the slit width.  For  w<sub>slit</sub>≈200μm and L<sub>C</sub>≈60mm, we expect δλ≈2.2nm.
+In other words with a slit w<sub>slit</sub> we illuminate a region of size  w<sub>slit</sub>M.   Aside, this corresponds to a spectral region of width δλ = w<sub>slit</sub>M Δλ/L<sub>D</sub> which reduces to the equation for δλ that we listed above for optical resolution.
 
-In the preceding sections, you can see spectra from the instrument and indeed, the range is about 450nm and the narrowest line widths are in the range of 2nm.
-Note that the wavelength range and pixel density set an effective limit on resolution.  For this instrument we have about 0.12nm per pixel.  A 25um slit would give an optical resolution of about 0.28nm, but spread across only 2 pixels.  
+And that brings to the **sampling limit**.  Generally for a 1% measurement we want 5 points per δλ.  For our instrument we have Δλ/L<sub>D</sub> = 0.015nm/um, pixel width = 8um, and therefor 0.12nm per pixel.  So, our best resolution for quantitative work is 5 x 0.12nm = 0.6nm and therefore a 60um slit.  The dynamic range for our instrument is 1,000.  For a 0.1% measurement, we would want 25 points per δλ and therefore a 200um slit.
+
+For one last consideration, let's check the **diffraction limit** for resolution.  For the lens system we have
+
+<p align="center">
+ δλ<sub>diff</sub> = 1.03 λ<sub>0</sub> M Δλ / 2 L<sub>D</sub> tan(NA)
+</p>
+and for the grating we have
+<p align="center">
+ δλ<sub>diff</sub> = 0.84 λ<sub>0</sub> cos(θ<sub>in</sub>) / 2 G L<sub>C</sub> tan(NA)
+</p>
+where NA = n θ is the numerical aperture, n is the index of refraction n and θ is the angular spread coming out of the aperture.
+
+Now, for a small aperture, θ ≈ λ<sub>0</sub>/w<sub>slit</sub> and for small angles, tan(θ) ≈ θ.  Therefore tan(θ) ≈ λ<sub>0</sub>/w<sub>slit</sub>.  Substituting this and the above relationships in the diffraction limit formulae, we can show that both diffraction limits are approximately 1/2 of the optical resolution.  Since the diffraction limit decreases with NA and NA is itself lower bounded by diffraction, we can safely write that
+
+<p align="center">
+ δλ<sub>diff</sub> ≤ δλ/2
+</p>
+
+In other words, for this instrument the diffraction limit should always be smaller than optical limit.
+
+That completes the design for our purposes.  Let's talk about construction. After settling on the parameters, I start with an Al sheet about 1/4" thick, and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex.  Then mounting one lens at a time, we use a flash light to find the location of the focus along its line. We install the aperture and sensor mounts in those locations and install the aperture, lenses, grating and sensor, making sure that the centers of the aperture, lenses, grating and sensor are all at the same height from the Al sheet.  We apply black tape to dampen stray reflections, connect the cables to the sensor.  and use the flashlight again, now through the aperture, to tweak the position of the sensor until a well focused rainbow appears on the sensing element array (located 0.7mm behind the face of its glass window).  Now we cover the instrument with a non reflective case, install and setup the software and take spectra.
+
 
 <br>
 
@@ -686,7 +703,7 @@ For best performance we want to match the output of the TCD1304DG to the input r
 </p>
 
 #### Single ended signal conditioning
-The following shows a reasonable approach for the front end circuit. We use a dual OPAMP, the ADA4807-2, slew 225μV/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.
+The following shows a reasonable approach for a simple shift, flip and amplify while accommodating the wide variation in output impedance of the sensor.  We use a dual OPAMP, the ADA4807-2, slew 225μV/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.  We use this approach for our 12 bit systems including the "all-in-one" and analog boards.
 
 <p align="center">
 <img src="Images/CCD_input_sketch.jpg" alt="CCD signal conditioning" width="80%">
