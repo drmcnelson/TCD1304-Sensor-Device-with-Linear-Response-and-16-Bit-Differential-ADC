@@ -50,7 +50,7 @@ The firmware and Python codes provided in this repo, can be used with any of the
 
 In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at \$40 and \$24 respectively and the PCB which generally runs around \$18/board in small quantities.
 
-#### Two board system, 16 bit sensor board and controller
+#### Two board system, 16 bit sensor boa ofrd and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic signals and VDD, and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
 
 <p align="center">
@@ -542,7 +542,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Construction
-The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 520nm.  The wavelength range is about 290nm to 740nm.  Optical resolution with a 200um slit is about 3nm.
+The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution with a 200um slit is about 2nm and about 0.5nm with a 50um slit.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="33%" height="auto">  
