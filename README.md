@@ -593,7 +593,7 @@ The **optical resolution** for the system is a function of the geometry, the siz
 
 The focal length for the collimating lens L<sub>C</sub> is about 70mm, and cos(θ<sub>in</sub>) is 0.8.  So our optical resolution δλ should be about 10<sup>-5</sup> x w<sub>slit</sub>.  For a 200μm slit we expect δλ≈2nm.  A 50um slit would give us 0.5nm optical resolution.
 
-Now lets think about the sensor and spatial sampling.  Recall that the optical system images the slit onto the sensor.  The magnification factor **magnification M** is,
+Now lets think about the sensor and **spatial sampling**.  Recall that the optical system images the slit onto the sensor.  The magnification factor **magnification M** is,
 
 <p align="center">
 M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>))(L<sub>F</sub>/L<sub>C</sub>)
@@ -601,10 +601,9 @@ M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>))(L<sub>F</sub>/L<sub>C</sub>)
 
 In other words with a slit w<sub>slit</sub> we illuminate a region of size  w<sub>slit</sub>M.   Aside, this corresponds to a spectral region of width δλ = w<sub>slit</sub>M Δλ/L<sub>D</sub> which reduces to the equation for δλ that we listed above for optical resolution.
 
-And that brings to the **sampling limit**.  Generally for a 1% measurement we want 5 points per δλ.  For our instrument we have Δλ/L<sub>D</sub> = 0.015nm/um, pixel width = 8um, and therefor 0.12nm per pixel.  So, our best resolution for quantitative work is 5 x 0.12nm = 0.6nm and therefore a 60um slit.  The dynamic range for our instrument is 1,000.  For a 0.1% measurement, we would want 25 points per δλ and therefore a 200um slit.
+Generally, for a 1% measurement we want 5 points per δλ.  For our instrument we have Δλ/L<sub>D</sub> = 0.015nm/um, pixel width = 8um, and therefor 0.12nm per pixel.  So, our best resolution for quantitative work is 5 x 0.12nm = 0.6nm and therefore a 60um slit.  The dynamic range for our instrument is 1,000.  For a 0.1% measurement, we would want 25 points per δλ and therefore a 200um slit.
 
-For one last consideration, let's check the **diffraction limit** for resolution.  For the lens system we have
-
+For one last consideration, let's check the **diffraction limit** for resolution.  For the focus we havee
 <p align="center">
  δλ<sub>diff</sub> = 1.03 λ<sub>0</sub> M Δλ / 2 L<sub>D</sub> tan(NA)
 </p>
@@ -614,15 +613,9 @@ and for the grating we have
 </p>
 where NA = n θ is the numerical aperture, n is the index of refraction n and θ is the angular spread coming out of the aperture.
 
-Now, for a small aperture, θ ≈ λ<sub>0</sub>/w<sub>slit</sub> and for small angles, tan(θ) ≈ θ.  Therefore tan(θ) ≈ λ<sub>0</sub>/w<sub>slit</sub>.  Substituting this and the above relationships in the diffraction limit formulae, we can show that both diffraction limits are approximately 1/2 of the optical resolution.  Since the diffraction limit decreases with NA and NA is itself lower bounded by diffraction, we can safely write that
+For a small aperture, θ ≈ λ<sub>0</sub>/w<sub>slit</sub>. For small angle we have tan(θ) ≈ θ.  Therefore tan(NA) ≈ λ<sub>0</sub>/w<sub>slit</sub> and both of our diffraction limit formulae reduce to approximately δλ/2.  In other words, for this instrument the diffraction limit should always be smaller than optical limit.
 
-<p align="center">
- δλ<sub>diff</sub> ≤ δλ/2
-</p>
-
-In other words, for this instrument the diffraction limit should always be smaller than optical limit.
-
-That completes the design for our purposes.  Let's talk about construction. After settling on the parameters, I start with an Al sheet about 1/4" thick, and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex.  Then mounting one lens at a time, we use a flash light to find the location of the focus along its line. We install the aperture and sensor mounts in those locations and install the aperture, lenses, grating and sensor, making sure that the centers of the aperture, lenses, grating and sensor are all at the same height from the Al sheet.  We apply black tape to dampen stray reflections, connect the cables to the sensor.  and use the flashlight again, now through the aperture, to tweak the position of the sensor until a well focused rainbow appears on the sensing element array (located 0.7mm behind the face of its glass window).  Now we cover the instrument with a non reflective case, install and setup the software and take spectra.
+That completes the design for our purposes.  Let's talk about construction. After settling on the parameters, we start with an Al sheet about 1/4" thick and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex.  Then mounting one lens at a time, we use a flash light to find the location of the focus along its line. We install the aperture and sensor mounts in those locations and install the aperture, lenses, grating and sensor, making sure that the centers of the aperture, lenses, grating and sensor are all at the same height from the Al sheet.  We apply black tape to dampen stray reflections, connect the cables to the sensor.  and use the flashlight again, now through the aperture, to tweak the position of the sensor until a well focused rainbow appears on the sensing element array (located 0.7mm behind the face of its glass window).  Now we cover the instrument with a non reflective case, install and setup the software and take spectra.
 
 
 <br>
