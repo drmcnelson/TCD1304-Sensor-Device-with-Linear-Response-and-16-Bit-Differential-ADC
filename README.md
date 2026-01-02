@@ -599,11 +599,9 @@ Now lets think about the sensor and **spatial sampling**.  Recall that the optic
 M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>))(L<sub>F</sub>/L<sub>C</sub>)
 </p>
 
-In other words with a slit w<sub>slit</sub> we illuminate a region of size  w<sub>slit</sub>M.   Aside, this corresponds to a spectral region of width δλ = w<sub>slit</sub>M Δλ/L<sub>D</sub> which reduces to the equation for δλ that we listed above for optical resolution.
+In other words a slit of width w<sub>slit</sub> illuminates a region of size  w<sub>slit</sub> x M on the detector.  This corresponds to a spectral region of width δλ = w<sub>slit</sub>M Δλ/L<sub>D</sub>.  Typically, for quantitative work we want that a feature be sampled by at least 5 pixels, i.e. we require that w<sub>slit</sub> ≥ 5 w<sub>pixel</sub>/M.   For our instrument, M = 0.63, w<sub>pixel</sub> = 8um and Δλ/L<sub>D</sub> = 0.015nm/um.   A 60um slit gives us our 5 pixels with 0.6nm resolution.  For more precise work, a 200um slit illuminates 25 pixels with 2nm resolution.
 
-Generally, for a 1% measurement we want 5 points per δλ.  For our instrument we have Δλ/L<sub>D</sub> = 0.015nm/um, pixel width = 8um, and therefor 0.12nm per pixel.  So, our best resolution for quantitative work is 5 x 0.12nm = 0.6nm and therefore a 60um slit.  The dynamic range for our instrument is 1,000.  For a 0.1% measurement, we would want 25 points per δλ and therefore a 200um slit.
-
-For one last consideration, let's check the **diffraction limit** for resolution. For the focus our diffraction limit is
+One more thing to check is that we are not asking for resolution that is better than our **diffraction limit**. For the focus the diffraction limit is
 <p align="center">
  δλ<sub>diff</sub> = 1.03 λ<sub>0</sub> M Δλ / 2 L<sub>D</sub> tan(NA)
 </p>
@@ -611,7 +609,7 @@ and for the grating we have
 <p align="center">
  δλ<sub>diff</sub> = 0.84 λ<sub>0</sub> cos(θ<sub>in</sub>) / 2 G L<sub>C</sub> tan(NA)
 </p>
-where NA = n θ is the numerical aperture, n is the index of refraction and θ ≈ λ<sub>0</sub>/w<sub>slit</sub> is the angular spread at the entrance and focus spot. Both of the diffraction limit formulae reduce to approximately δλ/2.  In other words, for this instrument δλ<sub>diff</sub> </= δλ/2.  The diffraction limit should always be smaller than optical limit.
+where NA = n θ is the numerical aperture, n is the index of refraction and θ ≈ λ<sub>0</sub>/w<sub>slit</sub> is the angular spread at the entrance and focus spot. Both of the diffraction limit formulae reduce to approximately δλ/2.  In other words, for this instrument δλ<sub>diff</sub> ≤ δλ/2.  The diffraction limit should always be smaller than optical limit.
 <br>
 
 That completes the design for our purposes.  Let's talk about construction. After settling on the parameters, we start with an Al sheet about 1/4" thick and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex.  Then mounting one lens at a time, we use a flash light to find the location of the focus along its line. We install the aperture and sensor mounts in those locations and install the aperture, lenses, grating and sensor, making sure that the centers of the aperture, lenses, grating and sensor are all at the same height from the Al sheet.  We apply black tape to dampen stray reflections, connect the cables to the sensor.  and use the flashlight again, now through the aperture, to tweak the position of the sensor until a well focused rainbow appears on the sensing element array (located 0.7mm behind the face of its glass window).  Now we cover the instrument with a non reflective case, install and setup the software and take spectra.
