@@ -542,7 +542,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Design and Construction
-The following describes a simple approach to designing a spectrometer, and in particular the specific instrument that we used to test the new sensor device.  We us a transmission grating and geometry rather than a reflective or folded geometry.   The transmission geometry is simpler and we are interested performance rather than size. The following pictures show (a) the insides of the instrument, sometimes referred to as the "optical bench" and (b) the cover which is constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution with a 200um slit is about 2nm and about 0.5nm with a 50um slit.
+The following describes a simple approach to designing a spectrometer, and in particular the specific instrument that we used to test the new sensor device.  We use a transmission grating (and geometry) rather than a reflective or folded geometry.   The transmission geometry is simpler and provides pretty good performance with reasonable cost. The following pictures show (a) the inside of the instrument, sometimes referred to as the "optical bench" and (b) the cover which is constructed of black opaque plastic.  The base is aluminum plate.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution with a 200um slit is about 2nm and about 0.6nm with a 60um slit.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="33%" height="auto">  
@@ -564,13 +564,13 @@ The parts list for the above is:
 </ol>
 
 ### Design of a CCD Spectrometer
-The following diagram shows the geometry for our instrument.  We have two lenses sandwiching a grating with an aperture at the focal point of the input and the sensor at the focal point of the output and oriented parallel to the grating. 
+The following diagram shows the transmission geometry.  Two lenses sandwich a grating with an aperture at the focal point of the input and the sensor at the focal point of the output and oriented parallel to the grating. 
 
 <p align="center">
 <img src="Images/SpectrometerTransmissionGeometry.jpg" width="60%">
 </p>
 
-A productive way to think of this is that the optical system images the aperture onto the sensor, the grating transforms wavelength to space and the sensor samples the resulting spatial pattern.
+A productive way to think of this is that the optical system images the aperture onto the sensor, the grating transforms wavelength to angle, and the sensor samples the resulting spatial pattern.
 
 #### The "master equation" and an essential criterion
 If there can be said to be a "master equation" for a CCD spectrometer, it would likely be the following 
@@ -579,8 +579,9 @@ If there can be said to be a "master equation" for a CCD spectrometer, it would 
 δλ/Δλ = M w<sub>slit</sub>/L<sub>D</sub> 
 </p>
 
-which relates the ratio of spectral resolution δλ to range Δλ, to that of the width of the slit w<sub>slit</sub> and detector L<sub>D</sub> 
-with optical magnification M given by
+wherein the ratio of spectral resolution δλ to range Δλ, is equal to that of the widths of the slit w<sub>slit</sub> and detector L<sub>D</sub> multiplied by the optical magnification M.
+
+The optical magnification contains a factor for the geometry multiplying the ratio of the two focal lengths,
 
 <p align="center">
 M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>)) x (L<sub>F</sub>/L<sub>C</sub>)
@@ -592,7 +593,7 @@ For a CCD detector, we have a fixed number of pixels N<sub>pixels</sub> with whi
 δλ/Δλ > 5/N<sub>pixels</sub>
 </p>
 
-For the TCD1304 we have 3648 active pixels in approximately 30nm of length, our limit is Δλ/δλ < 729.
+For the TCD1304 we have 3648 active pixels in approximately 30nm of length. Therefore we want Δλ/δλ < 729.
 
 <p style="margin-left:2em;margin-right:2em">
 
