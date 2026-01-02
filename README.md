@@ -17,7 +17,7 @@
 	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
 - [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
 - [Setup for linearity testing](#setup-for-linearity-testing)
-- [Spectrometer construction](#spectrometer-construction)
+- [Spectrometer design and construction](#spectrometer-design-and-construction)
 - [Electrical design (a tutorial)](#electrical-design)
 	+ [TCD1304DG electrical characteristics](#tcd1304dg-electrical-characteristics)
 	+ [Signal conditioning](#signal-conditioning)
@@ -541,8 +541,8 @@ The equipment list for our linearity study is as follows.  Construction of the s
 
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
-## Spectrometer Construction
-The following describes the instrument that we used to test the new sensor device.  The following pictures show (a) the "optical bench" and (b) the optical bench with housing constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution with a 200um slit is about 2nm and about 0.5nm with a 50um slit.
+## Spectrometer Design and Construction
+The following describes a simple approach to designing a spectrometer, and in particular the specific instrument that we used to test the new sensor device.  We us a transmission grating and geometry rather than a reflective or folded geometry.   The transmission geometry is simpler and we are interested performance rather than size. The following pictures show (a) the insides of the instrument, sometimes referred to as the "optical bench" and (b) the cover which is constructed of black opaque plastic.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  Equations for the center wavelength, range and resolution are described in the following. For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution with a 200um slit is about 2nm and about 0.5nm with a 50um slit.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="33%" height="auto">  
@@ -563,43 +563,91 @@ The parts list for the above is:
 <li>TCD1304 sensor board and controller from this repo, with cables</li>
 </ol>
 
-The following diagram shows the geometry for our instrument.  We have two lenses sandwiching a grating with an aperture at the focal point of the input and the sensor at the focal point of the output and oriented parallel to the grating. Functionally, at any specific wavelength within its operating range, the system images the aperture onto the sensor. The sensor which is an array of photodiodes samples the image.
+### Design of a CCD Spectrometer
+The following diagram shows the geometry for our instrument.  We have two lenses sandwiching a grating with an aperture at the focal point of the input and the sensor at the focal point of the output and oriented parallel to the grating. 
 
 <p align="center">
 <img src="Images/SpectrometerTransmissionGeometry.jpg" width="60%">
 </p>
 
-We choose the **center wavelength** and **geometry** through the following equation, 
+A productive way to think of this is that the optical system images the aperture onto the sensor, the grating transforms wavelength to space and the sensor samples the resulting spatial pattern.
+
+#### The "master equation" and an essential criterion
+If there can be said to be a "master equation" for a CCD spectrometer, it would likely be the following 
+
+<p align="center">
+δλ/Δλ = M w<sub>slit</sub>/L<sub>D</sub> 
+</p>
+
+which relates the ratio of spectral resolution δλ to range Δλ, to that of the width of the slit w<sub>slit</sub> and detector L<sub>D</sub> 
+with optical magnification M given by
+
+<p align="center">
+M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>)) x (L<sub>F</sub>/L<sub>C</sub>)
+</p>
+
+For a CCD detector, we have a fixed number of pixels N<sub>pixels</sub> with which to sample our spectra.  Quite obviously it serves little use to have a peak of width δλ occupying less than a few pixels.  In practice a good choice is 5 pixels.  Therefore we want that
+
+<p align="center">
+δλ/Δλ > 5/N<sub>pixels</sub>
+</p>
+
+For the TCD1304 we have 3648 active pixels in approximately 30nm of length, our limit is Δλ/δλ < 729.
+
+<p style="margin-left:2em;margin-right:2em">
+
+Example:<br>
+
+For 0.5nm resolution, our spectral range can be as large as 364.8nm.  To accomplish that with a 50um slit we need a  magnification of 0.82.
+
+</p>
+
+#### Center wavelength and geometry
+We might notice in the above that the magnification term is simply  the normal magnification (ratio of focal lengths) multiplied by a term for the  geometry as the ratio of the two angles.
+
+The geometry follows from our choice of the center wavelength, and our choice of grating, through the following equation, 
 
 <p align="center">
 λ<sub>0</sub> G = sin θ<sub>in</sub> + sin θ<sub>out</sub>. 
 </p>
 
-where G = 1200 l/mm is the line density of our grating.  Choosing our center wavelength at 500nm, the sum of the sines on the right is 0.6.  Setting the exit angle to zero (0) gives us an incident angle of about 37 degrees which happens to be the blaze angle for our grating.  
+where G is the line density for our grating.
 
-The **wavelength range** to be covered by the instrument is a function of  the geometry, the size of the detector and the focal length of the output (focusing) lens,
+<p style="margin-left:2em;margin-right:2em">
+Example:<br>
+  
+For a G = 1200 l/mm and a center wavelength of 500nm, we find that the sum of the sines is 0.6.   If we set the exit angle to 0, then we have θ<sub>in</sub> = 37 degrees.  That happens to be the blaze angle of our G1200 grating..
+</p>
+
+#### Focal lengths, range and resolution
+
+The spectral range to be covered by the instrument is a function of  the geometry, the size of the detector and the focal length of the output (focusing) lens,
 
 <p align="center">
 G Δλ = cos(θ<sub>out</sub>) L<sub>D</sub>/L<sub>F</sub>
 </p>
 
-The size of the detector L<sub>D</sub> is about 30mm, the focal length at the output L<sub>F</sub> is 55mm and cos(0) = 1. So our spectral range Δλ should be about 450nm.
+<p style="margin-left:2em;margin-right:2em">
+Example:<br>
+  
+We want a range of 364.8nm.  Therefore the right focusing lens will have a focal length L<sub>F</sub> = 1 x 30mm/(1200 l/mm x 364.8mm) ≈ 68mm.
+</p>
 
-The **optical resolution** for the system is a function of the geometry, the size of aperture, and the focal length of the input (collimating) lens,
+The spectral resolution is a function of the geometry, the size of aperture, and the focal length of the input (collimating) lens,
 
 <p align="center">
 δλ = w<sub>slit</sub> cos(θ<sub>in</sub>) / G L<sub>C</sub>
 </p>
 
-The focal length for the collimating lens L<sub>C</sub> is about 70mm, and cos(θ<sub>in</sub>) is 0.8.  So our optical resolution δλ should be about 10<sup>-5</sup> x w<sub>slit</sub>.  For a 200μm slit we expect δλ≈2nm.  A 50um slit would give us 0.5nm optical resolution.
-
-Now lets think about the sensor and **spatial sampling**.  Recall that the optical system images the slit onto the sensor.  The magnification factor **magnification M** is,
-
-<p align="center">
-M = (cos(θ<sub>in</sub>)/cos(θ<sub>out</sub>))(L<sub>F</sub>/L<sub>C</sub>)
+<p style="margin-left:2em;margin-right:2em">
+Example:<br>
+  
+We want a spectral resolution of 0.5nm with a 50um slit.  Therefore the right collimating lens will have a focal length L<sub>C</sub> = 50um x 0.8/(1200 l/mm x 0.5nm) ≈ 66mm.
 </p>
 
-In other words a slit of width w<sub>slit</sub> illuminates a region of size  w<sub>slit</sub> x M on the detector.  This corresponds to a spectral region of width δλ = w<sub>slit</sub>M Δλ/L<sub>D</sub>.  Typically, for quantitative work we want that a feature be sampled by at least 5 pixels, i.e. we require that w<sub>slit</sub> ≥ 5 w<sub>pixel</sub>/M.   For our instrument, M = 0.63, w<sub>pixel</sub> = 8um and Δλ/L<sub>D</sub> = 0.015nm/um.   A 60um slit gives us our 5 pixels with 0.6nm resolution.  For more precise work, a 200um slit illuminates 25 pixels with 2nm resolution.
+Notice that our angles and focal lengths agree with our expected magnification factor, (0.8/1) x (68/66) = 0.82
+
+#### Diffraction limit
 
 One more thing to check is that we are not asking for resolution that is better than our **diffraction limit**. For the focus the diffraction limit is
 <p align="center">
@@ -613,7 +661,13 @@ and for the grating we have
 where NA = n θ is the numerical aperture, n is the index of refraction and θ ≈ λ<sub>0</sub>/w<sub>slit</sub> is the angular spread at the entrance and focus spot. Both of the diffraction limit formulae reduce to approximately δλ/2.  In other words, for this instrument δλ<sub>diff</sub> ≤ δλ/2.
 <br>
 
-That completes the design, for our purposes.  Let's talk about construction. After settling on the parameters, we start with an Al sheet about 1/4" thick and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex.  Then mounting one lens at a time, we use a flash light to find the location of the focus along its line. We install the aperture and sensor mounts in those locations and install the aperture, lenses, grating and sensor, making sure that the centers of the aperture, lenses, grating and sensor are all at the same height from the Al sheet.  We apply black tape to dampen stray reflections, connect the cables to the sensor.  and use the flashlight again, now through the aperture, to tweak the position of the sensor until a well focused rainbow appears on the sensing element array (located 0.7mm behind the face of its glass window).  Now we cover the instrument with a non reflective case, install and setup the software and take spectra.
+That completes the design, for our purposes.  
+
+#### Construction
+
+After settling on the parameters and digging through our box of lenses and gratings and aluminum plate, and perhaps ordering a few thing from ebay or Thorlabs, it is time to build the spectrometer.  In our case we happen to have two 66mm plano convex lenses and a 1200 l/mm grating with a blaze angle 37 degrees and aluminum plate about 10" x 6" x 1/4".
+
+We start with our Al plate and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex to leave space for the grating housing.  We 3-d printed the mounts for the grating and lenses.  Then, mounting one lens at a time, we use a flash light to find the location of the focus of each lens along its line. That is where the aperture and sensor will be located. Note that the sensor is actually 0.7mm behind the face of its window.  We drill the remaining mounting holes, install everything, apply black tape to dampen stray reflections, and connect the cables to the sensor. We tweak the location of the sensor while monitoring the spectrum with the software with a fluorescent lamp as input.  Now we cover the instrument with a non reflective case, save a fluorescent spectrum and calculate the coefficients to convert pixel number to wavelength and load them into the instrument (see the firmware command "coefficients").
 
 
 <br>
