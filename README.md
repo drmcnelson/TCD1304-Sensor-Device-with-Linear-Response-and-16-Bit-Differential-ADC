@@ -930,11 +930,11 @@ In the following figure we measure the carry-over intensity as a function of the
 <p align="center">
 <img src="Images/Carryover_time_voltage.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-Carry-over decreases with SH pulse width.
+Initial carry-over is reduced with adequate SH pulse width.
 </p>
 </p>
 
-In this figure we pulse the shift gate a few times before we start the exposure.  Effectively this is like a series of short exposures, each leaving a percent or so of residual charge.  In other words absent confounding effects it is reasonable to expect that the the curve should be exponential.  In principle we might reduce the carry over to 0.1\%.  Perhaps more practically, 8 clearing pulses reduces the carry over to about 1/2\%.
+In the next figure we pulse the shift gate a few times before we start the exposure.  Effectively this is like a series of short exposures, each leaving a percent or so of residual charge.  In other words absent confounding effects it is reasonable to expect that the carry-over should decrease exponential in the number of pulses and approach an asymptote.  The data suggests that in principle we might reduce the carry over to 0.1\%.  In practice we use 4-8 clearing pulses to reduce the carry-over to 1% to 1/2\%.
 
 <p align="center">
 <img src="Images/Carryover_pulse_voltage_all.jpg" width="65%">
