@@ -30,7 +30,7 @@
 
 This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
   
-The sensor device is offered in three versions (high-end 16 bit, lower cost 12 bit, and analog), along with firmware ("sketch" file and header library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three versions of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response over 5 orders of magnitude in exposure time (from 10usec) in clocked or triggered data collection.
+The sensor device is offered in three versions (high-end 16 bit, lower cost 12 bit, and analog), along with firmware ("sketch" file and header library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three versions of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response.  With the 16 bit system we have obtained linear reproducible results over 5 orders of magnitude in exposure time (from 10usec) in clocked and triggered data collection.
  
 Reproducibility is fundamental to doing science, and especially so when it comes to collecting data that we plan to include in a paper.  Other researchers should find the same spectra, the same ratios of peak heights, the same yields, and so forth.  As is well known, meeting these basic criteria has been a challenge for CCD spectrometers since their inception in the late 1980's. (We will show examples of this in a widely used commercial instrument.) Needless to say, this touches on the basic question of whether a dataset is meaningful. But if these issues were addressed, CCD spectrometers with their "all at once" spectral capability and potentially low cost, would be an important contribution to the scientist's toolbox.
 The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible.
@@ -48,10 +48,12 @@ We begin with a summary of what is contained in the rest of the readme and repo.
 We provide three implementations of the sensor system hardware (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
 The firmware and Python codes provided in this repo, can be used with any of the three hardware implementations.
 
-In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at \$40 and \$24 respectively and the PCB which generally runs around \$18/board in small quantities.
+In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at
+\$40 and \$24 respectively
+and the PCB which generally runs around \$18 per board in small quantities (including tariffs).
 
 #### Two board system, 16 bit sensor boa ofrd and controller
-The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The boards are interconnected by a ribbon cable for logic signals and VDD, and a separate two wire cable for 5V power. Fiduciary marks on both sides of the sensor board facilitate optical alignment.
+The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The ribbon cable carries logic signals and power for the SPI interface (1.7V-5.1V).  The two wire connection (red and black) is 5V power. Internally, there are separate low noise power circuits and ground planes for the analog section and gate drivers. We observe 0.6mV dark noise, electrical noise is more than 10 times lower (less than 1 LSB with the sensor removed). And the board is able to linearly follow peaks to full scale in one pixel.  Fiduciary marks on both sides of the sensor board facilitate optical alignment.
 
 <p align="center">
 <img src="Images/TCD1304_sensor_top_bottom.jpg" width="75%">
@@ -63,13 +65,14 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </i>
 </p>
 </p>
-Component costs for the high end 16bit system are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
+Component costs for the high end 16-bit system are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
 
-We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.  With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
+We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.
+With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
  
 
 #### "All-in-one", sensor and controller on a single board.
-The following shows the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision using a single ended analog signal path and the built-in analog input of the Teensy 4.0 (and therefore fewer parts).
+The following shows the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision.  It has a single ended analog signal path and uses the built-in analog input of the Teensy 4.0 (and therefore has fewer parts, costs less and is easier to hand assemble).
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
@@ -84,7 +87,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 The component costs are currently \$86 including TCD1304 and Teensy, plus \$18 for the PCB, for a total of \$104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
 #### Analog sensor board with gate drivers
-The following shows the analog sensor board which hosts the sensor with the single ended analog circuit and gate drivers similar to that used in the "all-in-one" board shown in the preceding. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic. Alternatively, by opening a jumper, the gate and analog sections can be powered separately.  The output is intended to be compatible with typical Arduino board analog inputs.  It is recommended to use the Teensy, but an ARM processor with sufficiently fast cpu should work also.
+The following shows our analog-output sensor board.  This also has the single ended analog circuit as in the all-in-one board, and similar gate drivers. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic to operate the CCD gates.  We developed this board to provide a better and actually useful alternative to the analog boards offered on some DIY sites.  The output is intended to be compatible with the inputs of typical processor boards in the Arduino ecosystem, but linearity and ability to meet the clocking requirements for the CCD sensor will depend on which Arduino ecosystem board and firmware you choose to use.   Running the board from our Teensy 4.0 controller and firmware, we found that it has very good linearity and, similar to the above, it is able to track peaks to full scale in one pixel.
 
 <p align="center">
 <img src="Images/TCD1304_Analog.top.p600.jpg" width="37%">
@@ -293,10 +296,10 @@ Now you can run the controller program.
 
     $ TCD1304Controller.py
 
-The controller should open a grahics window.  The desktop will look something like this (this is from an earlier instrument with similar software):
+The controller should open a grahics window.  The desktop will look something like this.
 
 <p align="center">
-<img src="Images/TCD1304_desktop.jpg" width="60%">
+<img src="Images/Screenshot_from_2026-01-04_17-29-11.jpg" width="60%">
 </p>
 
 Notice that in the console window, we have a prompt.  This is the command line interface presented by the Python program.  The Python CLI provides commands to wait, save to disk, run commands from a file, run shell commands, and etc., and passes all other commands to the hardware.  The command **help**, produces a listing of the commands recognized by the hardware and Python CLIs.   A listing of the help output can be found in the repo [here](Python/TCD1304.help).  A summary of some of the most often used commands can be found at the [bottom of this readme](#appendix-a---quick-command-list).
@@ -374,7 +377,7 @@ So far we have talked about linear reproducible response to the signal produced 
 Let's look at some data.
 
 ### Spectra
-The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).  Notice that narrow spectral lines are stronger in the spectrum produced by the present design. The effect becomes especially clear at shorter wavelengths.  (For a gas phase lamp with δλ/λ broadening, lines are naturally sharper at shorter wavelengths.)
+The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).   Notice that in each instrument the lines at 546nm and 611nm are similar in height.  But whereas the line at 436nm which in the new instrument is about twice the height of the 546 nm line, in the commercial instrument it is attenuated by a factor of 4.  The lines at 436nm and 546nm correspond to well known lines of Hg I and their tabulated intensity ratio is actually 2:1 [("Strong lines of Mercury", NIST)](https://www.physics.nist.gov/PhysRefData/Handbook/Tables/mercurytable2.htm).
 
 <p align="center" >
 <img src="Images/SpectralResponseComparison.jpg" width="90%">
@@ -386,10 +389,13 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-The following is the spectrum from above from the new instrument,expanded to show the detail structure around 590nm and 615nm. The change of scale is needed because the scale in the above rendering is dominated by the strong response to the lines at 435nm and 546nm in the new instrument.
+This seems like a simple test.  But it is important to look closely.  One way to alter the spectrum is to simply misalign the sensor.  But then the effect should be systematic.  In this instance the intensities of the other lines seem inconsistent with the large difference in the 436nm line.  (For example, see the 487nm line compared to the other lines.)
 
+Though it requires some care in interpretation, if you are considering a spectrometer or sensor board, we feel that you should always insist on seeing a well resolved fluorescent lamp spectrum.
+
+The following shows the spectrum from the new instrument with the y axis expanded so that we can see the structure in the region around 590nm. We see that the lines are a little sharper compared to the commercial instrument.
 <p align="center" >
-<img src="Images/Desklamp_ND0700_0.025sec.zoom.jpg" width="55%">
+<img src="Images/Desklamp_ND0700_0.025sec.zoom.jpg" width="35%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>Spectrum from the new instrument with expanded intensity scale to show detail around 590nm and 615nm.
@@ -400,7 +406,7 @@ The following is the spectrum from above from the new instrument,expanded to sho
 ### Intensity
 The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra for the present design and the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.  The vertical scale for the present design is volts read from the sensor.
 
-In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. In the present design, the curves are indeed straight lines from near the origin until near the limiting output voltage of the sensor.   For the commercial instrument, most of the range is not linear.  We will see more explicitly, how this effects relative peak heights.
+In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. In the present design, the curves are indeed straight lines from near the origin until near the limiting output voltage of the sensor.   For the commercial instrument, most of the range is not linear.  We will see more explicitly how this effects relative peak heights.
 
 <p align="center" >
 <img src="Images/Comparison_peaks.jpg" width="90%">
@@ -408,21 +414,6 @@ In a linear instrument, all of these intensities should rise linearly with expos
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
 Intensity versus exposure time for four spectral lines for (a) the present design and (b) the commercial instrument.   The present design demonstrates linear response.
-</i>
-</p>
-</p>
-
-### Normalized response
-
-Lets look at the normalized response for these lines.  Dividing by exposure time, we expect the curves to be flat or at least monotonically increasing until saturation.  Our new instrument does indeed exhibit flat response until saturation.  The commercial instrument is not monotonic.
-
-<p align="center" >
-<img src="Images/Comparison_responses.jpg" width="90%">
-<br>
-<p align="center" style="margin-left:5em;margin-right:5em">
-<i>
-Normalized response for (a) the present design and (b) the commercial instrument. <br> In the present design (a) the line at 546nm clips at 0.6 sec, see the "Intensity" graph above.
-(The first few points are effected by noise for this incident intensity.)
 </i>
 </p>
 </p>
@@ -465,10 +456,10 @@ Fluorescent lamp spectrum.<br>
 In studies of dynamic phenomenon, we are interested in the intensity registered in the detector during the time of a particular exposure.
 In CCD detectors there is always some charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  In steady state phenomenon this effect can balance out after a few frames. As noted above, a detailed discussion is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
 
-### On the origins of non-linearity and electrical characteristics of CCD spectrometers
-The following provides some insight into how the above phenomena may emerge in a CCD spectrometer (or imaging system) and how they can be addressed.  For simplicity of exposition, we can think in terms of a simplified notional CCD sensor architecture. (The full TCD1304 architecture is described in a later section.)  Note that here we are discussing only the analog response.
+### A potential source of non-linearity in CCD spectrometers
+The following provides some insight into how the above phenomena may emerge in a CCD spectrometer (or imaging system) and how this can be addressed.  For simplicity of exposition, we can think in terms of a simplified notional CCD sensor architecture. (The TCD1304 architecture is described further in a later section.)
 
-The following depicts a circuit model for our simplified linear CCD. An array of pixels each compromising a photodiode and capacitor connected by a switch to one element of an analog shift register.
+The following depicts a circuit model for our simplified linear CCD, an array of pixels each compromising a photodiode and capacitor connected by a switch to one element of an analog shift register.
 
 <p align="center">
 <img src="Images/Device_simplified_single_channel.jpg" alt="CCD Readout" width="45%">
@@ -477,7 +468,7 @@ The following depicts a circuit model for our simplified linear CCD. An array of
 </p>
 </p>
 
-The following shows a pixel in our simplified notional CCD, pink indicates n-doping. The shift gate (SH) moves charge from the photodiode region to the shift register.  The electrode labeled φ belongs to the readout register.
+The following shows a pixel in our simplified notional CCD, pink indicates n-doping. The shift gate (SH) opens a channel and biases the shift register to harvest charge from the photodiode.  The electrode labeled φ belongs to the readout register.
 
 <p align="center">
 <img src="Images/DeviceInternals_pixel.jpg" alt="CCD Readout" width="25%">
@@ -489,12 +480,12 @@ The following depicts the process for moving charge along the readout register (
 <img src="Images/ccdclockedreadout.jpg" alt="CCD Readout" width="70%">
 </p>
 
-A this juncture, the important point is that a CCD records a discrete spatial patten of light in space (or wavelength) and on readout presents this pattern as a discrete series of voltages in time.  Accordingly, a sharp spectral line becomes a short pulse in time.  And that is what makes spectroscopy different from other signal acquisition scenarios.
+An important point for the present discussion is that the CCD records a discrete patten of light in space (or wavelength) and on readout this pattern becomes a discrete series of voltages in time.  Accordingly, a sharp spectral line becomes a short pulse in time.  This is what makes spectroscopy different from other signal acquisition scenarios.
 
 #### What does this mean for circuit design?
-In designing circuits for acoustics or radio frequency work, we might think in terms of a Nyquist frequency and we might accept some small non-linearity for signals approaching this "cutoff". But in a CCD spectrometer (or imaging system) a full scale step in voltage from one sample to the next can be a legitimate feature that has to rendered to a meaningful digital representation. We can think of this in terms in of bandwidth or dV/dt.
+In designing circuits for acoustics or radio frequency work, we might think in terms of a Nyquist frequency and we might accept some small non-linearity for signals approaching this "cutoff". But in a CCD spectrometer (or imaging system) a full scale step in voltage from one sample to the next can be a legitimate feature that has to be rendered to a meaningful digital representation. We can think of this in terms of bandwidth (units of 1/t) or in terms of dV/dt (units of V/t).
 
-For bandwidth considerations, we graph the Fourier transform of the above spectrum (blue) with the response curve (orange, y2 axis) for a simple low pass filter (single pole) with cutoff frequency at 1/2 of the sample rate much. We find that naive filtering produces only about 10% attenuation for the high frequency components that may be important for linear response to narrow spectral lines.
+The following graph shows the Fourier transform of the above spectrum (blue) and the response curve (orange, y2 axis) for a simple single pole low pass filter with cutoff frequency at 1/2 of the sample rate. Naive filtering of this sort results in about 10% attenuation for the high frequency components that may be important for linear response to narrow spectral lines.
 
 <p align="center">
 <img src="Images/Fl_0.02s_frameset64.20250710.101229.398269.lccd.rfft-tscaled.jpg" alt="CCD Readout" width="40%">
@@ -505,7 +496,7 @@ Fourier transform of the fluorescent lamp spectrum (blue) and single pole f/2 fi
 </p>
 </p>
 
-A perhaps more revealing way to look at this is through dV/dt. Here we graph the spectrum as dV/dt versus time corresponding to sensor readout. The spectral line at 435nm that is markedly stronger in the present design instrument also has the largest dV/dt.
+Now let's look at dV/dt. Here we graph the spectrum as dV/dt versus time (as read from the sensor). The spectral line at 436nm that is markedly stronger in the present design instrument also has the largest dV/dt.
 In electronics, dV/dt is related to *slew*.
 
 <p align="center">
@@ -520,7 +511,7 @@ First derivative (dV/dt) of the fluorescent lamp spectrum.
 Circuits can be slew-limited through the choice of OPAMP and by any of several ways of current starving the sampling capacitor in the input stage to the ADC.
 Maximum slew and output current are characteristics usually listed in the datasheet for an OPAMP. But circuit design can limit slew as well.
 
-For purposes of a scientific instrument, we require linear behavior for dV/dt spanning the full range of lines that we might see in our measurements. There are some surprising challenges to this which we discuss in the section on electrical design.
+For purposes of a scientific instrument, we require linear behavior for dV/dt spanning the full range of lines that we might see in our measurements. There are some surprising challenges to accomplishing this which we discuss in the section on electrical design.
  
 ---
 ## Setup for linearity testing
@@ -542,7 +533,9 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Design and Construction
-The following describes a simple approach to designing a spectrometer, and in particular the specific instrument that we used to test the new sensor device.  We use a transmission grating (and geometry) rather than a reflective or folded geometry.   The transmission geometry is simpler and provides pretty good performance with reasonable cost. The following pictures show (a) the inside of the instrument, sometimes referred to as the "optical bench" and (b) the cover which is constructed of black opaque plastic.  The base is aluminum plate.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution with a 200um slit is about 2nm and about 0.6nm with a 60um slit.
+The following describes a simple approach to designing a spectrometer, and in particular the instrument that we used to test the new sensor device.  We will see that the choice of lenses and grating emerge in a simple way from the choice of spectral range and the size and pixel density of the sensor.
+
+For our design, we use a transmission grating rather than a reflecting grating and folded geometry. The transmission geometry is simpler and provides good performance with reasonable cost. The following pictures show (a) the inside of the instrument, sometimes referred to as the "optical bench" and (b) the cover which is constructed of black opaque plastic.  The base is aluminum plate.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution is about 0.5nm with a 50um slit.
 
 <p align="center">
 <img src="Images/SpectrometerAssembly_cropped.jpg" alt="Spectrometer Assembly" width="33%" height="auto">  
@@ -604,12 +597,12 @@ For 0.5nm resolution, our spectral range can be as large as 364.8nm.  To accompl
 </p>
 
 #### Center wavelength and geometry
-We might notice in the above that the magnification term is simply  the normal magnification (ratio of focal lengths) multiplied by a term for the  geometry as the ratio of the two angles.
+We noted in the above that the magnification term is simply the normal magnification (ratio of focal lengths) multiplied by a term for the  geometry as the ratio of the two angles.
 
 The geometry follows from our choice of the center wavelength, and our choice of grating, through the following equation, 
 
 <p align="center">
-λ<sub>0</sub> G = sin θ<sub>in</sub> + sin θ<sub>out</sub>. 
+G λ<sub>0</sub> = sin θ<sub>in</sub> + sin θ<sub>out</sub>. 
 </p>
 
 where G is the line density for our grating.
@@ -617,7 +610,7 @@ where G is the line density for our grating.
 <p style="margin-left:2em;margin-right:2em">
 Example:<br>
   
-For a G = 1200 l/mm and a center wavelength of 500nm, we find that the sum of the sines is 0.6.   If we set the exit angle to 0, then we have θ<sub>in</sub> = 37 degrees.  That happens to be the blaze angle of our G1200 grating..
+For G = 1200 l/mm and a center wavelength of 500nm, we find that the sum of the sines is 0.6.   If we set the exit angle to 0, then we have θ<sub>in</sub> = 37 degrees. (A 1200 lines/mm, 500&nbsp;nm glass transmission grating will usually be blazed at 37 degrees.  See Thorlabs or eBay.)
 </p>
 
 #### Focal lengths, range and resolution
@@ -637,7 +630,7 @@ We want a range of 364.8nm.  Therefore the right focusing lens will have a focal
 The spectral resolution is a function of the geometry, the size of aperture, and the focal length of the input (collimating) lens,
 
 <p align="center">
-δλ = w<sub>slit</sub> cos(θ<sub>in</sub>) / G L<sub>C</sub>
+G δλ = cos(θ<sub>in</sub>) w<sub>slit</sub> / L<sub>C</sub>
 </p>
 
 <p style="margin-left:2em;margin-right:2em">
@@ -666,9 +659,7 @@ That completes the design, for our purposes.
 
 #### Construction
 
-After settling on the parameters and digging through our box of lenses and gratings and aluminum plate, and perhaps ordering a few thing from ebay or Thorlabs, it is time to build the spectrometer.  In our case we happen to have two 66mm plano convex lenses and a 1200 l/mm grating with a blaze angle 37 degrees and aluminum plate about 10" x 6" x 1/4".
-
-We start with our Al plate and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex to leave space for the grating housing.  We 3-d printed the mounts for the grating and lenses.  Then, mounting one lens at a time, we use a flash light to find the location of the focus of each lens along its line. That is where the aperture and sensor will be located. Note that the sensor is actually 0.7mm behind the face of its window.  We drill the remaining mounting holes, install everything, apply black tape to dampen stray reflections, and connect the cables to the sensor. We tweak the location of the sensor while monitoring the spectrum with the software with a fluorescent lamp as input.  Now we cover the instrument with a non reflective case, save a fluorescent spectrum and calculate the coefficients to convert pixel number to wavelength and load them into the instrument (see the firmware command "coefficients").
+After settling on the parameters and digging through our box of lenses and gratings and aluminum plate, and perhaps ordering a few thing from ebay or Thorlabs, it is time to build the spectrometer.  We start with our Al plate and draw two lines intersecting at the selected angle for the incoming and outgoing optical axes.  The vertex is where the grating will be mounted.  Then holes are drilled to mount the lenses, each at about 20 to 30 mm from that vertex to leave space for the grating housing.  We 3-d printed the mounts for the grating and lenses.  Then, mounting one lens at a time, we use a flash light to find the location of the focus of each lens along its line. That is where the aperture and sensor will be located. Note that the sensor is actually 0.7mm behind the face of its window.  We drill the remaining mounting holes, install everything, apply black tape to dampen stray reflections, and connect the cables to the sensor. We tweak the location of the sensor while monitoring the spectrum with the software with a fluorescent lamp as input.  Now we cover the instrument with a non reflective case, save a fluorescent spectrum and calculate the coefficients to convert pixel number to wavelength and load them into the instrument (see the firmware command "coefficients").
 
 
 <br>
@@ -922,41 +913,43 @@ Light produces charge, pulsing the shift gate moves charge to the shift register
 <img src="Images/DeviceInternals_shiftout.gif" width="60%">
 </p>
 
-Here is an example of what this effect can look like in practice.  In this figure we show two spectra; blue is the spectrum of a red LED and orange is the next frame after the LED has been turned off.  The frames and LED are timed to ensure that we are not looking at the relaxation tail in the LED or its driver circuit.  The data is collected with no clearing pulses.  We find that the carry-over image in the detector is a faithful scaled though somewhat noisier copy of the preceding frame.
+We will now what this effect can look like in practice.  The data in this section were collected using the analog sensor board so that we can vary the voltage on shift gate.  The sensor is operated by the controller with the standard firmware included in the repo. We use the low level pulse commands to vary the pulse width.  We coded a timing generator into another Teensy to turn on a red LED in every other frame.    The LED is on for 1.8msec starting 1msec into the first of each pair of rames, each frame is 10msec exposure back to back.
+
+The following shows data obtained with the LED turned on (in blue) and then off (orange) per the above description.  The data is collected with a 1usec 4V shift pulse. Numerically, we find that the carry-over image is a faithful copy of the preceding frame though noisier and on a reduced scale.
 
 <p align="center">
-<img src="Images/pulsewidth_study_0.2us.20250918.131309.022768.lccd.jpg" width="65%">
+<img src="Images/Analog_RedLED_4.0V_SH0.5usec_ICG2.6usec_0pulses.260106.carryover.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 LED spectrum, orange curve is with LED off.
 </p>
 </p>
 <br>
 
-In the following figure we measure the carry-over intensity as a function of the width of the pulse applied to the shift gate.  We find that the "carry-over" signal decreases with an exponential time constant that corresponds to that of the charging curve for the shift gate and its driving circuit, 600 pf x 82 ohms = 49 nsec.  In other words, phenomenologically the carry-over signal seems to follow the voltage that would be reached on the SH gate by the end of the pulse. By 500 nsecs we are close to the lower limit for a single SH pulse.
+In the following figure we measure the carry-over intensity as a function of the width of the pulse applied to the shift gate and at several voltages.  We find that the "carry-over" signal decreases with an exponential time constant similar to that of the charging curve for the shift gate and its driving circuit.  In this case we have a 100ohm series resistor in series and the 600 pf capacitance of the SH gate, and thus a time constant of 60 nsec.
 
 <p align="center">
-<img src="Images/CarryOver_PulseWidth.jpg" width="65%">
+<img src="Images/Carryover_time_voltage.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 Carry-over decreases with SH pulse width.
 </p>
 </p>
 
-In this next figure, we pulse the shift gate a few times before we start the exposure, the hypothesis being that the carry over follows the distribution of charge in an electric field, and assuming it is cleared away by the clear gate between pulses, that we can clear more of the left over charge by repeatedly pulsing the shift gate.  Accordingly, we expect to reach an asymptotic limit. We see that indeed for pulse lengths of 1usec or greater, the behavior is fairly consistent and we can reduce the carry-over to 1% of the signal from the preceding exposure.
+In this figure we pulse the shift gate a few times before we start the exposure.  Effectively this is like a series of short exposures, each leaving a percent or so of residual charge.  In other words absent confounding effects it is reasonable to expect that the the curve should be exponential.  In principle we might reduce the carry over to 0.1\%.  Perhaps more practically, 8 clearing pulses reduces the carry over to about 1/2\%.
 
 <p align="center">
-<img src="Images/CarryOver_N.jpg" width="65%">
+<img src="Images/Carryover_pulse_voltage_all.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 Carry-over decreases with number of SH (clearing) pulses.
 </p>
 </p>
 
+
 #### Mitigation
-We can see that carry-over, in most instances will be a necessary part of the physics of the CCD detector device. But the effect is linear reproducible.  This means that for simple back-to-back exposures recording steady state spectra, the net effect can be essentially zero after the first few frames. For kinetic studies we need to take a little more care.
+We can see that carry-over, in most instances will be a necessary part of the physics of the CCD detector device. But the effect is linear and reproducible and it can be made small.  Nonetheless, there are situations where we need to take this into account, for example in studying kinetics. 
 
-We also see that clearing pulses can reduce the effect to 1%. 
-In our lab, we usually setup our triggered data collections to include  a few blank exposures on the principle that 1% of a small number is a very small number.  For a timed series of exposures we might configure clearing pulses depending on the time scale, and if needed we can calibrate the carry over and remove it in post processing.  Other mitigation strategies are possible depending on how you design your experiment.
+In our lab we typically setup our triggered data collections to include  a few blank exposures, a small carry-over from a dark frame is smaller than the dark signal by definition.  For a timed series of exposures we might configure clearing pulses, depending on the time scale, and if needed we can calibrate the carry-over and remove it in post processing.  Other mitigation strategies are possible depending on how you design your experiment.
 
-Following the dictum "always preserve primary data" we refrain from doing data manipulation inside the instrument.  This is easily done off line, using the program and class library DataReader.py which also  provides 2-d and 3-d graphics.
+Following the dictum "always preserve primary data" we refrain from doing data manipulation inside the instrument.  This is easily done off line, using the program and class library DataReader.py.
 
 ***
 ## Appendix A - Quick command list
