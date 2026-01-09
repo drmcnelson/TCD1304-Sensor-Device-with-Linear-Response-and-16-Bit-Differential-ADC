@@ -787,7 +787,7 @@ PNP and NPN followers driving the ADC sampling capacitor.
 </p>
 </p>
 
-Compounding the above, the above holds true provided are not asking for too much current.  As we approach the quiescent emitter current, the transistor begins to turn off and we increasingly current-starve the sampling capacitor and reduce the maximum slew rate. This is summarized in the following table.
+Compounding the above, the above holds true provided we are not asking for too much current.  As we approach the quiescent emitter current, the transistor begins to turn off and we increasingly current-starve the sampling capacitor and reduce the maximum slew rate. This is summarized in the following table.
 
 <p align="center">
 <table style="width:50%;margin: 0px auto;"">
