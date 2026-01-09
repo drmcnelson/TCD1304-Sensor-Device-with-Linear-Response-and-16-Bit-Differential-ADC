@@ -766,7 +766,7 @@ And with a very large R<sub>2</sub>, the pole formed with the input capacitance 
 #### Another don't-do circuit
 This another circuit that shows up in the DIY ecosystem.  In many textbooks it is the first transistor circuit that we encounter.  There we typically learn about their non-linearities and asymmetries in sinking and sourcing current and what happens when driving a capacitive load. This is what we need to think about when we try to build a spectrometer with an emitter follower as the in-between for the sensor and ADC.
 
-The following shows the emitter follower with a PNP transitor (left) and with an NPN (right).  The datasheet for the sensor shows the circuit on the left. This is the least circuit that could be provided and it is not a good match for our use case, to drive an ADC for a spectrometer. 
+The following shows the emitter follower with a PNP transitor (left) and with an NPN (right).  The datasheet for the sensor shows the circuit on the left. This is the least circuit that could be provided and it is not a good match for our use case, to drive an ADC for a spectrometer.
 
 <p align="center">
 <img src="Images/BJT_followers_white.jpg" alt="CCD signal conditioning" width="40%">
@@ -787,7 +787,7 @@ PNP and NPN followers driving the ADC sampling capacitor.
 </p>
 </p>
 
-Compounding the above, we have two operating regimes depending on how much current we are asking the PNP(NPN) to source(sink).  If greater than the quiescent emitter current, the transistor turns off and in effect current-starves the sampling capacitor and changes the maximum slew rate.   This is summarized in the following table which lists the maximum slew rates for the PNP and NPN in each of the two regimes.
+Compounding the above, the above holds true provided are not asking for too much current.  As we approach the quiescent emitter current, the transistor begins to turn off and we increasingly current-starve the sampling capacitor and reduce the maximum slew rate. This is summarized in the following table.
 
 <p align="center">
 <table style="width:50%;margin: 0px auto;"">
@@ -812,13 +812,13 @@ $\left(\frac{dV}{dt}\right)_{max} = \frac{V_{out}}{R_L}\frac{1}{C_L}$
 </tr>
 <tr>
 <td>
-$\frac{ \Delta V_{ in } } {R_L}\gt {\small I_{E}}\text{\small (quiesc)}$
+$\frac{ \Delta V_{ in } } {R_L}\rightarrow {\small I_{E}}\text{\small (quiesc)}$
 </td>
 <td style="text-align:center">
-$\left(\frac{dV}{dt}\right)_{max} = \left(\frac{V_{EE}-V_{out}}{R_E+R_L}\right)\frac{1}{C_L}$
+$\left(\frac{dV}{dt}\right)_{max} \rightarrow \left(\frac{V_{EE}-V_{out}}{R_E+R_L}\right)\frac{1}{C_L}$
 </td>
 <td style="text-align:center">
-$\frac{dV}{dt}_{max} = \frac{V_{out}}{R_E+R_L}\frac{1}{C_L}$
+$\frac{dV}{dt}_{max} \rightarrow \frac{V_{out}}{R_E+R_L}\frac{1}{C_L}$
 </td>
 </tr>
 </table>
@@ -827,9 +827,9 @@ $\frac{dV}{dt}_{max} = \frac{V_{out}}{R_E+R_L}\frac{1}{C_L}$
 
 Now the question is, how well does (or, can) this work in a practical case?  For 16 bits of accuracy and a 0.5usec sampling window, we need a maximum slew of at least 16 x ln(2) x 0.6V/0.5usec =  14V/usec (or 10V/usec for 12 bits).  In practice we should use a circuit with a larger maximum slew to avoid the roll-off region.
 
-Let's consider a notional 16 bit ADC with a 30pf sampling capacitor and let's power the system from the quiet 3.3V power provided by the LDO built into the microprocessor board.  We can set R<sub>L</sub> = 1K and our maximum slew is then 6V/usec (or 3V/usec if we drive it too hard).
+Let's consider a notional 16 bit ADC with a 30pf sampling capacitor and let's power the system from the quiet 3.3V power provided by the LDO built into the microprocessor board.  We can set R<sub>L</sub> = 1K and our maximum slew is then 6V/usec.
 
-For a 12 bit ADC with a 10pf sampling capacitor, and R<sub>L</sub> = 2K we have a maximum slew of 10V/usec (or 7V/usec if overdriven).  And for a more specific example, the UNO R4 processor datasheet lists 2.5K and 8pf. This means the maximum slew would be 10V/usec.  But it also lists the ADC error as +/4LSB.
+For a 12 bit ADC with a 10pf sampling capacitor, and R<sub>L</sub> = 2K we have a maximum slew of 10V/usec .  And for a more specific example, the UNO R4 processor datasheet lists 2.5K and 8pf. This means the maximum slew would be 10V/usec.  But it also lists the ADC error as +/4LSB.
 
 So, the approach with a single transistor follower is marginal at best for these parameters.  We can power it at a higher voltage, and perhaps choose values to get it to work better. But the cost for a dual ADA4807 which has a slew rate of 225V/usec is only $5.
 
