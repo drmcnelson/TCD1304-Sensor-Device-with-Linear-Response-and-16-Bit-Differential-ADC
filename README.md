@@ -1,5 +1,5 @@
 # TCD1304 Sensor with Linear Response and 16 Bit Differential ADC
-
+\table
 <p align="center">
 <img src="Images/TCD1304_socialmedia_preview2.jpg" width="75%">
 </p>
@@ -763,6 +763,78 @@ The following shows a design that appears from time to time in DIY postings.  Th
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
 And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about \$3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
 
+#### Another don't-do circuit
+This another circuit that shows up in the DIY ecosystem.  In many textbooks it is the first transistor circuit that we encounter.  There we typically learn about their non-linearities and asymmetries in sinking and sourcing current and what happens when driving a capacitive load. This is what we need to think about when we try to build a spectrometer with an emitter follower as the in-between for the sensor and ADC.
+
+The following shows the emitter follower with a PNP transitor (left) and with an NPN (right).  The datasheet for the sensor shows the circuit on the left. This is the least circuit that could be provided and it is not a good match for our use case, to drive an ADC for a spectrometer. 
+
+<p align="center">
+<img src="Images/BJT_followers_white.jpg" alt="CCD signal conditioning" width="40%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+PNP and NPN followers.
+</p>
+</p>
+
+Let's first consider this basic circuit with a slow signal (or DC) and with only R<sub>E</sub> as the load.  The output is simply the input offset by the base-emitter diode, V<sub>out</sub> = V<sub>in</sub> +/- V<sub>BE</sub>.  There is a non-linearity in this in that the base-emitter voltage varies with the emitter current,
+V<sub>BE</sub> = V<sub>T</sub>ln(I<sub>E</sub>/I<sub>S</sub>), and the emitter current varies with the output, I<sub>E</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/R<sub>E</sub>.  (The thermal voltage V<sub>T</sub> (\~25meV @RT) and saturation current I<sub>S</sub> (10<sup>-15</sup>-10<sup>-12</sup>A) can be treated as constants after things have warmed up.)  The variation in gain over our range of signal can be order 1 percent.
+
+Now let's connect this to an analog input, which we represent in the following figure as a series resistor and switched capacitor.  The curves illustrate the behaviors when sourcing and sinking current.   The PNP(NNP) is a good current sink(source) but not as good as a current source(sink). Recall that accuracy in an ADC depends on the sampling capacitor charging or discharging to  its input voltage within its sampling window in time.
+
+<p align="center">
+<img src="Images/BJT_followers_Cload_Switched_Curves_Xd-out.jpg" alt="CCD signal conditioning" width="50%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+PNP and NPN followers driving the ADC sampling capacitor.
+</p>
+</p>
+
+Compounding the above, we have two operating regimes depending on how much current we are asking the PNP(NPN) to source(sink).  If greater than the quiescent emitter current, the transistor turns off and in effect current-starves the sampling capacitor and changes the maximum slew rate.   This is summarized in the following table which lists the maximum slew rates for the PNP and NPN in each of the two regimes.
+
+<p align="center">
+<table style="width:50%;margin: 0px auto;"">
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">PNP</th>
+<th style="text-align:center">NPN</th>
+</tr>
+<tr style="border-bottom:1px solid black">
+    <td colspan="100%"></td>
+    </tr>
+<tr>
+<td>
+$\frac{\Delta V_{in}}{R_L}\lt {\small I_{E}}\text{\small (quiesc)}$
+</td>
+<td style="text-align:center">
+$\left(\frac{dV}{dt}\right)_{max} = \frac{V_{EE}-V_{out}}{R_L}\frac{1}{C_L}$
+</td>
+<td style="text-align:center">
+$\left(\frac{dV}{dt}\right)_{max} = \frac{V_{out}}{R_L}\frac{1}{C_L}$
+</td>
+</tr>
+<tr>
+<td>
+$\frac{ \Delta V_{ in } } {R_L}\gt {\small I_{E}}\text{\small (quiesc)}$
+</td>
+<td style="text-align:center">
+$\left(\frac{dV}{dt}\right)_{max} = \left(\frac{V_{EE}-V_{out}}{R_E+R_L}\right)\frac{1}{C_L}$
+</td>
+<td style="text-align:center">
+$\frac{dV}{dt}_{max} = \frac{V_{out}}{R_E+R_L}\frac{1}{C_L}$
+</td>
+</tr>
+</table>
+</p>
+<br>
+
+Now the question is, how well does (or, can) this work in a practical case?  For 16 bits of accuracy and a 0.5usec sampling window, we need a maximum slew of at least 16 x ln(2) x 0.6V/0.5usec =  14V/usec (or 10V/usec for 12 bits).  In practice we should use a circuit with a larger maximum slew to avoid the roll-off region.
+
+Let's consider a notional 16 bit ADC with a 30pf sampling capacitor and let's power the system from the quiet 3.3V power provided by the LDO built into the microprocessor board.  We can set R<sub>L</sub> = 1K and our maximum slew is then 6V/usec (or 3V/usec if we drive it too hard).
+
+For a 12 bit ADC with a 10pf sampling capacitor, and R<sub>L</sub> = 2K and we have a maximum slew of 10V/usec (or 7V/usec if overdriven).  And for a more specific example, the UNO R4 processor datasheet lists 2.5K and 8pf. This means the maximum slew would be 10V/usec.  But it also lists the ADC error as +/4LSB.
+
+So, the approach with a single transistor follower is marginal at best for these parameters.  We can power it at a higher voltage, and perhaps choose values to get it to work better. But the cost for a dual ADA4807 which has a slew rate of 225V/usec is only $5.
+
+<br>
+
 ### Interfacing to an ADC
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
 
@@ -954,7 +1026,7 @@ Following the dictum "always preserve primary data" we refrain from doing data m
 ***
 ## Appendix A - Quick command list
 
-The followings is a subset of the commands implemented in the TCD1304 firmware and in the Python user utility (indicated as CLI).  Enter the command "help" for a more complete listing and consult the source code for further information.
+The following is a subset of the commands implemented in the TCD1304 firmware and in the Python user utility (indicated as CLI).  Enter the command "help" for a more complete listing and consult the source code for further information.
 
 <p align="center">
 <b>Quick command reference </b><br>
