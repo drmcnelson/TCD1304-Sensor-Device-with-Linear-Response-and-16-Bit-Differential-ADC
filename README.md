@@ -829,7 +829,7 @@ Now the question is, how well does (or, can) this work in a practical case?  For
 
 Let's consider a notional 16 bit ADC with a 30pf sampling capacitor and let's power the system from the quiet 3.3V power provided by the LDO built into the microprocessor board.  We can set R<sub>L</sub> = 1K and our maximum slew is then 6V/usec (or 3V/usec if we drive it too hard).
 
-For a 12 bit ADC with a 10pf sampling capacitor, and R<sub>L</sub> = 2K and we have a maximum slew of 10V/usec (or 7V/usec if overdriven).  And for a more specific example, the UNO R4 processor datasheet lists 2.5K and 8pf. This means the maximum slew would be 10V/usec.  But it also lists the ADC error as +/4LSB.
+For a 12 bit ADC with a 10pf sampling capacitor, and R<sub>L</sub> = 2K we have a maximum slew of 10V/usec (or 7V/usec if overdriven).  And for a more specific example, the UNO R4 processor datasheet lists 2.5K and 8pf. This means the maximum slew would be 10V/usec.  But it also lists the ADC error as +/4LSB.
 
 So, the approach with a single transistor follower is marginal at best for these parameters.  We can power it at a higher voltage, and perhaps choose values to get it to work better. But the cost for a dual ADA4807 which has a slew rate of 225V/usec is only $5.
 
