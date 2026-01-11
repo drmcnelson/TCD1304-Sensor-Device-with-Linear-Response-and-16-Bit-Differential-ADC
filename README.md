@@ -1,4 +1,4 @@
-# TCD1304 Sensor with Linear Response and 16 Bit Differential ADC
+asn# TCD1304 Sensor with Linear Response and 16 Bit Differential ADC
 \table
 <p align="center">
 <img src="Images/TCD1304_socialmedia_preview2.jpg" width="75%">
@@ -757,81 +757,69 @@ We use the following approach for 16 bit precision.  Similar to the above, the f
 The following shows a design that appears from time to time in DIY postings.  The inventor typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
 
 <p align="center">
-<img src="Images/CCD_singleopamp_problems.jpg" alt="CCD signal conditioning" width="50%">
+<img src="Images/CCD_singleopamp_problems.jpg" alt="CCD signal conditioning" width="50%"> off.
 </p>
 
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
 And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about \$3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
 
 #### Another don't-do circuit
-This another circuit that shows up in the DIY ecosystem.  In many textbooks it is the first transistor circuit that we encounter.  There we typically learn about their non-linearities and asymmetries in sinking and sourcing current and what happens when driving a capacitive load. This is what we need to think about when we try to build a spectrometer with an emitter follower as the in-between for the sensor and ADC.
+This is another circuit that shows up in the DIY ecosystem.  It is a basic transistor circuit that can be found in the first chapters of many electronics textbooks.  Intermediate level text may treat the non-linearities and other limitations of the circuit including those related to trying to use it to drive an analog input.   Here we will try to explain in a simple way why this is not a good idea for a spectrometer.
 
-The following shows the emitter follower with a PNP transitor (left) and with an NPN (right).  The datasheet for the sensor shows the circuit on the left. This is the least circuit that could be provided and it is not a good match for our use case, to drive an ADC for a spectrometer.
-
+The following shows the bare emitter follower in two flavors, on the left with a PNP transistor and on the right with an NPN.  Notice the output is taken at the emitter.
 <p align="center">
 <img src="Images/BJT_followers_white.jpg" alt="CCD signal conditioning" width="40%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 PNP and NPN followers.
 </p>
 </p>
+Provided conditions are such that the base-emitter diode is "on", the output can be thought of as being maintained at one diode drop above (below) the input,
+<p align="center">
+V<sub>out</sub> = V<sub>in</sub> +/- V<sub>BE</sub>
+</p>
+where V<sub>BE</sub> is the base-emitter voltage.  The basic non-linearity is that V<sub>BE</sub> is not a constant, but is instead a function of emitter current and temperature
+<p align="center">
+V<sub>BE</sub> = V<sub>T</sub>ln(I<sub>E</sub>/I<sub>S</sub>)
+</p>
+and the emitter current I<sub>E</sub> varies with the output voltage,
+<p align="center">
+I<sub>E</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/R<sub>E</sub>
+</p>
+The quantities V<sub>T</sub> for the thermal voltage (\~25meV @RT) and I<sub>S</sub> for the saturation current (10<sup>-15</sup>-10<sup>-12</sup>A), are both temperature dependent.  All of this comes to about 1-2\% variation in gain, if not for the next issue.
 
-Let's first consider this basic circuit with a slow signal (or DC) and with only R<sub>E</sub> as the load.  The output is simply the input offset by the base-emitter diode, V<sub>out</sub> = V<sub>in</sub> +/- V<sub>BE</sub>.  There is a non-linearity in this in that the base-emitter voltage varies with the emitter current,
-V<sub>BE</sub> = V<sub>T</sub>ln(I<sub>E</sub>/I<sub>S</sub>), and the emitter current varies with the output, I<sub>E</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/R<sub>E</sub>.  (The thermal voltage V<sub>T</sub> (\~25meV @RT) and saturation current I<sub>S</sub> (10<sup>-15</sup>-10<sup>-12</sup>A) can be treated as constants after things have warmed up.)  The variation in gain over our range of signal can be order 1 percent.
+The more serious issue arises in the proviso that the  base-emitter is "on".  Consider the following in which we model the emitter follower with 1k resistors for the emitter resistor and load.  Note that without the transistor, the voltage at the node connecting R1 and R2 would be 1/2 of the supply voltage.  We can operate the emitter follower to this voltage and no higher. Below this voltage current flows into the emitter.  When the output reaches this voltage the emitter current is zero and we can go no further. Increasing the input voltage only further reverse biases the diode.
+<p align="center">
+<img src="Images/PNP-EF-R-model6V.jpg" alt="NP follower Rload" width="50%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+PNP follower with resistive load.
+</p>
+</p>
 
-Now let's connect this to an analog input, which we represent in the following figure as a series resistor and switched capacitor.  The curves illustrate the behaviors when sourcing and sinking current.   The PNP(NNP) is a good current sink(source) but not as good as a current source(sink). Recall that accuracy in an ADC depends on the sampling capacitor charging or discharging to  its input voltage within its sampling window in time.
+The situation is a little more complicated with a reactive component, c.f. a capacitor, in the load and more so with the switched capacitor input of an ADC. Typical behaviors are summarized in the following.
 
 <p align="center">
-<img src="Images/BJT_followers_Cload_Switched_Curves_Xd-out.jpg" alt="CCD signal conditioning" width="50%">
+<img src="Images/BJT_followers_Cload_Switched_Curves_white.jpg" alt="CCD signal conditioning" width="50%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 PNP and NPN followers driving the ADC sampling capacitor.
 </p>
 </p>
 
-Compounding the above, the above holds true provided we are not asking for too much current.  As we approach the quiescent emitter current, the transistor begins to turn off and we increasingly current-starve the sampling capacitor and reduce the maximum slew rate. This is summarized in the following table.
-
+The PNP(NPN) works very well as a current sink(source), i.e. for the falling(rising) side of the waveform.  On the other side, the maximum slew rate is current limited.  Provided the current required ΔV/R<sub>L</sub> is less than the quiescent emitter current, the maximum slew rate in this part of the response is
 <p align="center">
-<table style="width:50%;margin: 0px auto;"">
-<tr>
-<th style="text-align:center"></th>
-<th style="text-align:center">PNP</th>
-<th style="text-align:center">NPN</th>
-</tr>
-<tr style="border-bottom:1px solid black">
-    <td colspan="100%"></td>
-    </tr>
-<tr>
-<td>
-$\frac{\Delta V_{in}}{R_L}\lt {\small I_{E}}\text{\small (quiesc)}$
-</td>
-<td style="text-align:center">
-$\left(\frac{dV}{dt}\right)_{max} = \frac{V_{EE}-V_{out}}{R_L}\frac{1}{C_L}$
-</td>
-<td style="text-align:center">
-$\left(\frac{dV}{dt}\right)_{max} = \frac{V_{out}}{R_L}\frac{1}{C_L}$
-</td>
-</tr>
-<tr>
-<td>
-$\frac{ \Delta V_{ in } } {R_L}\rightarrow {\small I_{E}}\text{\small (quiesc)}$
-</td>
-<td style="text-align:center">
-$\left(\frac{dV}{dt}\right)_{max} \rightarrow \left(\frac{V_{EE}-V_{out}}{R_E+R_L}\right)\frac{1}{C_L}$
-</td>
-<td style="text-align:center">
-$\frac{dV}{dt}_{max} \rightarrow \frac{V_{out}}{R_E+R_L}\frac{1}{C_L}$
-</td>
-</tr>
-</table>
+(dV/dt)<sub>max</sub> = I<sub>E</sub>/C<sub>L</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/R<sub>E</sub>C<sub>L</sub>
 </p>
-<br>
+For larger ΔV/R<sub>L</sub>, the slew rate drops further to
+<p align="center">
+(dV/dt)<sub>max</sub> = I<sub>E</sub>/C<sub>L</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/(R<sub>E</sub>+R<sub>L</sub>)C<sub>L</sub>
+</p>
 
-Now the question is, how well does (or, can) this work in a practical case?  For 16 bits of accuracy and a 0.5usec sampling window, we need a maximum slew of at least 16 x ln(2) x 0.6V/0.5usec =  14V/usec (or 10V/usec for 12 bits).  In practice we should use a circuit with a larger maximum slew to avoid the roll-off region.
+Recall that accuracy in an ADC depends on the sampling capacitor being able to reach the input voltage before the end of the sampling window in time.  It is therefore easy to see that current limited slew is something that needs to be considered carefully.  Let's consider some examples.
 
-Let's consider a notional 16 bit ADC with a 30pf sampling capacitor and let's power the system from the quiet 3.3V power provided by the LDO built into the microprocessor board.  We can set R<sub>L</sub> = 1K and our maximum slew is then 6V/usec.
+For 16 bits of accuracy and a 0.5usec sampling window, we need a maximum slew of at least 16 x ln(2) x 0.6V/0.5usec =  14V/usec (or 10V/usec for 12 bits).  In practice we should use a circuit with a significantly larger maximum slew to avoid the roll-off region.
 
-For a 12 bit ADC with a 10pf sampling capacitor, and R<sub>L</sub> = 2K we have a maximum slew of 10V/usec .  And for a more specific example, the UNO R4 processor datasheet lists 2.5K and 8pf. This means the maximum slew would be 10V/usec.  But it also lists the ADC error as +/4LSB.
+Lets consider a 16 bit ADC, with C<sub>L</sub> = 30pf, R<sub>L</sub> = 1K and V<sub>EE</sub> = 3.3V from a low noise LDO rather than the USB power line. Our maximum slew with the emitter follower is 6V/usec.  But,  with a 12 bit ADC 10pf and 2K, the maximum slew would be 10V/usec.  If we go for 10 bits, then we might avoid the roll of region for slew.  The issue with that is that there is still the non-linearity in the response and the precision is not sufficient for the dynamic range of the detector.
 
-So, the approach with a single transistor follower is marginal at best for these parameters.  We can power it at a higher voltage, and perhaps choose values to get it to work better. But the cost for a dual ADA4807 which has a slew rate of 225V/usec is only $5.
+So, the approach with a single transistor follower is marginal at best for these parameters.  There are ways to make it better, but at that point you will have come close to reinventing the opamp.  The cost for a dual ADA4807 which is rail-to-rail, very linear and has a slew rate of 225V/usec, is only $5.
 
 <br>
 
