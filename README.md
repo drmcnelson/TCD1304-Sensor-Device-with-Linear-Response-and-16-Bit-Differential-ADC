@@ -798,7 +798,7 @@ PNP follower with resistive load.
 The situation is a little more complicated with a reactive component, c.f. a capacitor, in the load and more so with the switched capacitor input of an ADC. Typical behaviors are summarized in the following.
 
 <p align="center">
-<img src="Images/BJT_followers_Cload_Switched_Curves_white.jpg" alt="CCD signal conditioning" width="50%">
+<img src="Images/BJT_followers_Cload_Switched_Curves_white.jpg" alt="PNP and NPN with switched capacitor" width="50%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 PNP and NPN followers driving the ADC sampling capacitor.
 </p>
