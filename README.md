@@ -810,7 +810,7 @@ The PNP(NPN) works very well as a current sink(source), i.e. for the falling(ris
 </p>
 For larger ΔV/R<sub>L</sub>, the slew rate drops further to
 <p align="center">
-(dV/dt)<sub>max</sub> = I<sub>E</sub>/C<sub>L</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/(R<sub>E</sub>+R<sub>L</sub>)C<sub>L</sub>
+(dV/dt)<sub>max</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/(R<sub>E</sub>+R<sub>L</sub>)C<sub>L</sub>
 </p>
 
 Recall that accuracy in an ADC depends on the sampling capacitor being able to reach the input voltage before the end of the sampling window in time.  It is therefore easy to see that current limited slew is something that needs to be considered carefully.  Let's consider some examples.
