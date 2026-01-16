@@ -28,12 +28,11 @@
 
 ## Introduction
 
-This repo offers a linear-CCD sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response (in the sensor itself) is prerequisite to reproducibility.  Two further issues, also prerequisite, are related to how charge is harvested, shuffled along and read from the sensor device.
-In this readme we discuss all of these issues and our solutions in detail supported by data.  We also describe how to obtain and work with the boards and build a spectrometer.
+This repo offers a linear-CCD sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response is a prerequisite to reproducibility. Non-linearity in this case involves both intensity and its first derivative as the spectrum is clocked from the device, and it is not easily treated through numerical correction.  It has to be addressed in electrical design.  A second issue that effects reproducibility involves the device physics of the sensor; how the sensor is driven and operated to effectively move charge from the detector region and along the shift register to the output.  All of this is addressed in the detector system and software provided in this repo, and is described in this readme and supported by data.  We also describe how to obtain and work with the boards and software.  Finally, the effort to develop and post this device and the supporting data, is part of a project to develop and make available open instruments that support open science and underfunded scientists.  You can help through the "support" button at the top of the page.
 
 Let's begin with a quick preview of data to substantiate the central point, that there is a very real problem, which we feel we have solved, and why it is important.
 
-The following are fluorescent lamp spectra, produced with new sensor (left, a) and a commercial instrument (right, b) normalized to exposure time from 10msec to 0.5sec.  As we can see in (a), the spectra produced with the sensor from this repo demonstrate a high degree of linearity and reproducibility. The spectra divided by exposure time overlay each other almost perfectly.  In (b) the spectra show very little internal consistency. The instrument we built with the new sensor seems to win hands down for basic self consistency.
+The following are fluorescent lamp spectra, produced with new sensor (left, a) and a widely used commercial instrument (right, b).  The data are normalized to exposure time, which ranges from 10msec to 0.5sec.  In a reliable instrument, these spectra should overlay each other differing only in signal to noise.  That is what we see in (a), the spectra produced with the sensor from this repo, and not in (b), the commercial instrument.  
 
 <p align="center">
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
@@ -44,7 +43,9 @@ Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument,
 </p>
 </p>
 
-To show one aspect of why this is important, here is the ratio of the heights of the pair of lines at 542nm and 546nm from the above data.  The new sensor provides a nearly constant measure of the relative intensities across its range from noise to near saturation. With the new sensor, we might expect that spectra will look almost the same when reported by different researchers under slightly different conditions of intensity or exposure.
+We should mention that the lines at 435nm and 546nm are well known lines of Hg.  The tabulated intensities are approximatel 2:1, as they are in (a).  To be fair, our list of possible explanations should include optical alignment, though the result seems rather fortuitous.  The line at 435nm is also the feature with the largest first derivative.   We rarely see instruments whether commercial or DIY that can reproduce this line  with the correct ratio of peak heights.  The new instrument, provided in this repo, was designed to have both linearity and sufficient slew to be able to do this.
+
+Here we graph the ratios of the peak heights for the lines at 546nm and 542nm.  The peak height ratios are constant in the new instrument (a) and not in (b).   We feel this goes to a basic point of reproducibility. A meaningful relative peak height should be reasonably independent of intensity and exposure time.
 
 <p align="center">
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
@@ -55,9 +56,7 @@ Relative peak heights of lines at 542nm and 546nm. (a) Sensor and instrument, th
 </p>
 </p>
 
-Aside, the spectral lines at 435nm and 546nm are associated with Hg. The line at 435nm should be about twice that at 546nm.  The relative intensities in the new instrument agree with the tabulated values.
-
-Hopefully the above engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  The commercial instrument used in the above (speaking from memory) sold for about 4k to 6k USD and we recall earlier versions going for 10K.   The instrument that we built to collect the above data using the new sensor system provided in this repo, cost a total of 400 USD and of that we spent 250 USD for a high end grating. It can certainly be built for less.  Instructions to build your own instrument are included later in this readme.
+Hopefully the above engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  Commercial instruments similar to the one in (b) have sold for about 4k to 6k USD and even 10k for earlier versions.  The instrument that we built to collect the above data using the new sensor system provided in this repo, cost a total of 400 USD.  It can certainly be built for less with less costly but still good alternatives for the optics.  Instructions to build your own instrument are included later in this readme.
   
 Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
 But as most of us who have worked with these since that time are well aware, there have always been issues including non-linearity, unstable base line, intensity carried over from the preceding exposure, and so forth.
@@ -407,7 +406,7 @@ So far we have talked about linear reproducible response to the signal produced 
 Let's look at some data.
 
 ### Spectra
-The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer.  Notice that in each instrument the lines at 546nm and 611nm are similar in height.  But whereas the line at 436nm which in the new instrument is about twice the height of the 546 nm line, in the commercial instrument it is attenuated by a factor of 4.  The lines at 436nm and 546nm correspond to well known lines of Hg I and their tabulated intensity ratio is actually 2:1 [("Strong lines of Mercury", NIST)](https://www.physics.nist.gov/PhysRefData/Handbook/Tables/mercurytable2.htm).
+The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer.  Notice that the line at 436nm in the new instrument is about twice the height of the 546nm line whereas in the commercial instrument it is attenuated by a factor of 4.  The lines at 436nm and 546nm correspond to well known lines of Hg.  Their tabulated intensity ratio is approximately 2:1, similar to that obtained with the new instrument (a) [("Strong lines of Mercury", NIST)](https://www.physics.nist.gov/PhysRefData/Handbook/Tables/mercurytable2.htm).
 
 <p align="center" >
 <img src="Images/SpectralResponseComparison.jpg" width="90%">
@@ -419,9 +418,7 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-This seems like a simple test.  But it is important to look closely.  One way to alter the spectrum is to simply misalign the sensor.  But then the effect should be systematic.  In this instance the intensities of the other lines seem inconsistent with the large difference in the 436nm line.  (For example, see the 487nm line compared to the other lines.)
-
-Though it requires some care in interpretation, if you are considering a spectrometer or sensor board, we feel that you should always insist on seeing a well resolved fluorescent lamp spectrum.
+This seems like a simple test.  But some care is appropriate.  One way to alter the spectrum is to simply misalign the sensor.  But then the effect should be systematic.  In this instance the intensities of the other lines seem inconsistent with the large difference in the 436nm line.
 
 The following shows the spectrum from the new instrument with the y axis expanded so that we can see the structure in the region around 590nm. We see that the lines are a little sharper compared to the commercial instrument.
 <p align="center" >
@@ -468,7 +465,7 @@ We refer to this as practical reproducibility for the simple reason that even th
 We reasonably expect that in a reliable instrument ratios of intensity should not change when we change intensity or exposure time. 
 First, we expect that spectra should have the same appearance in terms of how large one peak is compared to another when we repeat a measurement. Second, quantitative comparison of intensities is a basic element of many experimental protocols.
 
-The following set of figures shows ratios of peak heights as a function of exposure time.  The present design shows roughly constant peak height ratios until one of the peaks in the ratio reaches saturation. The data from the commercial instrument does not seem to provide a reliable peak ratio measurement.
+The following set of figures shows ratios of peak heights as a function of exposure time.  The present design shows roughly constant peak height ratios until one of the peaks in the ratio reaches saturation.
 
 <p align="center" >
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
@@ -476,15 +473,6 @@ The following set of figures shows ratios of peak heights as a function of expos
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
 Peak height ratios for the lines at 546nm and 542nm versus exposure time in (a) the present design and (b) the commercial instrument. </i>
-</p>
-</p>
-
-<p align="center" >
-<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_1sec.jpg" width="90%">
-<br>
-<p align="center" style="margin-left:5em;margin-right:5em">
-<i>
-Peak height ratios for the lines at 546nm and 487nm versus exposure time in (a) the present design and (b) the commercial instrument. </i>
 </p>
 </p>
 
