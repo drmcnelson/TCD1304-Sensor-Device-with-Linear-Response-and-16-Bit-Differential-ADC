@@ -28,13 +28,12 @@
 
 ## Introduction
 
-This repo offers a Linear-CCD (LCCD) sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response in the sensor itself is prerequisite to reproducibility.  Two further issues, also prerequisite, are related to how charge is harvested, shuffled along and read from the sensor device.
-In this readme we discuss all of these issues and our solutions in detail supported by data and spice models.  We also describe how to obtain and work with the boards and build a spectrometer.
+This repo offers a linear-CCD sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response (in the sensor itself) is prerequisite to reproducibility.  Two further issues, also prerequisite, are related to how charge is harvested, shuffled along and read from the sensor device.
+In this readme we discuss all of these issues and our solutions in detail supported by data.  We also describe how to obtain and work with the boards and build a spectrometer.
 
 Let's begin with a quick preview of data to substantiate the central point, that there is a very real problem, which we feel we have solved, and why it is important.
 
-The following are fluorescent lamp spectra, produced with new sensor (left, a) and a commercial instrument (right, b) normalized to exposure time from 10msec to 0.5sec.  As we can see in (a), the spectra produced with the sensor from this repo, demonstrate a high degree of linearity and reproducibility. The spectra divided by exposure time overlay each other almost perfectly.  In (b) the spectra show very little internal consistency, neither intensity nor baseline.
-The instrument we built with the new sensor seems to win hands down for basic self consistency.
+The following are fluorescent lamp spectra, produced with new sensor (left, a) and a commercial instrument (right, b) normalized to exposure time from 10msec to 0.5sec.  As we can see in (a), the spectra produced with the sensor from this repo demonstrate a high degree of linearity and reproducibility. The spectra divided by exposure time overlay each other almost perfectly.  In (b) the spectra show very little internal consistency. The instrument we built with the new sensor seems to win hands down for basic self consistency.
 
 <p align="center">
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
@@ -45,7 +44,7 @@ Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument,
 </p>
 </p>
 
-Here is the ratio of the heights of the pair of lines at 542nm and 546nm from the above data.  The new sensor provides a nearly constant measure of the relative line intensities across its full range from noise almost to saturation. Besides the quantitative aspect of this, it is also very important that spectra look the same when reported by different researchers under slightly different conditions of intensity or exposure.
+To show one aspect of why this is important, here is the ratio of the heights of the pair of lines at 542nm and 546nm from the above data.  The new sensor provides a nearly constant measure of the relative intensities across its range from noise to near saturation. With the new sensor, we might expect that spectra will look almost the same when reported by different researchers under slightly different conditions of intensity or exposure.
 
 <p align="center">
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
@@ -56,7 +55,7 @@ Relative peak heights of lines at 542nm and 546nm. (a) Sensor and instrument, th
 </p>
 </p>
 
-Aside, the spectral lines at 435nm and 546nm are associated with Hg. The tabulated intensity for the line at 435nm is twice that at 546nm. The line at 435nm is also very sharp. The relative intensities in the new instrument agree with the tabulated values.
+Aside, the spectral lines at 435nm and 546nm are associated with Hg. The line at 435nm should be about twice that at 546nm.  The relative intensities in the new instrument agree with the tabulated values.
 
 Hopefully the above engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  The commercial instrument used in the above (speaking from memory) sold for about 4k to 6k USD and we recall earlier versions going for 10K.   The instrument that we built to collect the above data using the new sensor system provided in this repo, cost a total of 400 USD and of that we spent 250 USD for a high end grating. It can certainly be built for less.  Instructions to build your own instrument are included later in this readme.
   
@@ -408,7 +407,7 @@ So far we have talked about linear reproducible response to the signal produced 
 Let's look at some data.
 
 ### Spectra
-The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer (Flame-S, Ocean Optics).   Notice that in each instrument the lines at 546nm and 611nm are similar in height.  But whereas the line at 436nm which in the new instrument is about twice the height of the 546 nm line, in the commercial instrument it is attenuated by a factor of 4.  The lines at 436nm and 546nm correspond to well known lines of Hg I and their tabulated intensity ratio is actually 2:1 [("Strong lines of Mercury", NIST)](https://www.physics.nist.gov/PhysRefData/Handbook/Tables/mercurytable2.htm).
+The following are fluorescent lamp spectra, from the present design and from a commercially produced spectrometer.  Notice that in each instrument the lines at 546nm and 611nm are similar in height.  But whereas the line at 436nm which in the new instrument is about twice the height of the 546 nm line, in the commercial instrument it is attenuated by a factor of 4.  The lines at 436nm and 546nm correspond to well known lines of Hg I and their tabulated intensity ratio is actually 2:1 [("Strong lines of Mercury", NIST)](https://www.physics.nist.gov/PhysRefData/Handbook/Tables/mercurytable2.htm).
 
 <p align="center" >
 <img src="Images/SpectralResponseComparison.jpg" width="90%">
