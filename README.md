@@ -28,18 +28,45 @@ asn# TCD1304 Sensor with Linear Response and 16 Bit Differential ADC
 
 ## Introduction
 
-This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer, as will be shown, linear response becomes a prerequisite for producing data that can be reproduced by other researchers.
+This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer linear response is a prerequisite for producing data that can be reproduced by other researchers.   Usually a repo would describe how to obtain and use the hardware and software.  Here we want to also explain the issues and how we solved them and what to look out for in an instrument you might be contemplating or already own.  By way of introduction, let's substantiate the central point about linearity and why it is important.
+
+Here is an example. The following are fluorescent lamp spectra normalized to exposure time from 10msec to 0.5sec comparing the new sensor (this repo) and a popular commercial ccd spectrometer. As we can see, the  spectra on the left (a) produced with the sensor form this repo, demonstrate a high degree of linearity and reproducibility. The spectra divided by exposure time overlay each other almost perfectly.  The spectra on the right (b) show very little internal consistency, not intensity nor even in baseline.  The instrument we built with the new sensor seems to win hands down for basic self consistency.
+
+<p align="center">
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
+<p style="margin-left:3em;margin-right:3em">
+<i>
+Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument, this repo.  (b) Commercial CCD spectrometer.
+</i>
+</p>
+</p>
+
+Here is the ratio of the heights of the pair of lines at 542nm and 546nm from the above data.  The data on the left (from the new sensor) provide a nearly constant measure of the relative line intensities across the full range from noise almost to saturation. Even if not reporting those numbers, it is still very important that spectra collected should look the same when reported by different researchers under slightly different conditions of intensity or exposure.
+
+<p align="center">
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
+<p style="margin-left:3em;margin-right:3em">
+<i>
+Relative peak heights of lines at 542nm and 546nm. (a) Sensor and instrument, this repo.  (b) Commercial CCD spectrometer.
+</i>
+</p>
+</p>
+
+(Aside, the lines are 435nm and 546nm are attributed to two lines of Hg-I. The expected intensity ratio is approximately 2:1, similar to that in the spectra on the left from the instrument that we built with the new sensor.)
+
+Hopefully that much engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  It might be noted also that the commercial instrument used in the above, sold for about 4k to 6k USD and we recall earlier versions going for 10K, though they are now on ebay for around for much less.   The instrument that we built to collect the above data using the  new sensor system provided in this repo, cost a total of 400 USD and of that we spent 250 USD for a high end grating. It can certainly be built for less.  Instructions to build your own instrument are included later in this readme.
   
-The sensor device is offered in three versions (high-end 16 bit, lower cost 12 bit, and analog), along with firmware ("sketch" file and header library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three versions of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response.  With the 16 bit system we have obtained linear reproducible results over 5 orders of magnitude in exposure time (from 10usec) in clocked and triggered data collection.
- 
-Reproducibility is fundamental to doing science, and especially so when it comes to collecting data that we plan to include in a paper.  Other researchers should find the same spectra, the same ratios of peak heights, the same yields, and so forth.  As is well known, meeting these basic criteria has been a challenge for CCD spectrometers since their inception in the late 1980's. (We will show examples of this in a widely used commercial instrument.) Needless to say, this touches on the basic question of whether a dataset is meaningful. But if these issues were addressed, CCD spectrometers with their "all at once" spectral capability and potentially low cost, would be an important contribution to the scientist's toolbox.
-The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible.
+Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
+But as most of us who have worked with these since that time are well aware, there have always been issues including non-linearity, unstable base line, intensity carried over from the preceding exposure, and so forth.
+The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible that we can actually use to collect data and publish our research.
 
-In our studies leading to the present design, the TCD1304 itself proved to be remarkably linear. (Some vendors attribute their non-linearities to the sensor. As you will see, it is not true.)  Rather, the challenge is in electrical design to account for both the nature of the signals produced on reading a spectrum or technical image from the CCD and the stricter requirements on linearity for purposes of a scientific instrument.  There is a second challenge described as a phantom or "carry-over" that has to be addressed in how the sensor is operated.  These challenges are  perhaps not too complicated, but they do require experience in having actually used these instruments as a scientist, and meticulous attention to detail and careful analysis in designing an instrument to do the job properly.  In other words, design of a scientific instrument should proceed with at least the same uncompromising exactitude with which it will be used.  We offer the present design with the hope that this will "set a new bar" for CCD based spectrometers.
+In our studies leading to the present design, the TCD1304 itself proved to be remarkably linear. (Some vendors attribute their non-linearities to the sensor; it is not true.)  Rather, the challenge is in electrical design to account for both the nature of the signals produced on reading a spectrum or technical image from the CCD and the stricter requirements on linearity for purposes of a scientific instrument.  The "carry-over" though inherent to the physics of the device, is a function of the how device is operated.  It can be made negligible or treated numerically.  These challenges are  perhaps not too complicated, but they do require experience in having actually used these instruments as a scientist, some meticulous attention to detail and careful analysis to design an instrument to do the job properly.  In other words, design of a scientific instrument should proceed with at least the same uncompromising exactitude with which it will be used.  We offer the present design with the hope that this will "set a new bar" for CCD based spectrometers.
 
-In this README we cover a lot of ground, from getting and working with the boards, to documenting what linearity and non-linearity look like in real instruments and why it is important, explaining why the problem is especially tied to spectrometers, and providing a tutorial in electrical design with example circuits. We use SPICE models to illustrate key points and we include a collection of these in this repo so that you can explore the ideas for yourself.
+In this README we cover a lot of ground, from getting and working with the boards, describing linearity, non-linearity and other behaviors effecting reproducibility in real instruments and  providing a tutorial in electrical design with example circuits and SPICE models to illustrate key points. 
 
 This repo provides (a) fab files and BOM for making the boards, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models as referred to in the text and including those we used to develop and test the design. 
+
+The sensor device is offered in three versions (high-end 16 bit, or lower cost 12 bit, or analog), along with firmware ("sketch" file and header-only library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three versions of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response.  With the 16 bit system we have obtained linear reproducible results over 5 orders of magnitude in exposure time (from 10usec) in clocked and triggered data collection.
 
 We begin with a summary of what is contained in the rest of the readme and repo.
 
@@ -49,10 +76,10 @@ We provide three implementations of the sensor system hardware (see the followin
 The firmware and Python codes provided in this repo, can be used with any of the three hardware implementations.
 
 In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at
-\$40 and \$24 respectively
-and the PCB which generally runs around \$18 per board in small quantities (including tariffs).
+<span>$</span>40 and <span>$</span>24 respectively
+and the PCB which generally runs around <span>$</span>18 per board in small quantities (including tariffs).
 
-#### Two board system, 16 bit sensor boa ofrd and controller
+#### Two board system, 16 bit sensor board and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The ribbon cable carries logic signals and power for the SPI interface (1.7V-5.1V).  The two wire connection (red and black) is 5V power. Internally, there are separate low noise power circuits and ground planes for the analog section and gate drivers. We observe 0.6mV dark noise, electrical noise is more than 10 times lower (less than 1 LSB with the sensor removed). And the board is able to linearly follow peaks to full scale in one pixel.  Fiduciary marks on both sides of the sensor board facilitate optical alignment.
 
 <p align="center">
@@ -65,10 +92,10 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </i>
 </p>
 </p>
-Component costs for the high end 16-bit system are currently \$110 for the sensor board and \$88 for the controller, or \$198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
+Component costs for the high end 16-bit system are currently <span>$</span>110 for the sensor board and <span>$</span>88 for the controller, or <span>$</span>198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
 
-We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to \$290.
-With tariffs our cost per set is now \$395 to \$422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
+We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to <span>$</span>290.
+With tariffs our cost per set is now <span>$</span>395 to <span>$</span>422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
  
 
 #### "All-in-one", sensor and controller on a single board.
@@ -84,7 +111,7 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 </i>
 </p>
 </p>
-The component costs are currently \$86 including TCD1304 and Teensy, plus \$18 for the PCB, for a total of \$104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
+The component costs are currently <span>$</span>86 including TCD1304 and Teensy, plus <span>$</span>18 for the PCB, for a total of <span>$</span>104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
 #### Analog sensor board with gate drivers
 The following shows our analog-output sensor board.  This also has the single ended analog circuit as in the all-in-one board, and similar gate drivers. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic to operate the CCD gates.  We developed this board to provide a better and actually useful alternative to the analog boards offered on some DIY sites.  The output is intended to be compatible with the inputs of typical processor boards in the Arduino ecosystem, but linearity and ability to meet the clocking requirements for the CCD sensor will depend on which Arduino ecosystem board and firmware you choose to use.   Running the board from our Teensy 4.0 controller and firmware, we found that it has very good linearity and, similar to the above, it is able to track peaks to full scale in one pixel.
@@ -99,7 +126,7 @@ TCD1304 Analog Board, (a) top showing the circuits and connectors, (b) bottom sh
 </i>
 </p>
 </p>
-Parts costs are currently \$65 including the TCD1304, plus \$18 for the PCB per the above, for a total of \$83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes us perhaps 3 hours to build.
+Parts costs are currently <span>$</span>65 including the TCD1304, plus <span>$</span>18 for the PCB per the above, for a total of <span>$</span>83. The passives are 0603 and the ICs are SOT23 packages to make it a little easier for hand assembly.  It takes us perhaps 3 hours to build.
 
 
 
@@ -112,7 +139,7 @@ As noted, reproducibility is vitally important for any instrument and for a spec
 
 Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
-Total cost of materials for the spectrometer is under \$400, including the electronics (this repo), optics and mechanical parts.
+Total cost of materials for the spectrometer is under <span>$</span>400, including the electronics (this repo), optics and mechanical parts.
 
 ### Controller
 
@@ -212,7 +239,7 @@ You can assemble the boards yourself, or if you prefer, please feel free to cont
 If you want to assemble your boards, and this is your first time assembling an SMT board, search for an introduction to DIY SMT assembly, [for example here](https://www.kingfieldpcb.com/essential-tips-for-diy-smt-assembly/).
 
 Here are some notes on how we do assembly in our shop.
-We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about \$200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
+We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about <span>$</span>200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
 ### USB connection
 We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it supports high-speed (at least USB2.0) and can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.  
@@ -260,7 +287,7 @@ The codes have been used with the Fedora Cinnamon Spin, which you can [download 
 
 The command to install the Python environment and libraries used by the codes is as follows (in Fedora, use apt-get or aptitude in Ubuntu):
 
-    \$ sudo dnf install python python-numpy python-scipy python-matplotlib python-pyserial
+    $ sudo dnf install python python-numpy python-scipy python-matplotlib python-pyserial
       
 
 #### Setting up the user software for the TCD1304 boards
@@ -360,7 +387,7 @@ The data files are in ASCII and human readable.  If you wish, you can  work with
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
-In this section we illustrate some of the challenges in linearity and reproducibility as observed in CCD spectrometers.  After defining some terms, we show examples that compare the performance of the present design and that of a widely used commercial instrument.  These also help to illustrate basic concepts and why this is important for reproducibility.
+In this section we discuss linearity and reproducibility in a practical sense, as it relates to CCD spectrometers. After defining terms and concepts, we show data comparing the present design and a widely used commercial instrument.  These illustrate the basic concepts and establish in a small way the "facts on the ground".
 
 Linear response, for a spectrometer, means that the  measured response S is proportional to the number of photons P impinging on the detector. For a change in intensity at pixel "n", we expect that ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant.  
 
@@ -404,12 +431,12 @@ The following shows the spectrum from the new instrument with the y axis expande
 </p>
 
 ### Intensity
-The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra for the present design and the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.  The vertical scale for the present design is volts read from the sensor.
+The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra for the present design and the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.  The vertical scale for the present design is volts.
 
-In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. In the present design, the curves are indeed straight lines from near the origin until near the limiting output voltage of the sensor.   For the commercial instrument, most of the range is not linear.  We will see more explicitly how this effects relative peak heights.
+In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. With the new sensor (a), the curves are indeed straight lines from near the origin until near  saturation. For the commercial instrument, most of the range is not linear.  We will see more explicitly how this effects relative peak heights.
 
 <p align="center" >
-<img src="Images/Comparison_peaks.jpg" width="90%">
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_1sec.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
@@ -418,22 +445,55 @@ Intensity versus exposure time for four spectral lines for (a) the present desig
 </p>
 </p>
 
+### Consistency and practical reproducibility
+A simple test for consistency and practical reproducibility is to collect a few intensities of the light source, or by moving the source farther or closer, or by simply changing exposure.  Any of these will vary the number of photons and hence the number of electronics registered in each pixel.  When the sensor system is linear, we should be able to scale by exposure time (or power, or R<sup>2</sup>) and obtain the identical spectrum apart from the difference in signal to noise ratio.
 
-### Peak height ratios
-We reasonably expect that in a reliable instrument ratios of intensity should not change when we change intensity or exposure time. We expect that spectra should look the same when we repeat a measurement. On a more serious level, quantitative comparison of intensities is a basic element of many experimental protocols.
-
-The following shows ratios among three of the peaks as a function of exposure time.  The present design shows roughly constant peak height ratios until one of the peaks in the ratio reaches saturation. The data from the commercial instrument does not seem to provide a useful peak ratio measurement.
+Here is the result varying the exposure time, for the new sensor (the present design) and the commercial instrument.  As we noted in the introduction, the spectra produced by the new sensor are neawrly identical apart from noise.
 
 <p align="center" >
-<img src="Images/Comparison_ratios.jpg" width="90%">
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>
-Peak height ratios for (a) the present design and (b) the commercial instrument versus exposure time.  <br>In the present design (a) the line at 546nm clips at 0.6 sec, see the "Intensity" graph above.
-(The first few points are effected by noise for this incident intensity.)
-</i>
+Spectra normalized to exposure time for the (a) the present design and (b) the commercial instrument. </i>
 </p>
 </p>
+
+We refer to this as practical reproducibility for the simple reason that even though we might reproduce the spectra by exactly reproducing the exposure conditions in the original experiment, unless there is a way to correct the data (solve the inverse problem) it says very  little about the thing being studied.  And in these sorts of non-linearities the inverse problem might not be tractable.
+
+### Peak height ratios
+We reasonably expect that in a reliable instrument ratios of intensity should not change when we change intensity or exposure time. 
+First, we expect that spectra should have the same appearance in terms of how large one peak is compared to another when we repeat a measurement. Second, quantitative comparison of intensities is a basic element of many experimental protocols.
+
+The following set of figures shows ratios of peak heights as a function of exposure time.  The present design shows roughly constant peak height ratios until one of the peaks in the ratio reaches saturation. The data from the commercial instrument does not seem to provide a reliable peak ratio measurement.
+
+<p align="center" >
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
+<br>
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+Peak height ratios for the lines at 546nm and 542nm versus exposure time in (a) the present design and (b) the commercial instrument. </i>
+</p>
+</p>
+
+<p align="center" >
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_1sec.jpg" width="90%">
+<br>
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+Peak height ratios for the lines at 546nm and 487nm versus exposure time in (a) the present design and (b) the commercial instrument. </i>
+</p>
+</p>
+
+<p align="center" >
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios435nm_546nm_1sec.jpg" width="90%">
+<br>
+<p align="center" style="margin-left:5em;margin-right:5em">
+<i>
+Peak height ratios for the lines at 435nm and 546nm versus exposure time in (a) the present design and (b) the commercial instrument.  The correct ratio is close to 2:1 with the line at 435nm the larger.</i>
+</p>
+</p>
+
 
 ### Some further phenomena
 The above are examples of non-linearity in the conventional sense of linear response of a circuit and digitizer to an analog signal.  There are two further issues that can effect linearity in a different way.
@@ -508,10 +568,9 @@ First derivative (dV/dt) of the fluorescent lamp spectrum.
 </p>
 </p>
 
-Circuits can be slew-limited through the choice of OPAMP and by any of several ways of current starving the sampling capacitor in the input stage to the ADC.
-Maximum slew and output current are characteristics usually listed in the datasheet for an OPAMP. But circuit design can limit slew as well.
+There are a number of ways in which circuits can be slew-limited, though current starving the sample and hold capacitor in an ADC is perhaps one of the more popular methods.  Choosing an OPAMP with too small a maximum slew is another.   And a well abused emitter follow is a third method that seems popular in the DIY ecosystem.  As we will see the difference in cost to do this correctly is small.
 
-For purposes of a scientific instrument, we require linear behavior for dV/dt spanning the full range of lines that we might see in our measurements. There are some surprising challenges to accomplishing this which we discuss in the section on electrical design.
+For purposes of a scientific instrument, we require linearity over the full range of line shapes that we might observe.  We will discuss how to accomplish this and a surprising previously unappreciated challenge, in the [section on electrical design](#electrical-design).
  
 ---
 ## Setup for linearity testing
@@ -761,7 +820,7 @@ The following shows a design that appears from time to time in DIY postings.  Th
 </p>
 
 With large values for R<sub>1</sub> and R<sub>2</sub> there is a large parallel resistance that dominates the noise density at the input, v<sub>n</sub> ≈ 0.13 √R<sub>//</sub> [units nV/√Hz] (see "Johnson noise").  This creates a trade-off between bandwidth and precision.
-And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about \$3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
+And with a very large R<sub>2</sub>, the pole formed with the input capacitance of the OPAMP at f<sub>p</sub> = 1/(2πR<sub>2</sub>C<sub>inp</sub>) moves to lower frequency and can be within the bandwidth needed for readout.  The amplifier may be unstable and the data unreliable.  All of this is for a net savings of about <span>$</span>3 for leaving out the voltage-follower.  If you need to report spectra with reproducible intensities, it might be best to avoid devices that take this approach.
 
 #### Another don't-do circuit
 This is another circuit that shows up in the DIY ecosystem.  It is a basic transistor circuit that can be found in the first chapters of many electronics textbooks.  Intermediate level text may treat the non-linearities and other limitations of the circuit including those related to trying to use it to drive an analog input.   Here we will try to explain in a simple way why this is not a good idea for a spectrometer.
@@ -819,7 +878,7 @@ For 16 bits of accuracy and a 0.5usec sampling window, we need a maximum slew of
 
 Lets consider a 16 bit ADC, with C<sub>L</sub> = 30pf, R<sub>L</sub> = 1K and V<sub>EE</sub> = 3.3V from a low noise LDO rather than the USB power line. Our maximum slew with the emitter follower is 6V/usec.  But,  with a 12 bit ADC 10pf and 2K, the maximum slew would be 10V/usec.  If we go for 10 bits, then we might avoid the roll of region for slew.  The issue with that is that there is still the non-linearity in the response and the precision is not sufficient for the dynamic range of the detector.
 
-So, the approach with a single transistor follower is marginal at best for these parameters.  There are ways to make it better, but at that point you will have come close to reinventing the opamp.  The cost for a dual ADA4807 which is rail-to-rail, very linear and has a slew rate of 225V/usec, is only $5.
+So, the approach with a single transistor follower is marginal at best for these parameters.  There are ways to make it better, but at that point you will have come close to reinventing the opamp.  The cost for a dual ADA4807 which is rail-to-rail, very linear and has a slew rate of 225V/usec, is only <span>$</span>5.
 
 <br>
 
