@@ -43,7 +43,7 @@ Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument,
 </p>
 </p>
 
-We should mention that the lines at 435nm and 546nm are well known lines of Hg.  The tabulated intensities are approximatel 2:1, as they are in (a).  To be fair, our list of possible explanations should include optical alignment, though the result seems rather fortuitous.  The line at 435nm is also the feature with the largest first derivative.   We rarely see instruments whether commercial or DIY that can reproduce this line  with the correct ratio of peak heights.  The new instrument, provided in this repo, was designed to have both linearity and sufficient slew to be able to do this.
+We should mention that the lines at 435nm and 546nm are well known lines of Hg.  The tabulated intensities are approximatel 2:1, as they are in (a).  Our hypotheses for this should include optical alignment. But also, the line at 435nm has a very large first derivative compared to the other lines in the spectrum.   We rarely see instruments whether commercial or DIY that can reproduce this line  with the correct ratio of peak heights.  The new instrument, provided in this repo, was designed to have both linearity and sufficient slew to be able to do this.
 
 Here we graph the ratios of the peak heights for the lines at 546nm and 542nm.  The peak height ratios are constant in the new instrument (a) and not in (b).   We feel this goes to a basic point of reproducibility. A meaningful relative peak height should be reasonably independent of intensity and exposure time.
 
