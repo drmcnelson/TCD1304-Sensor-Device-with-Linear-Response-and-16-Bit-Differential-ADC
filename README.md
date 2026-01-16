@@ -28,9 +28,13 @@
 
 ## Introduction
 
-This repo offers a Linear-CCD (LCCD) sensor device based on the TCD1304DG that is designed specifically for *reproducible linear response*.  For a spectrometer linear response is a prerequisite for producing data that can be reproduced by other researchers.   Usually a repo would describe how to obtain and use the hardware and software.  Here we want to also explain the issues and how we solved them and what to look out for in an instrument you might be contemplating or already own.  By way of introduction, let's substantiate the central point about linearity and why it is important.
+This repo offers a Linear-CCD (LCCD) sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response in the sensor itself is prerequisite to reproducibility.  Two further issues, also prerequisite, are related to how charge is harvested, shuffled along and read from the sensor device.
+In this readme we discuss all of these issues and our solutions in detail supported by data and spice models.  We also describe how to obtain and work with the boards and build a spectrometer.
 
-Here is an example. The following are fluorescent lamp spectra normalized to exposure time from 10msec to 0.5sec.  We compare the new sensor (this repo) and a popular commercial ccd spectrometer. As we can see, the  spectra on the left (a) produced with the sensor form this repo, demonstrate a high degree of linearity and reproducibility. The spectra divided by exposure time overlay each other almost perfectly.  The spectra on the right (b) show very little internal consistency, not intensity nor even in baseline.  The instrument we built with the new sensor seems to win hands down for basic self consistency.
+Let's begin with a quick preview of data to substantiate the central point, that there is a very real problem, which we feel we have solved, and why it is important.
+
+The following are fluorescent lamp spectra, produced with new sensor (left, a) and a commercial instrument (right, b) normalized to exposure time from 10msec to 0.5sec.  As we can see in (a), the spectra produced with the sensor from this repo, demonstrate a high degree of linearity and reproducibility. The spectra divided by exposure time overlay each other almost perfectly.  In (b) the spectra show very little internal consistency, neither intensity nor baseline.
+The instrument we built with the new sensor seems to win hands down for basic self consistency.
 
 <p align="center">
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
@@ -41,7 +45,7 @@ Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument,
 </p>
 </p>
 
-Here is the ratio of the heights of the pair of lines at 542nm and 546nm from the above data.  The data on the left (from the new sensor) provide a nearly constant measure of the relative line intensities across the full range from noise almost to saturation. Even if not reporting those numbers, it is still very important that spectra collected should look the same when reported by different researchers under slightly different conditions of intensity or exposure.
+Here is the ratio of the heights of the pair of lines at 542nm and 546nm from the above data.  The new sensor provides a nearly constant measure of the relative line intensities across its full range from noise almost to saturation. Besides the quantitative aspect of this, it is also very important that spectra look the same when reported by different researchers under slightly different conditions of intensity or exposure.
 
 <p align="center">
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
@@ -52,9 +56,9 @@ Relative peak heights of lines at 542nm and 546nm. (a) Sensor and instrument, th
 </p>
 </p>
 
-(Aside, the lines are 435nm and 546nm are attributed to two lines of Hg-I. The expected intensity ratio is approximately 2:1, similar to that in the spectra on the left from the instrument that we built with the new sensor.)
+Aside, the spectral lines at 435nm and 546nm are associated with Hg. The tabulated intensity for the line at 435nm is twice that at 546nm. The line at 435nm is also very sharp. The relative intensities in the new instrument agree with the tabulated values.
 
-Hopefully that much engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  It might be noted also that the commercial instrument used in the above, sold for about 4k to 6k USD and we recall earlier versions going for 10K, though they are now on ebay for around for much less.   The instrument that we built to collect the above data using the  new sensor system provided in this repo, cost a total of 400 USD and of that we spent 250 USD for a high end grating. It can certainly be built for less.  Instructions to build your own instrument are included later in this readme.
+Hopefully the above engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  The commercial instrument used in the above (speaking from memory) sold for about 4k to 6k USD and we recall earlier versions going for 10K.   The instrument that we built to collect the above data using the new sensor system provided in this repo, cost a total of 400 USD and of that we spent 250 USD for a high end grating. It can certainly be built for less.  Instructions to build your own instrument are included later in this readme.
   
 Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
 But as most of us who have worked with these since that time are well aware, there have always been issues including non-linearity, unstable base line, intensity carried over from the preceding exposure, and so forth.
@@ -188,7 +192,7 @@ Pre-assembled boards
 <li>
 Customization, advice, etc.
 </li>
-<li>  
+<li>
 Permission for use in a product or other commercial effort
 </li>
 </ul>
