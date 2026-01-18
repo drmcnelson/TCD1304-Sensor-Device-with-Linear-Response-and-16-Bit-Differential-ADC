@@ -35,7 +35,7 @@ Let's begin with a quick preview of data to substantiate the central point, that
 The following are fluorescent lamp spectra, produced with new sensor (left, a) and a widely used commercial instrument (right, b).  The data are normalized to exposure time, which ranges from 10msec to 0.5sec.  In a reliable instrument, these spectra should overlay each other differing only in signal to noise.  That is what we see in (a), the spectra produced with the sensor from this repo, and not in (b), the commercial instrument.  
 
 <p align="center">
-<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
+<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays_parallel.jpg" width="90%">
 <p style="margin-left:3em;margin-right:3em">
 <i>
 Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument, this repo.  (b) Commercial CCD spectrometer.
