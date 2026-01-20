@@ -36,12 +36,12 @@ The following is offered as a quick preview of data that we will discuss in grea
 <img src="Images/TCD1304_ND1200_LinearitySummary_1sec.jpg" width="90%">
 <p align="center">
 <i>
-(a) Fluorescent lamp spectra normalized to exposure time exhibit consistent intensity and baseline. (b) Peak heights are linear in exposure time over early the full range of the instrument.
+(a) Fluorescent lamp spectra normalized to exposure time exhibit consistent intensity and baseline. (b) Peak heights are linear in exposure time to near saturation.
 </i>
 </p>
 </p>
 
-The above seems like a simple minimum criteria for an instrument that you might want to use in your research and so, we humbly invite the reader to subject a CCD spectrometer that they may have to the same test.
+The above seems like simple, minimum criteria for an instrument that you might want to use in your research and so, we humbly invite the reader to subject a CCD spectrometer that they may have to the same test.
 
 Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
 But as most of us who have worked with these since that time are well aware, there have always been issues including non-linearity, unstable base line, intensity carried over from the preceding exposure, and so forth.
@@ -469,7 +469,6 @@ Peak height ratios for the lines at 546nm and 542nm versus exposure time in (a) 
 Peak height ratios for the lines at 435nm and 546nm versus exposure time in (a) the present design and (b) the commercial instrument.  The correct ratio is close to 2:1 with the line at 435nm the larger.</i>
 </p>
 </p>
-
 
 ### Some further phenomena
 The above are examples of non-linearity in the conventional sense of linear response of a circuit and digitizer to an analog signal.  There are two further issues that can effect linearity in a different way.
