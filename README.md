@@ -30,34 +30,19 @@
 
 This repo offers a linear-CCD sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response is a prerequisite to reproducibility. Non-linearity in this case involves both intensity and its first derivative as the spectrum is clocked from the device, and it is not easily treated through numerical correction.  It has to be addressed in electrical design.  A second issue that effects reproducibility involves the device physics of the sensor; how the sensor is driven and operated to effectively move charge from the detector region and along the shift register to the output.  All of this is addressed in the detector system and software provided in this repo, and is described in this readme and supported by data.  We also describe how to obtain and work with the boards and software.  Finally, the effort to develop and post this device and the supporting data, is part of a project to develop and make available open instruments that support open science and underfunded scientists.  You can help through the "support" button at the top of the page.
 
-Let's begin with a quick preview of data to substantiate the central point, that there is a very real problem, which we feel we have solved, and why it is important.
-
-The following are fluorescent lamp spectra, produced with new sensor (left, a) and a widely used commercial instrument (right, b).  The data are normalized to exposure time, which ranges from 10msec to 0.5sec.  In a reliable instrument, these spectra should overlay each other differing only in signal to noise.  That is what we see in (a), the spectra produced with the sensor from this repo, and not in (b), the commercial instrument.  
+The following is offered as a quick preview of data that we will discuss in greater length and compare with data collected side-by-side from a popular commercial instrument in the section ["On Linearity and Reproducibility"](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  The figure here, labeled (a), shows spectra with intensity divided by exposure time.  In (b) we graph the intensities of several lines versus exposure time. We see that the normalized spectra overlay each other very well, and that the intensities are linear over nearly the full dynamic range of the instrument.
 
 <p align="center">
-<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays_parallel.jpg" width="90%">
-<p style="margin-left:3em;margin-right:3em">
+<img src="Images/TCD1304_ND1200_LinearitySummary_1sec.jpg" width="90%">
+<p align="center">
 <i>
-Fluorescent lamp spectra normalized to exposure time. (a) Sensor and instrument, this repo.  (b) Commercial CCD spectrometer.
+(a) Fluorescent lamp spectra normalized to exposure time exhibit consistent intensity and baseline. (b) Peak heights are linear in exposure time over early the full range of the instrument.
 </i>
 </p>
 </p>
 
-We should mention that the lines at 435nm and 546nm are well known lines of Hg.  The tabulated intensities are approximatel 2:1, as they are in (a).  Our hypotheses for this should include optical alignment. But also, the line at 435nm has a very large first derivative compared to the other lines in the spectrum.   We rarely see instruments whether commercial or DIY that can reproduce this line  with the correct ratio of peak heights.  The new instrument, provided in this repo, was designed to have both linearity and sufficient slew to be able to do this.
+The above seems like a simple minimum criteria for an instrument that you might want to use in your research and so, we humbly invite the reader to subject a CCD spectrometer that they may have to the same test.
 
-Here we graph the ratios of the peak heights for the lines at 546nm and 542nm.  The peak height ratios are constant in the new instrument (a) and not in (b).   We feel this goes to a basic point of reproducibility. A meaningful relative peak height should be reasonably independent of intensity and exposure time.
-
-<p align="center">
-<img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_ratios542nm_546nm_1sec.jpg" width="90%">
-<p style="margin-left:3em;margin-right:3em">
-<i>
-Relative peak heights of lines at 542nm and 546nm. (a) Sensor and instrument, this repo.  (b) Commercial CCD spectrometer.
-</i>
-</p>
-</p>
-
-Hopefully the above engages your interest.  We will return to this in more detail later in the repo [(here)](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  Commercial instruments similar to the one in (b) have sold for about 4k to 6k USD and even 10k for earlier versions.  The instrument that we built to collect the above data using the new sensor system provided in this repo, cost a total of 400 USD.  It can certainly be built for less with less costly but still good alternatives for the optics.  Instructions to build your own instrument are included later in this readme.
-  
 Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
 But as most of us who have worked with these since that time are well aware, there have always been issues including non-linearity, unstable base line, intensity carried over from the preceding exposure, and so forth.
 The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible that we can actually use to collect data and publish our research.
