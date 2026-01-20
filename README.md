@@ -336,7 +336,7 @@ The trigger input can be configured as follows, where \<option\> can be any of r
 
        tcd1304> configure trigger <option>
 
-For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#charge-clearance-carry-over-and-relationship-to-gate-driver).
+For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#residual-image-and-relationship-to-the-gate-driver).
 
        tcd1304cli> configure clearing pulses <n>
 
@@ -487,9 +487,9 @@ Fluorescent lamp spectrum.<br>
 </p>
 </p>
 
-#### Carry-over intensity (for kinetic studies)
+#### Residual image (carry-over)
 In studies of dynamic phenomenon, we are interested in the intensity registered in the detector during the time of a particular exposure.
-In CCD detectors there is always some charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  In steady state phenomenon this effect can balance out after a few frames. As noted above, a detailed discussion is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
+In CCD detectors there is always some residual charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  In steady state phenomenon this effect can balance out after a few frames. As noted above, a detailed discussion is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
 
 ### A potential source of non-linearity in CCD spectrometers
 The following provides some insight into how the above phenomena may emerge in a CCD spectrometer (or imaging system) and how this can be addressed.  For simplicity of exposition, we can think in terms of a simplified notional CCD sensor architecture. (The TCD1304 architecture is described further in a later section.)
@@ -999,7 +999,7 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
-### Charge clearance, carry-over and relationship to the gate driver
+### Residual image and relationship to the gate driver
 Now lets take a look at another way in which the gate driver effects performance in the analog section.  In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the shift register.  The following shows what that looks like in action.
 Light produces charge, pulsing the shift gate moves charge to the shift register, which is then shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
 
@@ -1007,9 +1007,9 @@ Light produces charge, pulsing the shift gate moves charge to the shift register
 <img src="Images/DeviceInternals_shiftout.gif" width="60%">
 </p>
 
-We will now what this effect can look like in practice.  The data in this section were collected using the analog sensor board so that we can vary the voltage on shift gate.  The sensor is operated by the controller with the standard firmware included in the repo. We use the low level pulse commands to vary the pulse width.  We coded a timing generator into another Teensy to turn on a red LED in every other frame.    The LED is on for 1.8msec starting 1msec into the first of each pair of rames, each frame is 10msec exposure back to back.
+Let's see at what this effect can look like in practice.  The data in this section were collected using the analog sensor board so that we can vary the voltage on shift gate.  The sensor is operated by the controller with the standard firmware included in the repo. We use the low level pulse commands to vary the pulse width.  We coded a timing generator into another Teensy to turn on a red LED in every other frame.    The LED is on for 1.8msec starting 1msec into the first of each pair of rames, each frame is 10msec exposure back to back.
 
-The following shows data obtained with the LED turned on (in blue) and then off (orange) per the above description.  The data is collected with a 1usec 4V shift pulse. Numerically, we find that the carry-over image is a faithful copy of the preceding frame though noisier and on a reduced scale.
+The following shows data obtained with the LED turned on (in blue) and then off (orange) per the above description.  The data is collected with a 1usec 4V shift pulse. Numerically, we find that the carry-over image is typically a copy of the preceding frame though noisier and on a reduced scale.
 
 <p align="center">
 <img src="Images/Analog_RedLED_4.0V_SH0.5usec_ICG2.6usec_0pulses.260106.carryover.jpg" width="65%">
@@ -1028,7 +1028,7 @@ Initial carry-over is reduced with adequate SH pulse width.
 </p>
 </p>
 
-In the next figure we pulse the shift gate a few times before we start the exposure.  Effectively this is like a series of short exposures, each leaving a percent or so of residual charge.  In other words absent confounding effects it is reasonable to expect that the carry-over should decrease exponential in the number of pulses and approach an asymptote.  The data suggests that in principle we might reduce the carry over to 0.1\%.  In practice we use 4-8 clearing pulses to reduce the carry-over to 1% to 1/2\%.
+In the next figure we pulse the shift gate a few times before we start the exposure.  Effectively this is like a series of short exposures, each leaving a percent or so of residual charge.  In other words absent confounding effects it is reasonable to expect that the carry-over should decrease exponential in the number of pulses and approach an asymptote.  The data suggests that in principle we might reduce the carry-over to 0.1\%.  In practice we use 4-8 clearing pulses to reduce the carry-over to 1% to 1/2\%.
 
 <p align="center">
 <img src="Images/Carryover_pulse_voltage_all.jpg" width="65%">
