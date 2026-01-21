@@ -5,6 +5,10 @@
 </p>
 <br>
 
+By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026](#LICENSE)
+
+<br>
+
 #### Table of Contents
 - [Introduction](#introduction)
 	- [SPI Instrumentation Project](#-the-spi-instrumentation-project---open-instruments-for-open-science)
@@ -25,6 +29,8 @@
 	+ [SPICE model for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
 	- [Gate driver and analog signal integrity](#gate-driver-and-analog-signal-integrity)
 - [Appendix A - quick command list](#appendix-a-quick-command-list)
+
+<br>
 
 ## Introduction
 
