@@ -7,6 +7,8 @@
 
 By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026](#LICENSE)
 
+This project provides a scientific-grade implementation of the TCD1304 linear CCD, specifically engineered to address non-linearities, including sampling undershoot and residual charge artifacts, that limit many open-source designs and commercial OEM spectrometers. 
+
 #### Table of Contents
 - [Introduction](#introduction)
 	- [SPI Instrumentation Project](#-the-spi-instrumentation-project---open-instruments-for-open-science)
