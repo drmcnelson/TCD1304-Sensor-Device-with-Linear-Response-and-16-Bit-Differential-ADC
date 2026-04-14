@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
 """
-TCD1304Controller.py
+TCD1304DeviceMP.py
 
-Mitchell C. Nelson (c) 2021-2026
+Mitchell C. Nelson (c) 2023, 2024, 2025
 
 December 5, 2025
 
@@ -13,14 +13,14 @@ Derived from TDAQSerial.py, TCD1304Serial.py, Copyrigh 2021 by M C Nelson
 """
 
 __author__    = "Mitchell C. Nelson, PhD"
-__copyright__ = "Copyright 2021-2026, Mitchell C, Nelson"
-__version__   = "0.5"
+__copyright__ = "Copyright 2025, Mitchell C, Nelson"
+__version__   = "0.4"
 __email__     = "drmcnelson@gmail.com"
-__status__    = "beta testing"
+__status__    = "alpha testing"
 
 __all__ = [ 'TCD1304CONTROLLER' ]
 
-versionstring = 'TCD1304Controller.py - version %s %s M C Nelson, PhD, (c) 2021-2026'%(__version__,__status__)
+versionstring = 'TCD1304Device.py - version %s %s M C Nelson, PhD, (c) 2025'%(__version__,__status__)
 
 import sys
 import time
@@ -85,16 +85,9 @@ try:
 except:
     has_GraphicsWindow = False
     
-try:
-    from FlexPWMVisualizer import FlexPWMVisualizer
-    has_FlexPWMVisualizer = True
-except:
-    has_FlexPWMVisualizer = False
-    
 # ----------------------------------------------------------
 try:
     from PulseTimingDevice import PULSETIMINGDEVICE
-    import tkinter as tk
     has_PulseTimingDevice = True
 except:
     has_PulseTimingDevice = False
@@ -110,12 +103,12 @@ def errorprint(*s):
 def input_ready():
     return (sys.stdin in select.select([sys.stdin], [], [], 0)[0])
 
-def key_in_list( ls, key, mapf=str, default=None ):
+def key_in_list( ls, key, mapf=str ):
     try:
         idx = ls.index(key)
         return mapf( ls[idx+1] )
     except:
-        return default
+        return None
 
 def generate_x_vector( npoints, coefficients = None ):
 
@@ -295,8 +288,6 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
     darkstart = 0    
     darklength = 0
     darkstop = darkstart + darklength
-    datastart = 0
-    datastop = 0
     invert = False
     sensor = None
     scale_offset = 0
@@ -305,8 +296,6 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
     vfs = 3.3
     vperbit = vfs/(2**16-1)
 
-    do_dataput = True
-    
     # ----------------------------------------------
     serialport = serial.Serial( portspec, timeout=1., write_timeout=1. )
     if serialport is None:
@@ -324,25 +313,13 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
     while runflag:
 
         # write whatever is waiting to be written
-        while not write_empty():
+        while  not write_empty():
 
             line = write_get().strip() + '\n'
+            if debug:
+                print( "TCD1304port sending", line)
 
-            if line.startswith("data"):
-
-                p = line.split()
-                if len(p) > 1 and p[1] == "off":
-                    print( "data off")
-                    do_dataput = False
-                else:
-                    print( "data on")
-                    do_dataput = True
-
-            else:
-                if debug:
-                    print( "TCD1304port sending", line)
-
-                serialport.write(line.encode())
+            serialport.write(line.encode())
         
         # Check bytes waiting
         waiting = serialport.in_waiting
@@ -371,9 +348,8 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
                     nbytes -= len(data)
                     while nbytes > 0:
                         nextdata = serialport.read(nbytes)
-                        data += nextdata
                         nbytes  -= len(nextdata)
-                        print("serialport read BINARY16 next", len(nextdata), "TOTAL ", len(data), "remainder", nbytes )
+                        data.append(nextdata)
 
                     timestamp = datetime.now()
 
@@ -393,8 +369,7 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
                         #print("raw data type", type(dataframe.data[0]), np.dtype(dataframe.data[0][0]))
                         
                         # We put the raw data on the queue
-                        if do_dataput:
-                            data_put(dataframe)
+                        data_put(dataframe)
 
                         # Prepare a record for the graphical display
                         text = ""
@@ -453,9 +428,8 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
                         dataframe.timestamp = timestamp
 
                         # We put the raw data on the queue
-                        if do_dataput:
-                            print( "putting frame counter", dataframe.frame_counter, dataframe.frame_elapsed)
-                            data_put(dataframe)
+                        print( "putting frame counter", dataframe.frame_counter, dataframe.frame_elapsed)
+                        data_put(dataframe)
 
                         # Prepare a record for the graphical display
                         text = ""
@@ -507,9 +481,8 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
                         dataframe.timestamp = timestamp
 
                         # We put the raw data onto the queue
-                        if do_dataput:
-                            print( "putting frame counter", dataframe.frame_counter, dataframe.frame_elapsed)
-                            data_put(dataframe)
+                        print( "putting frame counter", dataframe.frame_counter, dataframe.frame_elapsed)
+                        data_put(dataframe)
 
                         # Prepare a record for the graphical display
                         text = ""
@@ -677,25 +650,19 @@ def TCD1304port(portspec, writequeue, textqueue, dataqueue, graphicsqueue, runfl
                 elif p[0] == "PIXELS":
 
                     # local copy of the configurawtion
+
                     datalength = key_in_list( p, "PIXELS", int )
                     pixelpitch = 8.0E-3
-
-                    datastart  = key_in_list( p, "START", int, 0 )
-                    datastop   = key_in_list( p, "STOP", int, 0 )
-
-                    darkstart  = datastart
+                    darkstart = 0    
                     darklength = key_in_list( p, "DARK", int )
-                    darkstop = darkstart + darklength
-
-                    invert     = key_in_list( p, "INVERT", float )
-                    sensor     = key_in_list( p, "SENSOR", str )
+                    invert = key_in_list( p, "INVERT", float )
+                    sensor = key_in_list( p, "SENSOR", str )
                     scale_offset = key_in_list( p, "OFFSET", float )
                     scale_range = key_in_list( p, "RANGE", float )
-                    bits        = key_in_list( p, "BITS", int )
-                    vfs         = key_in_list( p, "VFS", float )
-                    vperbit     = key_in_list( p, "VPERBIT", float )
+                    bits = key_in_list( p, "BITS", int )
+                    vfs = key_in_list( p, "VFS", float )
+                    vperbit = key_in_list( p, "VPERBIT", float )
 
-                    
                     if vfs and bits:
                         vperbit = vfs/(2**bits - 1)
 
@@ -728,7 +695,7 @@ class TCD1304CONTROLLER:
 
     _ids = count(0)
     
-    def __init__( self, portspec, readtimeout=1., writetimeout=1., monitor=True, graphics=True, visualizer=True,
+    def __init__( self, portspec, readtimeout=1., writetimeout=1., monitor=True, graphics=True,
                   graph_by_pixels=False, graph_by_mm=False, xrange=None, yrange=None, graph_ylabel='spectrum',
                   coefficients=None, gui=False,
                   graph_xlabel='wavelength',
@@ -743,10 +710,7 @@ class TCD1304CONTROLLER:
             
         if monitor and not has_TextWindow:
             raise ValueError( "Monitor requested, but TextWindow.py not loaded." )
-
-        if visualizer and not has_FlexPWMVisualizer:
-            raise ValueError( "Visualizer requested, but FlexPWMVisualizer.py not loaded." )
-        
+            
         # ------------------------------------------------------------------
         self.ser = serial.Serial( portspec, timeout=readtimeout, write_timeout=writetimeout )
 
@@ -794,10 +758,7 @@ class TCD1304CONTROLLER:
         self.graph_by_pixels = graph_by_pixels
 
         # ---------------------------------
-        if visualizer:
-            self.flexpwm = FlexPWMVisualizer()        
 
-        # ---------------------------------
         self.debug = debug
         
         # ---------------------------------
@@ -923,7 +884,7 @@ class TCD1304CONTROLLER:
 
     # ======================================================================================
     def parseparameters(self,line):
-        
+
         if not line or line is None:
             return False
         
@@ -945,18 +906,10 @@ class TCD1304CONTROLLER:
 
             parts = line.split()
 
-            print("pixels line", line, "parts", parts)
-
             self.datalength = key_in_list( parts, "PIXELS", int )
             self.pixelpitch = 8.0E-3
-
-            self.datastart  = key_in_list( parts, "START", int, 0 )
-            self.datastop   = key_in_list( parts, "STOP", int, 0 )
-
-            self.darkstart  = self.datastart
+            self.darkstart = 0    
             self.darklength = key_in_list( parts, "DARK", int )
-            self.darkstop   = self.darkstart + self.darklength
-            
             self.invert = key_in_list( parts, "INVERT", float )
             self.sensor = key_in_list( parts, "SENSOR", str )
             self.scale_offset = key_in_list( parts, "OFFSET", float )
@@ -969,20 +922,17 @@ class TCD1304CONTROLLER:
                 self.vperbit = self.vfs/(2**self.bits - 1)
                 print( "BITS", self.bits, "VFS", self.vfs, "Vperbit", self.vperbit )
 
+            if self.version == "T4LCD vers 0.3":
+                print( "has early version datastart 12 instead of 16")
+                self.darkstart = 4
+
             if self.scale_offset is None:
                 self.scale_offset = 0.
 
             if self.scale_range is None:
                 self.scale_range = self.vfs
 
-            if self.version == "T4LCD vers 0.3":
-                print( "has early version datastart 12 instead of 16")
-                self.darkstart = 4
-                self.darkstop = self.darkstart + self.darklength
-
             print( "pixels", self.datalength,
-                   "start", self.datastart,
-                   "stop", self.datastop,
                    "dark", self.darklength,
                    "invert", self.invert,
                    "vperbit", self.vperbit,
@@ -1019,14 +969,8 @@ class TCD1304CONTROLLER:
                 self.xdata = generate_x_vector( self.datalength, self.coefficients )
                 return True
 
-        elif line.lower().startswith('flexpwm:'):
+        elif line.startswith('flexpwm:'):
 
-            print("parseparameters flexpwm line:", line)
-            if self.flexpwm.parse_line(line):
-                print("visualizer got flexpwm line")
-                #return True
-
-            # no longer need this, we have a parser for the data file
             pars=line.split(maxsplit=3)
             if len(pars)==4:
                 parname="flexpwm_"+pars[1]+"_"+pars[2]
@@ -1043,7 +987,7 @@ class TCD1304CONTROLLER:
             else:
                 print("flexpwm line not processed: ", line)
                 return False
-            
+
         return False
 
     # --------------------------------------------------------------------------------------
@@ -1059,7 +1003,6 @@ class TCD1304CONTROLLER:
                     buffer = self.textqueue.get(timeout=timeout)
                     if buffer.startswith("DONE"):
                         return responses
-                    print("read got", buffer)
                     self.parseparameters(buffer)
                     responses.append(buffer)
                 except Empty:
@@ -1090,23 +1033,21 @@ class TCD1304CONTROLLER:
 
 
     # Wait for completion of data frames
-    def wait(self, timeout=None, interruptible=False):
+    def wait(self, timeout=None, interruptible=False ):
 
         if timeout is None:
-            print("wait timeout None")
             while self.busyflag.value:
                 if interruptible and input_ready():
                     return False
                 sleep( 0.2 )
             return True
-        # ----------------------------
+        
         try:
             timeout = float(timeout)
         except:
             print( "not valid timeout value", timeout )
             return False
             
-        print("wait timeout", timeout)
         while self.busyflag.value:
             if interruptible and input_ready():
                 return False
@@ -1319,7 +1260,7 @@ class TCD1304CONTROLLER:
         
     # =============================================================================================
     # Condense all of the acquired framesets into a single frameset
-    def add_ensembles(self,framerecords=None):
+    def addframesets(self,framerecords=None):
 
         # Fetch everything that is on the queue
         if framerecords is None:
@@ -1338,7 +1279,7 @@ class TCD1304CONTROLLER:
         frame_counts = list(frame_counts)
         if len(frame_counts) > 1:
             if self.debug:
-                print("Error: cannot add ensembles with different lengths")
+                print("Error: cannot add framesets with different lengths")
             for r in framerecords:
                 self.dataqueue.put(r)
             return []
@@ -1350,7 +1291,7 @@ class TCD1304CONTROLLER:
         frame_counters = list(frame_counters)
         if max(frame_counters) > frame_counts:
             if self.debug:
-                print("Error: cannot add ensembles with frame counters greater than length of the frameset")
+                print("Error: cannot add framesets with frame counters greater than length of the frameset")
             for r in framerecords:
                 self.dataqueue.put(r)
             return []
@@ -1610,7 +1551,7 @@ class TCD1304CONTROLLER:
                 print( "" )
                 print( "   Process frames from the data queue" )
                 print( "     add all [after n]           - leaves one frame for save, (option skip first n frames)"  )
-                print( "     add ensemble|frameset       - leaves one frameset (ensemble) for save"  )
+                print( "     add frameset                - leaves one frameset for save"  )
                 print( "" )
                 print( "     clear                       - empty the data and text queues" )
                 print( "" )
@@ -1624,11 +1565,6 @@ class TCD1304CONTROLLER:
                 print( "   baseline on | off             - turn baseline correction on/off" )
                 print( "" )
                 print( "   tcd1304 ....                  - pass command to the tcd1304" )
-                print( "" )
-                print( "   show setup                    - list flex register setups, after setup pulse, etc" )
-                print( "   show submodulename            - list flex register setups, after setup pulse, etc" )
-                print( "   show timing                   - pop-up graphical display for the flexpwm settings" )
-                print( "" )
                 print( "" )
                 print( "   Pass command to operation system shell" )
                 print( "     !command                  - execute shell command" )
@@ -1711,8 +1647,8 @@ class TCD1304CONTROLLER:
             return False
 
 
-        elif line.startswith('add ensemble') or line.startswith('add frameset'):
-            frames = self.add_ensembles()
+        elif line.startswith('add framesets'):
+            frames = self.addframesets()
             if frames and len(frames):
                 self.enqueue_dataframes(frames)
         
@@ -1781,10 +1717,6 @@ class TCD1304CONTROLLER:
                 line = line.strip()
                 status = True
 
-                if input_ready():
-                    print("interrupted by keyboard input")
-                    return False
-                                    
                 print(batchfile, "=>", line)
                 
                 for line_ in line.split(';'):
@@ -1807,12 +1739,6 @@ class TCD1304CONTROLLER:
                         print("device is busy, need to wait, clear or stop first")
                         status = False
                         return False
-
-                    '''
-                    if line_.startswith('"') or line_.startswith("'"):
-                        exec( "line_ = "+line_, self.__dict__, globals())
-                        print( "line_", line_)
-                    '''
                     
                     if not self.commandlineprocessor( line_, fileprefix ):
                         status = False
@@ -1919,59 +1845,12 @@ class TCD1304CONTROLLER:
                 print(e)
                 return False
 
-        elif line.startswith("show setup"):
-
-            pars = line.split()
-            if len(pars) > 2:
-                try:
-                    submodulename = pars[2]
-                    print('viz.submodule['+submodulename+'] = ', self.flexpwm.submodules[submodulename].__dict__)
-                except Exception as e:
-                    print(pars[1],e)
-                    return False
-
-            elif len(self.flexpwm.submodules):
-                for submodulename,submodule in self.flexpwm.submodules.items():
-                    print('viz.submodule['+submodulename+'] = ', self.flexpwm.submodules[submodulename].__dict__)
-            else:
-                print("no flexpwm visualizer submodules loaded yet, try \"setup pulse\" first")
-                return False
-                
-        elif line.startswith("show timing"):
-
-            print( "doing show timing")
-            if 'ICG' in self.flexpwm.submodules and 'CNVST' in self.flexpwm.submodules:
-                icg = self.flexpwm.submodules['ICG']
-                cnvst = self.flexpwm.submodules['CNVST']
-        
-                # Calculate tick_ns based on the bus frequency (150MHz)
-                tick_ns = 1000.0 / self.flexpwm.f_bus
-        
-                # Apply the logic: Offset = ICG falling edge + 900ns (0.9us)
-                # Note: 1000. / 150. * 2**presc converts cycles to ns
-                cnvst.offset = (icg.offA * tick_ns * (2**icg.presc)) + 900
-        
-                print(f"Controller calibrated CNVST offset to: {cnvst.offset:.2f} ns")
-                
-            if not tk._default_root:
-                root = tk.Tk()
-                root.withdraw() # This hides the "extra" tiny window
-            top = tk.Toplevel() 
-            top.title("TCD1304 Timing Inspection")
-            top.geometry("1000x700")    
-            self.flexpwm.popup(top)
-            return True            
-
         elif line is not None and len(line) > 0:
 
             if line.startswith("tcd1304") and len(line.split()) > 1:
                 line = line.split(maxsplit=1)[1]
 
-            print("sending", line)
-            response = self.command(line)
-            if len(response) :
-                for line in response:
-                    print(">response:", line )
+            self.command(line)
             
         else:
             # Nothing was sent, read any pending responses

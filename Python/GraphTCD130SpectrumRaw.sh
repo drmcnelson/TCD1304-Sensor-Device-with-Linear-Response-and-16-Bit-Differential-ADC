@@ -24,9 +24,9 @@ ${here}/DataReader.py \
        t=d.frames[${nframe}].frame_exposure \
        n=d.frames[${nframe}].frame_counter \
        x=d.xdata \
-       y=d.data[${nframe},0,:]/t \
+       y=d.data[${nframe},0,:] \
        "text=\"%d exposure:%.3gs\"%(n,t)" \
-       ylabel="\"ADU/sec\"" \
+       ylabel="\"ADU\"" \
        $@
 
 

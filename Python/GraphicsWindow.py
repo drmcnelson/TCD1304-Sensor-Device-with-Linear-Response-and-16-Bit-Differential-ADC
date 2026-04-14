@@ -140,20 +140,23 @@ class GraphicsWindow:
 
         if self.flag.value:
             while True:
+                record = None
                 try:
                     record = self.queue.get(block=False)
 
-                    self.graphrecord_( record )
+                    # self.graphrecord_( record )
 
                     self.history.append(record)
                     if len(self.history) > 100:
                         self.history.pop(0)
                     self.historypointer = len(self.history)-1
                         
-                    #print( 'got record' )
                 except queue.Empty:
                     break
 
+                if record is not None:
+                    self.graphrecord_( record )
+                    
         else:
             self.ani.event_source.stop()
             plt.close()
