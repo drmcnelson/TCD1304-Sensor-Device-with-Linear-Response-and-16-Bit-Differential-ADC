@@ -7,7 +7,9 @@
 
 By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026](#LICENSE)
 
-This project provides a scientific-grade implementation of the TCD1304 linear CCD, specifically engineered to address non-linearities, including sampling undershoot and residual charge artifacts, that limit many open-source designs and commercial OEM spectrometers. 
+This repository provides the open-sourced hardware, firmware and documentation for a low noise high-precision Linear CCD instrument.
+The present 2026 Infrastructure Upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
+The resulting system achieves <0.5% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
 
 #### Table of Contents
 - [Introduction](#introduction)
@@ -32,9 +34,60 @@ This project provides a scientific-grade implementation of the TCD1304 linear CC
 
 ## Introduction
 
-This repo offers a linear-CCD sensor system based on the TCD1304DG that is designed specifically for *reproducible linear response*. For a spectrometer, as will be shown, linear response is a prerequisite to reproducibility. Non-linearity in this case involves both intensity and its first derivative as the spectrum is clocked from the device, and it is not easily treated through numerical correction.  It has to be addressed in electrical design.  A second issue that effects reproducibility involves the device physics of the sensor; how the sensor is driven and operated to effectively move charge from the detector region and along the shift register to the output.  All of this is addressed in the detector system and software provided in this repo, and is described in this readme and supported by data.  We also describe how to obtain and work with the boards and software.  Finally, the effort to develop and post this device and the supporting data, is part of a project to develop and make available open instruments that support open science and underfunded scientists.  You can help through the "support" button at the top of the page.
+The following table summarizes the performance metrics achieved through our physics-informed electrical architecture and hardware-locked timing system. Moving beyond typical hobbyist or general-purpose electrical designs, this instrumentation-grade approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($< 0.0015\%$ error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin ($225\text{ V/µs}$ capability vs. $7.5\text{ V/µs}$ demand), the design ensures that the variance observed in our 810-frame Photon Transfer Curve (PTC) is a pure reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
 
-The following is offered as a quick preview of data that we will discuss in greater length and compare with data collected side-by-side from a popular commercial instrument in the section ["On Linearity and Reproducibility"](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  The figure here, labeled (a), shows spectra with intensity divided by exposure time.  In (b) we graph the intensities of several lines versus exposure time. We see that the normalized spectra overlay each other very well, and that the intensities are linear over nearly the full dynamic range of the instrument.
+<h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th align="left">Metric</th>
+      <th align="left">Validated Value</th>
+      <th align="left">Characterization / Methodology</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>Integral Non-Linearity (INL)</b></td>
+      <td><b>&lt; 0.5%</b></td>
+      <td>Measured to &gt;99% of well capacity, preserved across high gradient spectral transitions.</td>
+    </tr>
+    <tr>
+      <td><b>Quantization</b></td>
+      <td><b>16-bit</b> (65,536 ADU)</td>
+      <td>External differential 1MSPS ADC (MCP33131D) with low impedance FDA driving circuit.</td>
+    </tr>
+    <tr>
+      <td><b>Read Noise Floor (σ)</b></td>
+      <td><b>11–13 ADU</b></td>
+      <td>Derived from photon transfer curve (PTC) analysis over an 810-frame dark ensemble with pairwise subtraction to isolate Fixed Pattern Noise (FPN).</td>
+    </tr>
+    <tr>
+      <td><b>Gain (K)</b></td>
+      <td><b>0.9563</b> e<sup>-</sup>/ADU</td>
+      <td>Calculated via the inverse slope from the PTC method.</td>
+    </tr>
+    <tr>
+      <td><b>Timing Stability (Jitter)</b></td>
+      <td><b>&lt; 10 ns</b></td>
+      <td>Hardware-locked synchronization using i.MX RT1062 FlexPWM and PIT modules.</td>
+    </tr>
+    <tr>
+      <td><b>Dynamic Range (Ensemble)</b></td>
+      <td><b>&gt; 140,000:1</b></td>
+      <td>103 dB ratio of saturation limit to characterized noise floor; validated via PTC.</td>
+    </tr>
+    <tr>
+      <td><b>Dynamic Range (Single)</b></td>
+      <td><b>&gt; 5000:1</b></td>
+      <td>Instantaneous range sufficient for high-contrast absorption and fluorescence studies.</td>
+    </tr>
+  </tbody>
+</table>
+
+<br>
+
+Stability and linearity are closely related to reproducibility in CCD instruments and therefore are critical to their use in Science.   The following figures show (a) spectra with intensity divided by exposure time and (b) intensities of several spectral lines versus exposure time.  A simple test that an instrument meets the above criteria is that spectra normalized in this way overlay each other, as they do here.  This works only when the baseline and response are stable and linear. Similarly, if we graph intensity of spectral lines against exposure time we expect all of the lines to be linear with a common intercept, again as we see here.  We invite the reader to try these measurements with a commercial instrument and compare.  Further details are provided in the section ["On Linearity and Reproducibility"](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).
 
 <p align="center">
 <img src="Images/TCD1304_ND1200_LinearitySummary_1sec.jpg" width="90%">
@@ -44,16 +97,18 @@ The following is offered as a quick preview of data that we will discuss in grea
 </i>
 </p>
 </p>
+<br>
 
-The above seems like simple, minimum criteria for an instrument that you might want to use in your research and so, we humbly invite the reader to subject a CCD spectrometer that they may have to the same test.
+
+### Background and contents of this repository
+
+This repo offers a linear-CCD sensor system based on the TCD1304DG that is designed specifically for *stable, reproducible, linear response*. For a spectrometer, as will be shown, stability and linear response are prerequisite to reproducibility. Linearity in this case involves both intensity and line shape.  This translates to requirements in terms of slew (dV/dt) and settling time.  A second issue is residual charge, which can manifest in different ways depending on whether it appears in the sensor region or along the analog shift register. The third and four issues are thermal and electrical stability. These can show up as anomalous excursions or unstable baseline.  What might be apparent in the above, is that these are fundamentally electrical issues. If numerical correction might have a place in instrument response, it should come after well designed instrumentation electronics and timing. In the present design, we achieve INL in the range of 0.2% in the raw data over almost the entirety of the dynamic range of the sensor.
+
+We describe here how to obtain and work with the sensor system and software and as much as we feasibly can about how the design works. The present design and write-up are part of our project to make available Open Instruments that support Open Science and under-resourced scientists.  You can help through the "Support" button at the top of the page.
 
 Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
 But as most of us who have worked with these since that time are well aware, there have always been issues including non-linearity, unstable base line, intensity carried over from the preceding exposure, and so forth.
-The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible that we can actually use to collect data and publish our research.
-
-In our studies leading to the present design, the TCD1304 itself proved to be remarkably linear. (Some vendors attribute their non-linearities to the sensor; it is not true.)  Rather, the challenge is in electrical design to account for both the nature of the signals produced on reading a spectrum or technical image from the CCD and the stricter requirements on linearity for purposes of a scientific instrument.  The "carry-over" though inherent to the physics of the device, is a function of how the device is operated.  We show that it can be made negligible or treated numerically.  These challenges are  perhaps not too complicated, but they do require experience in having actually used these instruments as a scientist, some meticulous attention to detail and careful analysis to design an instrument to do the job properly.  In general we feel that design of a scientific instrument should proceed with at least the same uncompromising exactitude with which it will be used.  We offer the present design with the hope that this will "set a new bar" for CCD based spectrometers.
-
-In this README we cover a lot of ground, from getting and working with the boards, describing linearity, non-linearity and other behaviors effecting reproducibility in real instruments and  providing a tutorial in electrical design with example circuits and SPICE models to illustrate key points. 
+The goal of this project was to finally and fully address these issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible that we can actually use to collect data and publish our research.  Hopefully the present design will "set a new bar" for CCD based spectrometers.
 
 This repo provides (a) fab files and BOM for making the boards, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models as referred to in the text and including those we used to develop and test the design. 
 
@@ -64,11 +119,12 @@ We begin with a summary of what is contained in the rest of the readme and repo.
 ### Implementations
 
 We provide three implementations of the sensor system hardware (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
-The firmware and Python codes provided in this repo, can be used with any of the three hardware implementations.
 
 In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at
 <span>$</span>40 and <span>$</span>24 respectively
 and the PCB which generally runs around <span>$</span>18 per board in small quantities (including tariffs).
+
+Note that the performance metrics achieved by the design are a function of both the hardware and firmware.
 
 #### Two board system, 16 bit sensor board and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The ribbon cable carries logic signals and power for the SPI interface (1.7V-5.1V).  The two wire connection (red and black) is 5V power. Internally, there are separate low noise power circuits and ground planes for the analog section and gate drivers. We observe 0.6mV dark noise, electrical noise is more than 10 times lower (less than 1 LSB with the sensor removed). And the board is able to linearly follow peaks to full scale in one pixel.  Fiduciary marks on both sides of the sensor board facilitate optical alignment.
@@ -86,11 +142,10 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 Component costs for the high end 16-bit system are currently <span>$</span>110 for the sensor board and <span>$</span>88 for the controller, or <span>$</span>198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
 
 We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to <span>$</span>290.
-With tariffs our cost per set is now <span>$</span>395 to <span>$</span>422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain.
- 
+With tariffs our cost per set is now <span>$</span>395 to <span>$</span>422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain. 
 
 #### "All-in-one", sensor and controller on a single board.
-The following shows the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device offers similar performance in terms of linearity to the two board system, but with 12 bit precision.  It has a single ended analog signal path and uses the built-in analog input of the Teensy 4.0 (and therefore has fewer parts, costs less and is easier to hand assemble).
+The following shows the single board "all-in-one" device with sensor, electronics and controller all on one board.  This device still offers good performance in terms of linearity but with 12 bit precision.  It has a single ended analog signal path and uses the built-in analog input of the Teensy 4.0 (and therefore has fewer parts, costs less and is easier to hand assemble).
 
 <p align="center">
 <img src="Images/TCD1304-all-in-one-top_bottom.jpg" width="75%">
@@ -104,8 +159,10 @@ TCD1304 All-In-One Board, (a) bottom showing the sensor, (b) top showing the mic
 </p>
 The component costs are currently <span>$</span>86 including TCD1304 and Teensy, plus <span>$</span>18 for the PCB, for a total of <span>$</span>104. We generally assemble these in house. The passives are 0603 or larger. The two IC's are 8 pin, 0.65mm pitch. It takes us a few hours or about half of a day.
 
+If you use this with the provided firmware, in TCD1304Device2c.h look for and uncomment the line "// #define ALLINONEBOARD".  This configures the code to use the internal analog input of the microcontroller rather than the external ADC.
+
 #### Analog sensor board with gate drivers
-The following shows our analog-output sensor board.  This also has the single ended analog circuit as in the all-in-one board, and similar gate drivers. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic to operate the CCD gates.  We developed this board to provide a better and actually useful alternative to the analog boards offered on some DIY sites.  The output is intended to be compatible with the inputs of typical processor boards in the Arduino ecosystem, but linearity and ability to meet the clocking requirements for the CCD sensor will depend on which Arduino ecosystem board and firmware you choose to use.   Running the board from our Teensy 4.0 controller and firmware, we found that it has very good linearity and, similar to the above, it is able to track peaks to full scale in one pixel.
+The following shows our analog-output sensor board.  This also has the single ended analog circuit as in the all-in-one board, and similar gate drivers. The board can be powered from 4V to 5.5V and accepts 3.3V to 5V logic to operate the CCD gates.  We developed this board to provide an actually useful alternative to the analog boards offered on some DIY sites.  The output is intended to be compatible with the inputs of typical processor boards in the Arduino ecosystem, but linearity and ability to meet the clocking requirements for the CCD sensor will depend on which Arduino ecosystem board and firmware you choose to use.   Running the board from our Teensy 4.0 controller and firmware, we found that it has very good linearity including for sharp spectral lines.
 
 <p align="center">
 <img src="Images/TCD1304_Analog.top.p600.jpg" width="37%">
@@ -123,7 +180,7 @@ Parts costs are currently <span>$</span>65 including the TCD1304, plus <span>$</
 
 ### Reproducibility and linearity
 
-As noted, reproducibility is vitally important for any instrument and for a spectrometer linearity is a pre-requisite for reproducibility (as well as for basic capabilities such as signal averaging). And CCD spectrometers are historically challenged for both linearity and reproducibility. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
+As noted, reproducibility is vitally important for any instrument and for a spectrometer stability and linearity are pre-requisite for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
@@ -135,7 +192,7 @@ Total cost of materials for the spectrometer is under <span>$</span>400, includi
 ### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
-The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for both its speed at 600MHZ and its high speed USB at 480Mhz.   Additionally it provides a flexible timing generator (FlexPWM) which we feel is better suited to the task of operating the TCD1304 compared to the PWM peripherals offered in other MCU boards.   In the present system, including firmware and software, we are able to produce well controlled exposure times to as short as 10usec and frame rates a little faster than 100fps. 
+The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for both its speed at 600MHZ, its high speed USB at 480Mhz and its multi-channel FlexPWM module.  The latter is critical to the precise timing relationships and functionality needed to achieve high-end performance metrics and operation over five orders of magnitude in exposure time.
 
 ### Firmware
 
@@ -170,6 +227,8 @@ If you would like to sponsor or receive boards, please contact me.
 ### <font color="blue"> *Permissions, no warranty or guarantee, and etc.*</font>
 Permission is hereby granted for you to build and use these boards and codes in your lab and for your personal use.
 Please cite appropriately if you use these in your published work.
+
+Portions of the hardware-locked timing architecture and other aspects of the design, are subject to pending patent protection.
 
 Please contact me if you need/want:
 <ul>
@@ -240,26 +299,23 @@ After the boards are assembled, you will need to install the Teensy board in the
 
 The firmware codes are found in the repo in the Firmware subdirectory
 
-(In the following, the "251208" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
+(In the following, the "260318" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
 
-    TCD1304Device_Controller_251208/
+    TCD1304Device_Controller_260318/
     
-      TCD1304Device_Controller_251208.ino  - The controller program with CLI
+      TCD1304Device_Controller_260318.ino  - The controller program with CLI
     
-      TCD1304Device2.h  -  A header-only C++ library for the TCD1304 and Teensy4.x (iMXRT106x)
+      TCD1304Device2c.h  -  A header-only C++ library for the TCD1304 and Teensy4.x (iMXRT106x)
       
       parselib.cpp      - A string parsing library for the CLI
       parselib.h
 
       Doxyfile          - Doxygen configuration file
-
-      TCD1304Device_Controller_refman.pdf
-                        - Listing generated by doxygen
       
 
 The Arduino IDE requires that the "ino" file and directory have the same name.
 
-To load firmware into the "All-In-One" board, open the file **TCD1304Device2.h** in a text editor or find its "tab" in the Arduino IDE, and un-comment the following line. It is at line 23 in the current version of the file.
+To load firmware into the "All-In-One" board, open the file **TCD1304Device2c.h** in a text editor or find its "tab" in the Arduino IDE, and un-comment the following line. It is at line 24 in the current version of the file.
 
       //#define ALLINONEBOARD
 
@@ -334,21 +390,21 @@ The first form collects "back-to-back" frames with exposure time congruent with 
 Dark noise has a minimum at about 10-20 msecs.
 There is no effective upper limit on exposure time in this mode, apart from the increase in registering cosmic rays. Signal averaging can be done on line (see **add**) or after data is save to a file.
 
-The second form collects fast "frame sets" with short exposure times. The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. The maximum frame interval in this node is about 55&nbsp;msecs. Signal averaging is available for this mode, too.
+The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to us "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. Signal averaging is available for this mode, too.
 
 The trigger input can be configured as follows, where \<option\> can be any of rising, falling or change, pullup or nopullup, or pin \<pin-number\>.
 
        tcd1304> configure trigger <option>
 
-For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#residual-image-and-relationship-to-the-gate-driver).
+For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#residual-image-and-relationship-to-the-gate-driver).   The pulse loop architecture described above takes care of clearing pulses internally.
 
        tcd1304cli> configure clearing pulses <n>
 
-Middle level commands including **setup pulse..**, **setup frameset...**, **setup timer**, **start** and **trigger**, provide data collection capabilities with detailed control of the timing for the pulse sequence that operates the sensor.  There is also a complete set of low level commands for register level access to the FlexPWM timing generator in the MCU.
+Middle level commands including **setup pulse..**, **setup pulse loop...**, **setup timer**, **start** and **trigger**, provide data collection capabilities with detailed control of the timing for the pulse sequence that operates the sensor.  There is also a complete set of low level commands for register level access to the FlexPWM timing generator in the MCU.
 
 **The Python controller program** saves incoming data onto a queue. The command **save \<filespec\>** retrieves and writes the data to disk.  The command **clear** empties the data queue without writing to disk.  The saved data includes the "0" frame. The first exposure interval is frame 1.
 
-Data frames can be added using **add all** which sums all of the data into one frame, or **add all after n** which sums all the frames after the first "n" frames, or **add framesets** which sums the data at each index in the frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  (See the next section "On Linearity and Reproducibility...")
+Data frames can be added using **add all** which sums all of the data into one frame, or **add all after n** which sums all the frames after the first "n" frames, or **add ensemble(s)** which sums the data at each index in the frame set.  After adding the frames, you can use **save** as above, or collect more data and add again.  (See the next section "On Linearity and Reproducibility...")
 
 Following is an example that shows the data produced with a single frame at low intensity compared to that produced by adding 100 frames collected at the same signal intensity.  The signal to noise ratio increases by a factor of 10 as expected (√N).  Aside, being able to add data frames and obtain meaningful data is possible only when your instrument is linear.  We will discuss this in further detail in the next section.
 
@@ -1004,7 +1060,9 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
 ### Residual image and relationship to the gate driver
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the shift register.  The following shows what that looks like in action.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  it should be noted that the issue we are going to describe now is largely mitigated away in the "pulse loop" command and timing architecture that we described earlier.   Nonetheless it is useful to understand something of how this works.
+
+In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the shift register.  The following shows what that looks like in action.
 Light produces charge, pulsing the shift gate moves charge to the shift register, which is then shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
 
 <p align="center">
@@ -1041,74 +1099,242 @@ Carry-over decreases with number of SH (clearing) pulses.
 </p>
 </p>
 
+We can see that residual charge is a necessary part of the physics of the CCD detector device.  Pulsing the SH gate clears the residual charge asymptotically to a level proportional to the pulsing interval.   So simple mitigation is a series of fast SH pulses between frames.  We do this automatically in pulse loop mode and we have a configurable clearing pulse control for back to back or externally timed  exposures.  Nonetheless, if we are doing back to back exposures with no inter-frame available to clear the residual charge, then we may need to take this effect into account either in our setup or post processing.
 
-#### Mitigation
-We can see that carry-over, in most instances will be a necessary part of the physics of the CCD detector device. But the effect is linear and reproducible and it can be made small.  Nonetheless, there are situations where we need to take this into account, for example in studying kinetics. 
-
-In our lab we typically setup our triggered data collections to include  a few blank exposures, a small carry-over from a dark frame is smaller than the dark signal by definition.  For a timed series of exposures we might configure clearing pulses, depending on the time scale, and if needed we can calibrate the carry-over and remove it in post processing.  Other mitigation strategies are possible depending on how you design your experiment.
-
-Following the dictum "always preserve primary data" we refrain from doing data manipulation inside the instrument.  This is easily done off line, using the program and class library DataReader.py.
+In our lab when we do triggered data collections with back to back exposures, we include a few blank exposures pre-trigger.  A small carry-over from a dark frame is smaller than the dark signal by definition.  The instrument follows the dictum "always preserve primary data" and so we refrain from doing data manipulation inside the instrument.  When it is needed, it is easily done off line, using the program and class library DataReader.py.
 
 ***
 ## Appendix A - Quick command list
 
 The following is a subset of the commands implemented in the TCD1304 firmware and in the Python user utility (indicated as CLI).  Enter the command "help" for a more complete listing and consult the source code for further information.
+<br>
 
 <p align="center">
 <b>Quick command reference </b><br>
-See <b>help</b> for more details
+See <b>help</b> for more details.
 </p>
 
+<table>
+  <thead>
+    <tr>
+      <th align="left">Level</th>
+      <th align="left">Command / Sequence</th>
+      <th align="left">Technical Context</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><b>High-Level (Automated)</b></td>
+      <td><code>read [n] [exp]</code></td>
+      <td><b>PIT Mode:</b> Executes <i>n</i> frames back-to-back with deterministic hardware timing. (2 arguments).</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>read [n] [exp] [int]</code></td>
+      <td><b>Pulse Loop Mode (PLM):</b> Executes <i>n</i> frames with a defined interval between starts. (3 arguments).</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>trigger [n] [exp] [int]</code></td>
+      <td>Arms the system for a hardware trigger. Uses the same argument logic as <code>read</code>.</td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+      <td><b>Intermediate (Orchestrated)</b></td>
+      <td><code>setup pulse [clk sh offset icg offset] </code></td>
+      <td>Explicitly configure individual pulse sequence.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>setup pit exp [n [offset]]] </code></td>
+      <td>Explicitly configures PIT registers for high-precision, back-to-back pulse sequences.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>setup pulse loop [exp] [int] [n] [clk sh offset icg offset period]</code></td>
+      <td>Explicitly configure pulse loop mode acquisition.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>start</code> / <code>wait</code> / <code>stop</code></td>
+      <td>Lifecycle control. Use <code>wait</code> for script synchronization in <code>@filename</code> execution.</td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+      <td><b>Configuration</b></td>
+      <td><code>set clock [seconds]</code></td>
+      <td>Sets the master clock period (e.g., <code>0.0000004</code> for 2.5MHz operation).</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>configure timing [name val ...]</code></td>
+      <td>Override timing parameters clk period, gate durations and offsets ... (see help)</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>configure clearing pulse [n]</code></td>
+      <td>Defines SH pulses between frames in PIT mode to flush residual charge and mitigate ghosting.</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>configure trigger</code></td>
+      <td>Defines pin, edge (rising/falling/change), and pull-up/down logic.</td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+      <td><b>System/Low level</b></td>
+      <td><code>flexpwm [submod|mask] [ops]</code></td>
+      <td>Lower level access to the flewpwm module (see help flexpwm)</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>pins</code></td>
+      <td>Print configured digital I/O pin usage</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>set pin n val</code></td>
+      <td>Set pin n <b>high|low|output|pullup|pulldown|nopull|input</b></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>pulse pin n usecs</code></td>
+      <td>Toggle pin n for usecs and toggle back</b></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>toggle pin n</code></td>
+      <td>Toggle pin n</b></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>read pin n</code></td>
+      <td>Read and report pin n as high or low</b></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>adcs n</code></td>
+      <td>Read the first n analog inputs</b></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>version</code></td>
+      <td>Show firmware version information</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>configuration</code></td>
+      <td>Show hardware configuration, number of pixels, sensor type, etc</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>[store] coefficients [a0 a1 a2 a3]</code></td>
+      <td>Store/report coefficients for wavelength, or other units</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>[store] units [string(<8chr)]</code></td>
+      <td>Store/report units for the coefficients</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>[store] identifier [string(<64ch)]</code></td>
+      <td>Store/report identifier string for this unit</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>temperature</code></td>
+      <td>Report CPU temperature</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>reboot</code></td>
+      <td>Commands a controller reboot</td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    </tr>
+    <tr>
+      <td><b>Python CLI</b></td>
+      <td><code>add all [after n]</code></td>
+      <td>Add data frames to a single frame (omitting first n frames)</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>add ensemble</td>
+      <td>Add data frames collating by frame number</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>clear</td>
+      <td>Clear acquired data frames and busy flag</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>save filespec</td>
+      <td>Save acquired data frames to disk file</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>help [key]</td>
+      <td>Display help text</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>@filespec [args]</td>
+      <td>Execute commands from diskfile, args available as batchpars[]</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>!command</td>
+      <td>Shell command</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>[lpar]=[rpar]</td>
+      <td>Execute as a line of python code using exec() or with only '=' list namespace</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>for a in [0,1,2]: @testscript "%.2f"%(a_)</td>
+      <td>Loop command</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><code>quit|exit|ctrl-c</td>
+      <td>Quite and exit the Python TCD1304Controller program</td>
+    </tr>
+  </tbody>
+</table>
 
-| **Operation:** | *commands:* |
-| :----- | :---- |
-| *Timed exposures* | **read &lt;n&gt;&lt;exposure (secs)&gt;  → [wait read]** |
-|  | **read &lt;n&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait read]** |
-| *Triggered timed exposures* | **trigger &lt;nframes&gt;&lt;exposure (secs)&gt;  → [wait trigger]** |
-|  | **trigger &lt;nframes&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait trigger]** |
-|  | **trigger &lt;nsets&gt; &lt;nframes&gt; &lt;exposure (secs)&gt; &lt;interval (secs)&gt;  → [wait trigger]** |
-| | |
-| | (The CLI receives data frames onto its data queue. See CLI save, add and clear) |
-| | |
-| *Configure trigger* | **configure trigger** [ **rising\|falling\|change \| (no)pullup \| pin &lt;n&gt;** ]|
-| | |
-| *Configure clearing pulses* | **configure clearing pulses &lt;n&gt;**|
-| | |
-| **Mid level operations:** | *command sequence:* |
-| *Timed exposures* | **setup pulse → setup timer &lt;secs&gt; &lt;n&gt; → start timer** |
-| *Triggered timed*| **setup pulse → setup timer ... → setup trigger** [options] **→ start trigger**|
-| *Triggered/gated* | **setup pulse → setup trigger ... → start trigger** |
-| *Manual exposure* | **setup pulse → start pulse** (2x to form an exposure) |
-| | |
-| *Short exposures* | **setup frameset** &lt;exposure&gt; &lt;frame interval&gt; &lt;n&gt; ... **→ start frameset**|
-| *Triggered frame sets* | **setup frameset ... → setup trigger → start trigger**|
-| *Configure trigger* | **configure trigger** [ **rising\|falling\|change \| (no)pullup \| pin &lt;n&gt;**]|
-| | |
-| **CLI functions:** | **command:** |
-| *Data summing*| **add frameset** - add queued data collating by frame number |
-| | **add all** - adds all of the queued data resulting in a single frame|
-| | **add all after <n>** - adds all of the queued data after the first n frames|
-| *Clear data and text queues* | **clear** |
-| | |
-| *Wait for completion* | **wait** |
-| | |
-| *Save to disk* | **save** &lt;filenameprefix&gt; |
-| | |
-| *Print help text* | **help** [report\|coefficients\|pulse\|frameset\|timer\|trigger] |
-| | |
-| *Execute from script* | @&lt;filename&gt; [args] |
-| *Pass command to shell* | !command |
-| *Exec in Python* | [leftside]=[rightside] |
-| *List name space* | = |
-| *Loop* (example)| for a_ in [0,.1,.2]: @testscript \"%.2f\"%(a_)"|
-| | |
-| *Print configured i/o pins*| **pins** |
-| *Digital I/O*| **set pin** &lt;pin&gt; **hi\| lo\| output\| input\| pullup**  |
-| | **pulse pin** &lt;pin&gt; &lt;usecs&gt; |
-| | **read pin** &lt;pin&gt; |
-| | **toggle pin** &lt;pin&gt; |
-| | |
-| *Quit* | quit \| exit \| ctrl-c |
-<br>
 
 
