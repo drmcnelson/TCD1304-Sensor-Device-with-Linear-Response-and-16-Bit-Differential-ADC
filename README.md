@@ -34,7 +34,7 @@ The resulting system achieves <0.5% Integral Non-Linearity (INL) over essentiall
 
 ## Introduction
 
-The following table summarizes the performance metrics achieved through our physics-informed electrical architecture and hardware-locked timing system. Moving beyond typical hobbyist or general-purpose electrical designs, this instrumentation-grade approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($< 0.0015\%$ error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin ($225\text{ V/µs}$ capability vs. $7.5\text{ V/µs}$ demand), the design ensures that the variance observed in our 810-frame Photon Transfer Curve (PTC) is a pure reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
+The following table summarizes the performance metrics achieved through our physics-informed electrical architecture and hardware-locked timing system. Moving beyond typical hobbyist or general-purpose electrical designs, this instrumentation-grade approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($< 0.0015\%$ error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin ($225\text{ V/µs}$ capability vs. $7.5\text{ V/µs}$ demand), the design ensures that the variance observed in our 800-frame Photon Transfer Curve (PTC) is a pure reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
 
@@ -49,8 +49,8 @@ The following table summarizes the performance metrics achieved through our phys
   <tbody>
     <tr>
       <td><b>Integral Non-Linearity (INL)</b></td>
-      <td><b>&lt; 0.5%</b></td>
-      <td>Measured to &gt;99% of well capacity, preserved across high gradient spectral transitions.</td>
+      <td><b>&lt; 0.2%</b></td>
+      <td>Measured to &gt;99% of well capacity in phase-locked pulse loop mode, preserved across high gradient spectral transitions.</td>
     </tr>
     <tr>
       <td><b>Quantization</b></td>
@@ -59,12 +59,12 @@ The following table summarizes the performance metrics achieved through our phys
     </tr>
     <tr>
       <td><b>Read Noise Floor (σ)</b></td>
-      <td><b>11–13 ADU</b></td>
+      <td><b>52.2</b>e<sup>-</sup>, temporal stability <b>σ=6.8</b>e<sup>-</sup></td>
       <td>Derived from photon transfer curve (PTC) analysis over an 810-frame dark ensemble with pairwise subtraction to isolate Fixed Pattern Noise (FPN).</td>
     </tr>
     <tr>
       <td><b>Gain (K)</b></td>
-      <td><b>0.9563</b> e<sup>-</sup>/ADU</td>
+      <td><b>0.812</b>e<sup>-</sup>/ADU, uniformity  <b>σ=0.0755</b>e<sup>-</sup>/ADU </td>
       <td>Calculated via the inverse slope from the PTC method.</td>
     </tr>
     <tr>
@@ -87,6 +87,24 @@ The following table summarizes the performance metrics achieved through our phys
 
 <br>
 
+The following figures provide representative validation of the system's metrological integrity, demonstrating the high spatial uniformity and linear response achieved through hardware-locked timing.
+
+<table align="center">
+  <tr>
+    <td align="center" width="50%">
+      <b>Systematic Error (PLM Mode)</b><br>
+      <img src="Images/GreenLED_PLM_CLK6e-07sec_to_0.5sec_N110.linearity_min_adu2000_3.png" width="80%"><br>
+      <p align="left"><small>Residual error remains within a ±0.5% band up to 99% of full-well capacity (0.19% INL).</small></p>
+    </td>
+    <td align="center" width="50%">
+      <b>Gain Distribution (PIT Mode)</b><br>
+      <img src="Images/DarkN810_PIT_CLK1e-06sec_CP10_3.png" width="80%"><br>
+      <p align="left"><small>Spatial response is highly uniform across 3,648 pixels (σ = 0.0755 e⁻/ADU).</small></p>
+    </td>
+  </tr>
+</table>
+
+
 Stability and linearity are closely related to reproducibility in CCD instruments and therefore are critical to their use in Science.   The following figures show (a) spectra with intensity divided by exposure time and (b) intensities of several spectral lines versus exposure time.  A simple test that an instrument meets the above criteria is that spectra normalized in this way overlay each other, as they do here.  This works only when the baseline and response are stable and linear. Similarly, if we graph intensity of spectral lines against exposure time we expect all of the lines to be linear with a common intercept, again as we see here.  We invite the reader to try these measurements with a commercial instrument and compare.  Further details are provided in the section ["On Linearity and Reproducibility"](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).
 
 <p align="center">
@@ -98,6 +116,44 @@ Stability and linearity are closely related to reproducibility in CCD instrument
 </p>
 </p>
 <br>
+
+### Hardware Strategy
+The hardware architecture is engineered to provide reliable operation and high-precision linear transfer of spectra and holographic frames while isolating the system from electrical and mechanical noise.
+
+* **Differential Analog Front-End (AFE):** A fully differential signal path utilizing the **ADA4807** and **THS4521** ensures maximum common-mode rejection. The AFE is significantly over-specified for slew rate and bandwidth, ensuring that sharp features in spectra and images settle completely within the sampling window.
+* **High-Current Gate Drivers:** To manage the significant capacitive load of the TCD1304 (notably the **~600pF SH gate**), the design utilizes dedicated **50mA pulse drivers**. This ensures sharp edge transitions critical to meeting the timing requirements of the sensor and achieving stable radiometric performance.
+* **Power & Grounding Topology:**
+    * **Separate Planes:** The PCB utilizes dedicated power and ground planes, with separate LDOs for analog and digital domains.
+    * **Tuned Decoupling:** Power rail decoupling was modeled and optimized in SPICE to effectively dampen commutation transients and preventing "push-through" noise on the supply rails.
+    * **Return Path Logic:** The pulse ground return is specifically designed to minimize common-mode impedance coupling and ground-bounce artifacts.
+* **Precision Timing Engine (FlexPWM):** Hardware timing is driven by the i.MXRT’s **150 MHz FlexPWM** modules. Unlike standard MCU timers, this allows for nanosecond-scale, phase-locked control over the CCD logic.  As noted, precision timing is critical to stable radiometric performance. 
+* **High-Performance Compute:** The system utilizes the **NXP i.MXRT1062 (ARM Cortex-M7)** running at **600 MHz** with **480 Mbps USB 2.0 (High-Speed)**. This provides the computational and communications headroom to support the maximum frame rate of the TCD1304 without impacting the deterministic nature of the hardware timing.
+* **Physical & Mechanical Isolation:**
+    * **Two-Card Architecture:** The sensor, AFE, pulse drivers, and ADC reside on a dedicated instrument card, separate from the MCU.
+    * **Cable Strain Isolation:** This isolates the MCU from the analog subsystems and ensures that the mechanical stress of connecting USB or synchronization cables to the Teensy does not translate to the sensor card, preserving optical alignment.
+
+#### Firmware Strategy - Asynchronous State Machine
+The 2026 timing architecture utilizes three independent but coordinated submodules (plus a fourth as the master clock) of a single FlexPWM on the i.MXRT1062 to manage charge transfer and readout. This approach replaces sequential software loops with a phase-locked hardware state machine.
+
+**Three Logic Engines** are implemented in the interrupt states of the three submodules.
+
+  - SH (Shift Gate): Manages idle, exposure start and end state transitions.
+
+  - ICG (Integration Clear Gate): Preparation and transition to readout.
+
+  - CNVST (Conversion Start): A dedicated machine with idle and readout states.
+
+Strategic use of latencies and timing windows for the above preserves critical timings in gate and ADC operations, both of which are important in noise and linearity performance.  The CNVST idle acts as a virtual buffer for the ADC reference voltage system. The SH idle runs on a fast clock to ensure residual charge clearance in the sensor subsystem. The read engine implements a zero copy system that leaves data frames on the ring buffer for asynchronous transfer to the host computer.
+
+#### Metrological Validation
+The efficacy of the hardware-locked timing and differential front-end is supported by the following characterization data.
+
+* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.5% over five orders of magnitude (10 μsec to 0.5 sec) in exposure and up to 99% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
+* **Noise Floor & Signal Integrity:** Characterization of the AD4807/THS4521 front-end confirms an electronic noise floor of ~1 LSB (quantization limited) isolated from the sensor. With the TCD1304 integrated, the total system noise floor is ~0.6 mV. Pairwise frame subtraction in PTC analysis confirms residual variance is dominated by sensor noise rather than electronic artifacts.
+* **Charge Transfer Integrity:** Hardware-locked SH idling is validated by direct methods.   However, it is also seen simply comparing PIT and PLM operating modes. Activating the PIT clearing pulse engine results in a decisive intensity drop and brings measurements into alignment with PLM benchmarks thus confirming effective flushing of the shift register.
+
+> **Technical Note:** For a deep dive into the underlying FlexPWM timing logic and state-machine transitions, see the [Detailed Firmware Documentation](Images/Firmware_Logic_Flow.png).
+
 
 
 ### Background and contents of this repository
