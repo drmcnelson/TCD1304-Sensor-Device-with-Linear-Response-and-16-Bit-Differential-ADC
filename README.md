@@ -104,8 +104,8 @@ The following figures provide representative validation of the system's metrolog
   </tr>
 </table>
 
-
-Stability and linearity are closely related to reproducibility in CCD instruments and therefore are critical to their use in Science.   The following figures show (a) spectra with intensity divided by exposure time and (b) intensities of several spectral lines versus exposure time.  A simple test that an instrument meets the above criteria is that spectra normalized in this way overlay each other, as they do here.  This works only when the baseline and response are stable and linear. Similarly, if we graph intensity of spectral lines against exposure time we expect all of the lines to be linear with a common intercept, again as we see here.  We invite the reader to try these measurements with a commercial instrument and compare.  Further details are provided in the section ["On Linearity and Reproducibility"](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).
+#### Comparative Benchmarking: A "Stare-Down" Test
+Stability and linearity are the physical prerequisites for reproducibility in scientific CCD instrumentation. The validation data above—specifically the 0.19% INL and the 0.075 e−/ADU spatial uniformity—establishes the baseline for this system. A primary test of this metrological integrity is the normalization of spectra by exposure time; in a truly linear system, these normalized plots will overlay perfectly. Because our hardware-locked architecture eliminates the 'sag' and baseline drift common in commercial drivers, we achieve a common intercept across the entire dynamic range. We invite researchers to perform these same 'stare-down' tests with commercial spectrometers to see the difference in deterministic response.
 
 <p align="center">
 <img src="Images/TCD1304_ND1200_LinearitySummary_1sec.jpg" width="90%">
