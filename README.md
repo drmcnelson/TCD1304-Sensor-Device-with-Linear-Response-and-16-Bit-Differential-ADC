@@ -5,11 +5,15 @@
 </p>
 <br>
 
-By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026](#LICENSE)
+By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026, Patent Pending](#LICENSE)
+
+> **Important Build Note:** To ensure performance and alignment with the validated hardware and firmware, please build only from the **[Original Repository](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC)**. 
+>
+>  For commercial inquiries or technical assistance, please contact me directly. I do my best to answer all emails as volume allows.
 
 This repository provides the open-sourced hardware, firmware and documentation for a low noise high-precision Linear CCD instrument.
 The present 2026 Infrastructure Upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
-The resulting system achieves <0.5% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
+The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
 
 #### Table of Contents
 - [Introduction](#introduction)
@@ -93,12 +97,12 @@ The following figures provide representative validation of the system's metrolog
   <tr>
     <td align="center" width="50%">
       <b>Systematic Error (PLM Mode)</b><br>
-      <img src="Images/GreenLED_PLM_CLK6e-07sec_to_0.5sec_N110.linearity_min_adu2000_3.png" width="80%"><br>
-      <p align="left"><small>Residual error remains within a ±0.5% band up to 99% of full-well capacity (0.19% INL).</small></p>
+      <img src="Images/GreenLED_PLM_CLK6e-07sec_to_0.5sec_N110.linearity_min_adu2000_3.jpg" width="80%"><br>
+      <p align="left"><small>Residual error remains within a narrow band up to 99% of full-well capacity (0.19% INL).</small></p>
     </td>
     <td align="center" width="50%">
       <b>Gain Distribution (PIT Mode)</b><br>
-      <img src="Images/DarkN810_PIT_CLK1e-06sec_CP10_3.png" width="80%"><br>
+      <img src="Images/DarkN810_PIT_CLK1e-06sec_CP10_3.jpg" width="80%"><br>
       <p align="left"><small>Spatial response is highly uniform across 3,648 pixels (σ = 0.0755 e⁻/ADU).</small></p>
     </td>
   </tr>
@@ -148,12 +152,9 @@ Strategic use of latencies and timing windows for the above preserves critical t
 #### Metrological Validation
 The efficacy of the hardware-locked timing and differential front-end is supported by the following characterization data.
 
-* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.5% over five orders of magnitude (10 μsec to 0.5 sec) in exposure and up to 99% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
+* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.2% over five orders of magnitude (10 μsec to 0.5 sec) in exposure and up to 95% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
 * **Noise Floor & Signal Integrity:** Characterization of the AD4807/THS4521 front-end confirms an electronic noise floor of ~1 LSB (quantization limited) isolated from the sensor. With the TCD1304 integrated, the total system noise floor is ~0.6 mV. Pairwise frame subtraction in PTC analysis confirms residual variance is dominated by sensor noise rather than electronic artifacts.
 * **Charge Transfer Integrity:** Hardware-locked SH idling is validated by direct methods.   However, it is also seen simply comparing PIT and PLM operating modes. Activating the PIT clearing pulse engine results in a decisive intensity drop and brings measurements into alignment with PLM benchmarks thus confirming effective flushing of the shift register.
-
-> **Technical Note:** For a deep dive into the underlying FlexPWM timing logic and state-machine transitions, see the [Detailed Firmware Documentation](Images/Firmware_Logic_Flow.png).
-
 
 
 ### Background and contents of this repository
