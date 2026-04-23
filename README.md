@@ -34,6 +34,7 @@ The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentiall
 	+ [Interfacing to an ADC](#interfacing-to-an-adc)
 	+ [SPICE model for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
 	- [Gate driver and analog signal integrity](#gate-driver-and-analog-signal-integrity)
+- [Residual charge effects and mitigation](#residual-charge-effects-and-mitigation)
 - [Appendix A - quick command list](#appendix-a-quick-command-list)
 
 ## Introduction
@@ -606,7 +607,7 @@ Fluorescent lamp spectrum.<br>
 
 #### Residual image (carry-over)
 In studies of dynamic phenomenon, we are interested in the intensity registered in the detector during the time of a particular exposure.
-In CCD detectors there is always some residual charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  In steady state phenomenon this effect can balance out after a few frames. As noted above, a detailed discussion is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
+In CCD detectors there is always some residual charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  A detailed discussion is included at the end of the section on [Residual Charge and Mitigation](#residual-charge-effects-and-mitigation).
 
 ### A potential source of non-linearity in CCD spectrometers
 The following provides some insight into how the above phenomena may emerge in a CCD spectrometer (or imaging system) and how this can be addressed.  For simplicity of exposition, we can think in terms of a simplified notional CCD sensor architecture. (The TCD1304 architecture is described further in a later section.)
@@ -1116,7 +1117,7 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
-### Residual image and relationship to the gate driver
+## Residual Charge Effects and Mitigation
 Now lets take a look at another way in which the gate driver effects performance in the analog section.  it should be noted that the issue we are going to describe now is largely mitigated away in the "pulse loop" command and timing architecture that we described earlier.   Nonetheless it is useful to understand something of how this works.
 
 In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the shift register.  The following shows what that looks like in action.
