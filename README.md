@@ -1189,6 +1189,16 @@ Residual charge (ghosting) as a function of number shift pulses fit to "charge s
 </p>
 </p>
 
+Let's see what our data looks like with 15 clearing pulses. The following shows our strongest exposure and the "off" frame drawn from the above data, with 15 clearing pulses at 10usec period.  For quantitative work, we want at least 20 pulses to make sure the residual charge is indistinguishable in intensity from the normal dark noise.
+
+<p align="center">
+<img src="Images/GreenLED_On17msec_Period10usec_clk6e-07secs_CP15.jpg" width="65%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+Residual charge clearance with 15 shift gate pulses at 10usec period, as above (a) LED on for 17 msec and (b) the "off" frame following the "on" frame.
+</p>
+</p>
+
+
 We see that residual charge is a necessary part of the physics of the CCD detector device and features multiple regimes for shifting charge withing the device.  We can mitigate the residual charge effect to prevent "ghosting" in our data by driving the shift gate with adequate voltage, current and time, combined with pulsing or idling the shift gate between exposures.  Both idling in PLM mode and clearing in PIT mode are implemented in our firmware in a way that preserves deterministic timing for both timed and interrupt driven operation - as evidenced in the reported performance metrics.  
 
 
