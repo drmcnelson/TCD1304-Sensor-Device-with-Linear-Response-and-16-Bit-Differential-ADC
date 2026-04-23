@@ -1178,7 +1178,7 @@ However, this is not quite sufficient. We have omitted charge trapping the silic
 
 $$S(N)=R(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​⋅e^{−γ(N−1)}$$
 
-Here is the fit for our model.  We collected data sets similar to the above using a green LED and varying the number of pulses to the shift gate and compared our results for different initial intensities and for different periods of the shift gate (5usec and 10usec). We see that R and γ are each similar across our test conditions, as is consistent with our pulse length at 1usec.  For the values reported in the fit, the residual charge carry over signal falls below dark noise within 20 pulses of the shift gate.
+Here is the fit for our model.  We collected data sets similar to the above using a green LED and varying the number of pulses to the shift gate.  With the shift gate driven at 4V for 1 usec throughout, R and γ are each similar across the differing initial intensities and periods for pulsing the shift gate.  For the values reported in the fit, the residual charge carry over signal should fall below dark noise within 20 pulses of the shift gate.
 
 <p align="center">
 <img src="Images/ResidualADUsVsPulsesCLK1.0usec.png" width="65%">
