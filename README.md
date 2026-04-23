@@ -1164,7 +1164,7 @@ We start with an initial, large charge $q_0$​, which has accumulated during so
 
 During the next exposure interval Δt, a small charge, $q_Δ$, is integrated.
 
-- Total charge before 2nd readout: $q(1)=(1−R)q_0​+q_Δ​
+- Total charge before 2nd readout: $q(1)=(1−R)q_0​+q_Δ​$
 
 After readout this will be reduced by (1-R) and so for our N-th readout we have,
 
