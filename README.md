@@ -1189,10 +1189,10 @@ Residual charge (ghosting) as a function of number shift pulses fit to "charge s
 </p>
 </p>
 
-The following shows our strongest exposure and the "off" frame drawn from the above data, with 15 clearing pulses at 10usec period.  As noted above, for quantitative work we want at least 20 pulses to make sure the residual charge is indistinguishable in intensity from the normal dark noise.  However, at 15 the residual is already near baseline.
+But, does it work?  The following shows a full scale exposure followed by 20 clearing pulses and then the "off" frame, collected as above.  As predicted, the residual charge signal is indeed under the dark noise.
 
 <p align="center">
-<img src="Images/GreenLED_On17msec_Period10usec_clk6e-07secs_CP15.jpg" width="65%">
+<img src="Images/GreenLED_17ms_period1e-05secs_clk1e-06secs_CP20.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
 Residual charge clearance with 15 shift gate pulses at 10usec period, as above (a) LED on for 17 msec and (b) the "off" frame following the "on" frame.
 </p>
