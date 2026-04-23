@@ -1155,7 +1155,7 @@ The residual charge floor with fit to a Boltzmann.
 </p>
 </p>
 
-A widely used strategy for mitigating the residual charge is to pulse the shift gate repeatedly.  Following is a simplified model for this strategy.
+In the following we describe mitigation of the residual charge effect by pulsing or idling the shift gate between exposures.  Let's first understand the physics at least in a simple way.
 
 We start with an initial, large charge $q_0$​, which has accumulated during some exposure time.  With the next shift Gate (SH) pulse, a fraction R of the total charge is successfully transferred ("Readout") to the shift register. The remaining fraction (1−R) stays in the photodetector region as "Residual Charge."
 
