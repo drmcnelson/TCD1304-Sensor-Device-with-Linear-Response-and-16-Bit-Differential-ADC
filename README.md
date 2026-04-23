@@ -1126,39 +1126,68 @@ Light produces charge, pulsing the shift gate moves charge to the shift register
 <img src="Images/DeviceInternals_shiftout.gif" width="60%">
 </p>
 
-Let's see at what this effect can look like in practice.  The data in this section were collected using the analog sensor board so that we can vary the voltage on shift gate.  The sensor is operated by the controller with the standard firmware included in the repo. We use the low level pulse commands to vary the pulse width.  We coded a timing generator into another Teensy to turn on a red LED in every other frame.    The LED is on for 1.8msec starting 1msec into the first of each pair of rames, each frame is 10msec exposure back to back.
-
-The following shows data obtained with the LED turned on (in blue) and then off (orange) per the above description.  The data is collected with a 1usec 4V shift pulse. Numerically, we find that the carry-over image is typically a copy of the preceding frame though noisier and on a reduced scale.
+Let's see at what this effect can look like in practice.  The following figure is collected with a timing generator coded into a second Teensy board.  We use the FlexPWM in this second board to generate a frame trigger for our spectrometre with the LED turned on for every other frame.  For these data we use the spectrometer design described above with our 16 bit board and Teensy 4.0 controller,  These are 20 msec exposures with the shift gate driven at 4V for 1 usec.  With the LED on for 17 msec or 4msec, we obtain a similar residual charge in the frame after the LED is off.
 
 <p align="center">
-<img src="Images/Analog_RedLED_4.0V_SH0.5usec_ICG2.6usec_0pulses.260106.carryover.jpg" width="65%">
+<img src="Images/GreenLEDOnOff.jpg" width="75%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-LED spectrum, orange curve is with LED off.
+LED spectrum, orange curve is with LED off. (a) exposure 17msec on, (b) exposure 4msec on
 </p>
 </p>
 <br>
 
-In the following figure we measure the carry-over intensity as a function of the width of the pulse applied to the shift gate and at several voltages.  We find that the "carry-over" signal decreases with an exponential time constant similar to that of the charging curve for the shift gate and its driving circuit.  In this case we have a 100ohm series resistor in series and the 600 pf capacitance of the SH gate, and thus a time constant of 60 nsec.
+The following figure shows the carry-over as a function of the width of the pulse applied to the shift gate and at several voltages. This data was collected using our analog board to allow us to vary the voltage applied to the shift gate and the mechanical setup is different.  The fitted floor roughly follows the voltage applied to the shift gate, Nonetheless, the residual is similar to the above.   We show the fit to an exponential for each voltage.  The voltages from 4.0V and above, are considerably more effective and that the time constant is roughly in the vicinity of that of the RC of the driving circuit (SH at 600pf SH gate x 100 ohm for this board). 
 
 <p align="center">
-<img src="Images/Carryover_time_voltage.jpg" width="65%">
+<img src="Images/Carryover_time_voltage_ADU.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-Initial carry-over is reduced with adequate SH pulse width.
+Residual charge is reduced with SH voltage and width.
 </p>
 </p>
 
-In the next figure we pulse the shift gate a few times before we start the exposure.  Effectively this is like a series of short exposures, each leaving a percent or so of residual charge.  In other words absent confounding effects it is reasonable to expect that the carry-over should decrease exponential in the number of pulses and approach an asymptote.  The data suggests that in principle we might reduce the carry-over to 0.1\%.  In practice we use 4-8 clearing pulses to reduce the carry-over to 1% to 1/2\%.
+Following our notion of residual charge as a distribution involving the detector region and shift gate as an FET type structure, we might expect the floor to follow a exponential "Boltzmann" like form.  Graphing the floor we find that it does indeed seem to follow this kind of relationship to voltage.  Perhaps fortuitously, the coefficient is approximately the well and the rate is about 1V/e-.
 
 <p align="center">
-<img src="Images/Carryover_pulse_voltage_all.jpg" width="65%">
+<img src="Images/FloorVsVoltage.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-Carry-over decreases with number of SH (clearing) pulses.
+The residual charge floor with fit to a Boltzmann.
 </p>
 </p>
 
-We can see that residual charge is a necessary part of the physics of the CCD detector device.  Pulsing the SH gate clears the residual charge asymptotically to a level proportional to the pulsing interval.   So simple mitigation is a series of fast SH pulses between frames.  We do this automatically in pulse loop mode and we have a configurable clearing pulse control for back to back or externally timed  exposures.  Nonetheless, if we are doing back to back exposures with no inter-frame available to clear the residual charge, then we may need to take this effect into account either in our setup or post processing.
+A widely used strategy for mitigating the residual charge is to pulse the shift gate repeatedly.  Following is a simplified model for this strategy.
 
-In our lab when we do triggered data collections with back to back exposures, we include a few blank exposures pre-trigger.  A small carry-over from a dark frame is smaller than the dark signal by definition.  The instrument follows the dictum "always preserve primary data" and so we refrain from doing data manipulation inside the instrument.  When it is needed, it is easily done off line, using the program and class library DataReader.py.
+We start with an initial, large charge $q_0$​, which has accumulated during some exposure time.  With the next shift Gate (SH) pulse, a fraction R of the total charge is successfully transferred ("Readout") to the shift register. The remaining fraction (1−R) stays in the photodetector region as "Residual Charge."
+
+- Charge successfully read out: $R⋅q_0​$
+- Residual charge remaining in pixel: $(1−R)q_0​$
+
+During the next exposure interval Δt, a small charge, $q_Δ$, is integrated.
+
+- Total charge before 2nd readout: $q(1)=(1−R)q_0​+q_Δ​ = (1−R)^2q_0​+(1−R)q_Δ$
+
+For our readout after N exposures we have,
+
+- Total Charge before Readout N: $q(N−1)=(1−R)^{N−1}q_0​+∑^{N−2}_{n=0​}(1−R)^nq_Δ​$
+
+Since 1-R is less than 1, we have:
+
+- Readout at large N: $S(N)=R⋅(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​$
+
+However, this is not quite sufficient. We have omitted charge trapping the silicon.  This would be a smaller second "R".  For purposes of numerics, we can approximate the effect as  thermal-like decay in N.
+
+$$S(N)=R(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​⋅e^{−γ(N−1)}$$
+
+Here is the fit for our model.  We collected data sets similar to the above using a green LED and varying the number of pulses to the shift gate and compared our results for different initial intensities and for different periods of the shift gate (5usec and 10usec). We see that R and γ are each similar across our test conditions, as is consistent with our pulse length at 1usec.  For the values reported in the fit, the residual charge carry over signal falls below dark noise within 20 pulses of the shift gate.
+
+<p align="center">
+<img src="Images/ResidualADUsVsPulsesCLK1.0usec.png" width="65%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+Residual charge (ghosting) as a function of number shift pulses fit to "charge shovel" with charge trapping.
+</p>
+</p>
+
+We can see that residual charge is a necessary part of the physics of the CCD detector device.  Simple mitigation is to idle the shift gate between exposures.  We do this in our pulse loop mode operations and in back-to-back PIT mode, we provide a setting for a fixed number of clearing pulses prior to each exposure.  Where 0 inter-frame timing is needed, for example in some kinetics studies, we design our experiment to include blank frames before the excitation event.
+
 
 ***
 ## Appendix A - Quick command list
