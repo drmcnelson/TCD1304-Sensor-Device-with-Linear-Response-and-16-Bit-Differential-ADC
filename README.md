@@ -1194,7 +1194,7 @@ But, does it work?  The following shows a full scale exposure followed by 20 cle
 <p align="center">
 <img src="Images/GreenLED_17ms_period1e-05secs_clk1e-06secs_CP20.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-Residual charge clearance with 15 shift gate pulses at 10usec period, as above (a) LED on for 17 msec and (b) the "off" frame following the "on" frame.
+Residual charge clearance following a full scale, as above (a) LED on and (b) the LED "off" frame following the "on" frame and 20 clearing pulses, 4V, width 1usec, period 10usec.
 </p>
 </p>
 
