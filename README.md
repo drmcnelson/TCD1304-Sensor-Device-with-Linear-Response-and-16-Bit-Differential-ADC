@@ -9,10 +9,10 @@ By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Li
 
 > **Important Build Note:** To ensure performance and alignment with the validated hardware and firmware, please build only from the **[Original Repository](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC)**. 
 >
->  For commercial inquiries or technical assistance, please contact me directly. I do my best to answer all emails as volume allows.
+>  For technical assistance or commercial inquiries, please contact me. I do my best to answer all emails as volume allows.
 
 This repository provides the open-sourced hardware, firmware and documentation for a low noise high-precision Linear CCD instrument.
-The present 2026 Infrastructure Upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
+The present 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
 The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
 
 #### Table of Contents
