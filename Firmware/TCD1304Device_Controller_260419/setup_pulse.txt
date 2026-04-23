@@ -1,0 +1,29 @@
+#tcd1304 setup pulse, clk 4.2667e-07s sh 1e-06s offset 4.2667e-07s icg offset 2.1333e-07s
+
+FLEXPWM: clk submod 0 mask 0x1 pinA 4 muxA 1 pinB 255 muxB 0 irq 137 flexpwm 0x403e0000
+flexpwm: clk period 64 presc 0 div 1 offset 0.0 => 4.26667e-07 secs 2.34375e+06 Hz ctrl2_mask x80
+flexpwm: clk A pin 4 mux 0x1 on 32 off 0 noninverting => 2.13333e-07 to 0, -2.13333e-07 secs
+flexpwm: clk B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+FLEXPWM: icg submod 1 mask 0x2 pinA 5 muxA 1 pinB 255 muxB 0 irq 138 flexpwm 0x403e0000
+flexpwm: icg period 32768 presc 0 div 1 offset 0.0 => 0.000218453 secs 4577 Hz ctrl2_mask x9a
+flexpwm: icg A pin 5 mux 0x1 on 32 off 432 inverting => 2.13333e-07 to 2.88e-06, 2.66667e-06 secs
+flexpwm: icg B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+FLEXPWM: sh submod 2 mask 0x4 pinA 6 muxA 2 pinB 255 muxB 0 irq 139 flexpwm 0x403e0000
+flexpwm: sh period 32768 presc 0 div 1 offset 0.0 => 0.000218453 secs 4577 Hz ctrl2_mask x9a
+flexpwm: sh A pin 6 mux 0x2 on 64 off 214 noninverting => 4.26667e-07 to 1.42667e-06, 1e-06 secs
+flexpwm: sh B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+FLEXPWM: cnvst submod 3 mask 0x8 pinA 255 muxA 0 pinB 255 muxB 0 irq 140 flexpwm 0x403e0000
+flexpwm: cnvst period 256 presc 0 div 1 offset 3780.0 => 1.70667e-06 secs 585937 Hz ctrl2_mask x80
+flexpwm: cnvst A pin 255 mux 0x0 on 90 off 185 noninverting => 6e-07 to 1.23333e-06, 6.33333e-07 secs
+flexpwm: cnvst B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+flexpwm: clearing_pulses 0
+loading sub_module clk
+loading sub_module icg
+loading sub_module sh
+loading sub_module cnvst
+TCD1304 setup_pulse success, min frame interval 0.008000 secs
+DONE

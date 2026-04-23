@@ -1,0 +1,33 @@
+clk 4.26667e-07s sh 1e-06s +4.26667e-07s icg 2.66667e-06s +2.13333e-07s 0.001s 0.01s 5
+stop_pit
+#tcd1304 setup pulse_loop, clk 4.2667e-07s sh 1e-06s offset 4.2667e-07s icg offset 2.1333e-07s exposure 0.001s interval 0.01s
+#tcd1304 setup pulse_loop adjusted exposure 0.00100011s interval 0.0100011s
+setup clk prescale 3, divider 8 period 8 onA 4 offA 0
+setup cnvst prescale 3, divider 8 period 32 onA 12 offA 24
+setup sh prescale 3, divider 8 period 18752 onA 8 offA 27
+
+FLEXPWM: clk submod 0 mask 0x1 pinA 4 muxA 1 pinB 255 muxB 0 irq 137 flexpwm 0x403e0000
+flexpwm: clk period 8 presc 3 div 8 offset 0.0 => 4.26667e-07 secs 2.34375e+06 Hz ctrl2_mask x80
+flexpwm: clk A pin 4 mux 0x1 on 4 off 0 noninverting => 2.13333e-07 to 0, -2.13333e-07 secs
+flexpwm: clk B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+FLEXPWM: icg submod 1 mask 0x2 pinA 5 muxA 1 pinB 255 muxB 0 irq 138 flexpwm 0x403e0000
+flexpwm: icg period 18752 presc 3 div 8 offset 0.0 => 0.00100011 secs 999 Hz ctrl2_mask x9a
+flexpwm: icg A pin 5 mux 0x1 on 4 off 54 inverting => 2.13333e-07 to 2.88e-06, 2.66667e-06 secs
+flexpwm: icg B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+FLEXPWM: sh submod 2 mask 0x4 pinA 6 muxA 2 pinB 255 muxB 0 irq 139 flexpwm 0x403e0000
+flexpwm: sh period 18752 presc 3 div 8 offset 0.0 => 0.00100011 secs 999 Hz ctrl2_mask x9a
+flexpwm: sh A pin 6 mux 0x2 on 8 off 27 noninverting => 4.26667e-07 to 1.44e-06, 1.01333e-06 secs
+flexpwm: sh B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+
+FLEXPWM: cnvst submod 3 mask 0x8 pinA 255 muxA 0 pinB 255 muxB 0 irq 140 flexpwm 0x403e0000
+flexpwm: cnvst period 32 presc 3 div 8 offset 3780.0 => 1.70667e-06 secs 585937 Hz ctrl2_mask x80
+flexpwm: cnvst A pin 255 mux 0x0 on 12 off 24 noninverting => 6.4e-07 to 1.28e-06, 6.4e-07 secs
+flexpwm: cnvst B pin 255 mux 0x0 on 0 off 0 noninverting => 0 to 0, 0 secs
+loading sub_module clk
+loading sub_module icg
+loading sub_module sh
+loading sub_module cnvst
+TCD1304 setup_pulse_loop success, min frame interval 0.008000 secs
+DONE
