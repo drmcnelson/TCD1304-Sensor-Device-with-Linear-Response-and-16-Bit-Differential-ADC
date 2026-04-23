@@ -1153,7 +1153,7 @@ Based on our conceptual model for the pixel we might expect the residual charge 
 <p align="center">
 <img src="Images/FloorVsVoltage.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-The residual charge floor versus shift gate voltage with fit to a Boltzmann.
+The residual charge floor following a single pulse versus shift gate voltage with fit to a Boltzmann.
 </p>
 </p>
 
