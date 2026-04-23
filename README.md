@@ -1189,7 +1189,7 @@ Residual charge (ghosting) as a function of number shift pulses fit to "charge s
 </p>
 </p>
 
-Let's see what our data looks like with 15 clearing pulses. The following shows our strongest exposure and the "off" frame drawn from the above data, with 15 clearing pulses at 10usec period.  For quantitative work, we want at least 20 pulses to make sure the residual charge is indistinguishable in intensity from the normal dark noise.
+The following shows our strongest exposure and the "off" frame drawn from the above data, with 15 clearing pulses at 10usec period.  As noted above, for quantitative work we want at least 20 pulses to make sure the residual charge is indistinguishable in intensity from the normal dark noise.  However, at 15 the residual is already near baseline.
 
 <p align="center">
 <img src="Images/GreenLED_On17msec_Period10usec_clk6e-07secs_CP15.jpg" width="65%">
