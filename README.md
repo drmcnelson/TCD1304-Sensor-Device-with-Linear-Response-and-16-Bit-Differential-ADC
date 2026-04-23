@@ -1157,16 +1157,16 @@ The residual charge floor with fit to a Boltzmann.
 
 In the following we describe mitigation of the residual charge effect by pulsing or idling the shift gate between exposures.  Let's first understand the physics at least in a simple way.
 
-We start with an initial, large charge $q_0$​, which has accumulated during some exposure time.  With the next shift Gate (SH) pulse, a fraction R of the total charge is successfully transferred ("Readout") to the shift register. The remaining fraction (1−R) stays in the photodetector region as "Residual Charge."
+We start with an initial, large charge $q_0$​, which has accumulated during some exposure time.  With the next shift gate (SH) pulse, a fraction R of the total charge is successfully transferred ("Readout") to the shift register. The remaining fraction (1−R) stays in the photodetector region as residual charge.
 
 - Charge successfully read out: $R⋅q_0​$
 - Residual charge remaining in pixel: $(1−R)q_0​$
 
 During the next exposure interval Δt, a small charge, $q_Δ$, is integrated.
 
-- Total charge before 2nd readout: $q(1)=(1−R)q_0​+q_Δ​ = (1−R)^2q_0​+(1−R)q_Δ$
+- Total charge before 2nd readout: $q(1)=(1−R)q_0​+q_Δ​
 
-For our readout after N exposures we have,
+After readout this will be reduced by (1-R) and so for our N-th readout we have,
 
 - Total Charge before Readout N: $q(N−1)=(1−R)^{N−1}q_0​+∑^{N−2}_{n=0​}(1−R)^nq_Δ​$
 
