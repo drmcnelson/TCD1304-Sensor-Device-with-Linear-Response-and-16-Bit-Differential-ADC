@@ -454,9 +454,9 @@ The trigger input can be configured as follows, where \<option\> can be any of r
 
        tcd1304> configure trigger <option>
 
-For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#residual-image-and-relationship-to-the-gate-driver).   The pulse loop architecture described above takes care of clearing pulses internally.
+For kinetic studies using back to back exposures, the following command can be used to configure the pulse sequence to run "cleaning pulses" before each exposure. You can read more about this [here](#residual-charge-effects-and-mitigation).   The 260419 firmware provides a second parameter for the pulse period, at least 5usec is recommended. The pulse loop architecture described above takes care of clearing pulses internally.
 
-       tcd1304cli> configure clearing pulses <n>
+       tcd1304cli> configure clearing pulses <n> [<period(secs)>]
 
 Middle level commands including **setup pulse..**, **setup pulse loop...**, **setup timer**, **start** and **trigger**, provide data collection capabilities with detailed control of the timing for the pulse sequence that operates the sensor.  There is also a complete set of low level commands for register level access to the FlexPWM timing generator in the MCU.
 
@@ -1284,7 +1284,7 @@ See <b>help</b> for more details.
     </tr>
     <tr>
       <td></td>
-      <td><code>configure clearing pulse [n]</code></td>
+      <td><code>configure clearing pulse [n [period]]</code></td>
       <td>Defines SH pulses between frames in PIT mode to flush residual charge and mitigate ghosting.</td>
     </tr>
     <tr>
