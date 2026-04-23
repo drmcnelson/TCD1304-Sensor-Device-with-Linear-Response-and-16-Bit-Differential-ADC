@@ -1118,46 +1118,48 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
 ## Residual Charge Effects and Mitigation
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  it should be noted that the issue we are going to describe now is largely mitigated away in the "pulse loop" command and timing architecture that we described earlier.   Nonetheless it is useful to understand something of how this works.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  it should be noted that the issue we are going to describe now is largely mitigated away in the timing architecture that we described earlier.  However we do provide some level of control and in any case it is useful to understand something of how this works.
 
-In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the shift register.  The following shows what that looks like in action.
-Light produces charge, pulsing the shift gate moves charge to the shift register, which is then shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
+In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the analog shift register.  In an approximate sense, we have a three step process; (1) light produces charge in the photodetector region, (2) pulsing the shift gate moves charge to the shift register, which is then (3) shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
 
 <p align="center">
 <img src="Images/DeviceInternals_shiftout.gif" width="60%">
+<p align="center" style="margin-left:5em;margin-right:5em">
+Charge collected in the photodetector region is moved to the analog shift register by applying a voltage pulse to the shift gate.
+</p>
 </p>
 
-Let's see at what this effect can look like in practice.  The following figure is collected with a timing generator coded into a second Teensy board.  We use the FlexPWM in this second board to generate a frame trigger for our spectrometre with the LED turned on for every other frame.  For these data we use the spectrometer design described above with our 16 bit board and Teensy 4.0 controller,  These are 20 msec exposures with the shift gate driven at 4V for 1 usec.  With the LED on for 17 msec or 4msec, we obtain a similar residual charge in the frame after the LED is off.
+Let's see at what this effect can look like in practice.  The following figure is collected with a timing generator coded into a second Teensy board.  We use the FlexPWM in this second board to generate a frame trigger for our spectrometer with the LED turned on for every other frame.  For these data we use the spectrometer design described above with our 16 bit board and Teensy 4.0 controller,  These are 20 msec exposures with the shift gate driven at 4V for 1 usec for one pulse per frame.  With the LED on for 17 msec or 4msec, we obtain a similar residual charge in the frame after the LED is off.  In other words, for both exposure levels, the first pulse on the shift gate removes the majority of the charge collected in the photodetector and leaves us with a similar level of residual charge for the next frame.
 
 <p align="center">
 <img src="Images/GreenLEDOnOff.jpg" width="75%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-LED spectrum, orange curve is with LED off. (a) exposure 17msec on, (b) exposure 4msec on
+Spectra with LED on (blue curve) for (a) 17 msec or (b) 4 msec, each immediately followed by a second frame with LED off (orange curve). All frames are  20 msec exposures with no clearing pulses.  The single shift gate pulse at the end of the exposure removes most of the charge and leaves a similar level of residual charge at about 1000 ADU (gain ~ 1e-/ADU).
 </p>
 </p>
 <br>
 
-The following figure shows the carry-over as a function of the width of the pulse applied to the shift gate and at several voltages. This data was collected using our analog board to allow us to vary the voltage applied to the shift gate and the mechanical setup is different.  The fitted floor roughly follows the voltage applied to the shift gate, Nonetheless, the residual is similar to the above.   We show the fit to an exponential for each voltage.  The voltages from 4.0V and above, are considerably more effective and that the time constant is roughly in the vicinity of that of the RC of the driving circuit (SH at 600pf SH gate x 100 ohm for this board). 
+The following figure shows the residual carry-over as a function of the width of the pulse applied to the shift gate at each of several voltages. This data was collected using our analog board to allow us to vary the voltage applied to the shift gate. We show the fit to an exponential for each voltage.  The floor and exponential follow voltage.  The time constant of the driving circuit is 600pf x 100 ohm = 60nsec for the analog board. We see that at 4V the residual charge plateaus by 1usec.
 
 <p align="center">
 <img src="Images/Carryover_time_voltage_ADU.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-Residual charge is reduced with SH voltage and width.
+Residual charge is reduced with increasing shift gate pulse width and voltage.
 </p>
 </p>
 
-Following our notion of residual charge as a distribution involving the detector region and shift gate as an FET type structure, we might expect the floor to follow a exponential "Boltzmann" like form.  Graphing the floor we find that it does indeed seem to follow this kind of relationship to voltage.  Perhaps fortuitously, the coefficient is approximately the well and the rate is about 1V/e-.
+Based on our conceptual model for the pixel we might expect the residual charge floor to follow a "Boltzmann" like curve in the applied voltage.  The next figure shows the floor from the above study versus the voltage of the shift gate pulse.  We see that it does indeed follow a simple exponential in voltage.  Perhaps fortuitously, the coefficient is approximately the well depth and the decay "rate" in residual charge is about 1V/e-.
 
 <p align="center">
 <img src="Images/FloorVsVoltage.jpg" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-The residual charge floor with fit to a Boltzmann.
+The residual charge floor versus shift gate voltage with fit to a Boltzmann.
 </p>
 </p>
 
-In the following we describe mitigation of the residual charge effect by pulsing or idling the shift gate between exposures.  Let's first understand the physics at least in a simple way.
+So far we see that the first pulse ending the exposure removes most of the charge collected in the photodector leaving a small residual charge.  We know that after a sufficiently large set of blank exposures we eventually see only baseline, i.e. dark noise.  In other words, while the charge collected in the photodector region is sufficiently large redistribution under the applied shift gate field is fast.  The self-field evidently helps remove the charge.  But then at small levels of charge we are left with a slower process.  Nonetheless, it is still diffusion under an applied field. We can derive a simple model for that process as follows.
 
-We start with an initial, large charge $q_0$​, which has accumulated during some exposure time.  With the next shift gate (SH) pulse, a fraction R of the total charge is successfully transferred ("Readout") to the shift register. The remaining fraction (1−R) stays in the photodetector region as residual charge.
+We start with an initial residual charge $q_0$​. With the next shift gate (SH) pulse, a fraction R of that initial charge is successfully transferred ("Readout") to the analog shift register. The remaining fraction (1−R) stays in the photodetector region.
 
 - Charge successfully read out: $R⋅q_0​$
 - Residual charge remaining in pixel: $(1−R)q_0​$
@@ -1174,20 +1176,20 @@ Since 1-R is less than 1, we have:
 
 - Readout at large N: $S(N)=R⋅(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​$
 
-However, this is not quite sufficient. We have omitted charge trapping the silicon.  This would be a smaller second "R".  For purposes of numerics, we can approximate the effect as  thermal-like decay in N.
+However, this is not quite sufficient. We need to account for charge trapping in the silicon. This is a slower process compared to the above.  For purposes of numerics, we can approximate the effect as  thermal-like decay in N.
 
 $$S(N)=R(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​⋅e^{−γ(N−1)}$$
 
-Here is the fit for our model.  We collected data sets similar to the above using a green LED and varying the number of pulses to the shift gate.  With the shift gate driven at 4V for 1 usec throughout, R and γ are each similar across the differing initial intensities and periods for pulsing the shift gate.  For the values reported in the fit, the residual charge carry over signal should fall below dark noise within 20 pulses of the shift gate.
+Let's see if the model works. We collected data sets as above using a green LED with our 16 bit sensor board and Teensy 4 controller, and varying the number of pulses to the shift gate, each pulse is 4V and 1usec.  The following figure shows the residual carry over versus the number of pulses to the shift gate for different values of the LED "on" time and different periods of the shift gate.  We fit each of these to our model.  We see that the curves are largely insensitive to the initial intensity and pulse period, R ranges from 0.44 to 0.54 and γ ranges from 0.082 to 0.10.  For these values, the residual charge carry over signal should fall below dark noise within 20 pulses of the shift gate.
 
 <p align="center">
 <img src="Images/ResidualADUsVsPulsesCLK1.0usec.png" width="65%">
 <p align="center" style="margin-left:5em;margin-right:5em">
-Residual charge (ghosting) as a function of number shift pulses fit to "charge shovel" with charge trapping.
+Residual charge (ghosting) as a function of number shift pulses fit to "charge shovel" model with charge trapping.
 </p>
 </p>
 
-We can see that residual charge is a necessary part of the physics of the CCD detector device.  Simple mitigation is to idle the shift gate between exposures.  We do this in our pulse loop mode operations and in back-to-back PIT mode, we provide a setting for a fixed number of clearing pulses prior to each exposure.  Where 0 inter-frame timing is needed, for example in some kinetics studies, we design our experiment to include blank frames before the excitation event.
+We see that residual charge is a necessary part of the physics of the CCD detector device and features multiple regimes for shifting charge withing the device.  We can mitigate the residual charge effect to prevent "ghosting" in our data by driving the shift gate with adequate voltage, current and time, combined with pulsing or idling the shift gate between exposures.  Both idling in PLM mode and clearing in PIT mode are implemented in our firmware in a way that preserves deterministic timing for both timed and interrupt driven operation - as evidenced in the reported performance metrics.  
 
 
 ***
