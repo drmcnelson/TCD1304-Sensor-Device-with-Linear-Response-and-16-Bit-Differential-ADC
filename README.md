@@ -154,7 +154,7 @@ Permission for use in a product or other commercial effort
 
 And of course, no warranty or guarantee is given whatsoever.  We did our best.
 
-If you have questions, please feel free to contact me.  And of course, don't forget to click the "Sponsor" button (or contact me directly).
+If you have questions, please feel free to contact me.  And, don't forget to click the "Sponsor" button (or contact me directly).
 
 
 
@@ -165,7 +165,7 @@ The hardware architecture is engineered to provide reliable operation and high-p
 * **High-Current Gate Drivers:** To manage the significant capacitive load of the TCD1304 (notably the **~600pF SH gate**), the design utilizes dedicated **50mA pulse drivers**. This ensures sharp edge transitions critical to meeting the timing requirements of the sensor and achieving stable radiometric performance.
 * **Power & Grounding Topology:**
     * **Separate Planes:** The PCB utilizes dedicated power and ground planes, with separate LDOs for analog and digital domains.
-    * **Tuned Decoupling:** Power rail decoupling was modeled and optimized in SPICE to effectively dampen commutation transients and preventing "push-through" noise on the supply rails.
+    * **Tuned Decoupling:** Power rail decoupling was modeled and optimized in SPICE to effectively dampen commutation transients and attenuate "push-through" noise on the supply rails.
     * **Return Path Logic:** The pulse ground return is specifically designed to minimize common-mode impedance coupling and ground-bounce artifacts.
 * **Precision Timing Engine (FlexPWM):** Hardware timing is driven by the i.MXRT’s **150 MHz FlexPWM** modules. Unlike standard MCU timers, this allows for nanosecond-scale, phase-locked control over the CCD logic.  As noted, precision timing is critical to stable radiometric performance. 
 * **High-Performance Compute:** The system utilizes the **NXP i.MXRT1062 (ARM Cortex-M7)** running at **600 MHz** with **480 Mbps USB 2.0 (High-Speed)**. This provides the computational and communications headroom to support the maximum frame rate of the TCD1304 without impacting the deterministic nature of the hardware timing.
@@ -213,7 +213,7 @@ This project is part of a larger mission to provide Open Instruments for Open Sc
 
 We provide three implementations of the sensor system hardware (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
 
-In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs include the sensor and microcontroller, currently running at
+In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs listed with each implementation include the sensor and microcontroller which are currently running at
 <span>$</span>40 and <span>$</span>24 respectively
 and the PCB which generally runs around <span>$</span>18 per board in small quantities (including tariffs).
 
@@ -234,7 +234,8 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </p>
 Component costs for the high end 16-bit system are currently <span>$</span>110 for the sensor board and <span>$</span>88 for the controller, or <span>$</span>198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
 
-We recently switched to using a PCBA service for the SMT parts (we prefer ALLPCB for their customer service).  Normally this would bring our costs to <span>$</span>290.
+
+We recently switched to using a PCBA service for the SMT parts.  Normally this would bring our costs to <span>$</span>290.
 With tariffs our cost per set is now <span>$</span>395 to <span>$</span>422 depending on the clearance agent.  We feel that compared to hand assembly it is still a bargain. 
 
 #### "All-in-one", sensor and controller on a single board.
@@ -271,21 +272,21 @@ Parts costs are currently <span>$</span>65 including the TCD1304, plus <span>$</
 
 
 
-### Reproducibility and linearity
+### On linearity and reproducibility in spectrometers 
 
-As noted, reproducibility is vitally important for any instrument and for a spectrometer stability and linearity are pre-requisite for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this at length in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  We show examples in data collected from a commercial instrument and compare this to data from the present design where the results are linear.  The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
+As noted, reproducibility is vitally important for any instrument and for a spectrometer stability and linearity are pre-requisite for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  Included following are results of our "stare-down" comparison in data collected side-by-side from the present design and a widely used commercial instrument. The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
 
 Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
-Total cost of materials for the spectrometer is under <span>$</span>400, including the electronics (this repo), optics and mechanical parts.
+Total cost of materials for the spectrometer is under <span>$</span>450, including the electronics (this repo), optics and mechanical parts.
 
 ### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
-The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for both its speed at 600MHZ, its high speed USB at 480Mhz and its multi-channel FlexPWM module.  The latter is critical to the precise timing relationships and functionality needed to achieve high-end performance metrics and operation over five orders of magnitude in exposure time.
+The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for its speed at 600MHZ, its high speed USB at 480Mhz and its multi-channel FlexPWM module.  The latter is critical to the precise timing and functionality needed to achieve high-end performance metrics and operation over five orders of magnitude in exposure time.
 
 ### Firmware
 
@@ -295,7 +296,12 @@ We expect that the firmware provides all of the functionality you may want for a
 
 ### Python user interface with graphical display
 
-The Python code [(here)](Python/) can function as a user interface or as a class library.  When invoked directly, the code presents a graphical monitor and command line interpretor with human readable commands. When used as a library from another program (see "import"), the spectrometer is available as an instance of a class object.  The Class provides both high and low level functions to work with the device.  The design emphasizes simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+The Python code directory [(here)](Python/) provides a program file **TCD1304Controller.py** that can function as a command line user interface with real time graphical display or as a class library to operate the instrument and save data to ASCII disk files, a program file **DataReader.py** that similarly can be used as a utility program or class library to work with and graph the saved data in 2-d or 3-d,
+and a collection of bash shell scripts that use DataReader.py to generate graphs of various sorts.
+
+The software design emphasizes flexible simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
+
+
 
 ### Electronic design
 
@@ -349,7 +355,7 @@ You can assemble the boards yourself, or if you prefer, please feel free to cont
 If you want to assemble your boards, and this is your first time assembling an SMT board, search for an introduction to DIY SMT assembly, [for example here](https://www.kingfieldpcb.com/essential-tips-for-diy-smt-assembly/).
 
 Here are some notes on how we do assembly in our shop.
-We order PCBs from AllPCB, JPLPCB, and PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about <span>$</span>200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
+We order PCBs from AllPCB, JPLPCB, or PCBWay. We usually order parts from Digikey, but we also use Mouser and Newark.  We use Chip Quik no-clean solder paste in a syringe dispenser with fine needle tips that we order separately. And we use a reflow oven that we purchased through ebay for about <span>$</span>200, and sometimes we use a temperature controlled rework heating stage that we purchased through Amazon.
 
 ### USB connection
 We recommend using a powered USB hub with switches to turn individual USB devices off and on. When you shop for this, make sure it supports high-speed (at least USB2.0) and can supply at least 1A per port.  For example, a powered 7-port USB hub should be able to supply at least 1A x 5V x 7 ports = 35W.  
@@ -359,11 +365,11 @@ After the boards are assembled, you will need to install the Teensy board in the
 
 The firmware codes are found in the repo in the Firmware subdirectory
 
-(In the following, the "260318" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
+(In the following, the "260419" in the directory and file name, is the date of this version of the firmware.  If there is a newer version when you read this, use that one.)
 
-    TCD1304Device_Controller_260318/
+    TCD1304Device_Controller_260419/
     
-      TCD1304Device_Controller_260318.ino  - The controller program with CLI
+      TCD1304Device_Controller_260419.ino  - The controller program with CLI
     
       TCD1304Device2c.h  -  A header-only C++ library for the TCD1304 and Teensy4.x (iMXRT106x)
       
@@ -446,11 +452,12 @@ Notice that in the console window, we have a prompt.  This is the command line i
        tcd1304cli> trigger <n frames> <exposure>
        tcd1304cli> trigger <n frames> <exposure> <frame interval>
 
-The first form collects "back-to-back" frames with exposure time congruent with the frame interval.  This accommodates intervals as short as about 8-10 msecs (the time it takes to read the sensor).  
+The first form collects "back-to-back" frames with exposure time congruent with the frame interval.  This accommodates intervals as short as 8 to 20 msecs depending on the master clock period (see the command "set clock ...").
+We refer to this a "PIT mode" or "single pulse mode".
 Dark noise has a minimum at about 10-20 msecs.
 There is no effective upper limit on exposure time in this mode, apart from the increase in registering cosmic rays. Signal averaging can be done on line (see **add**) or after data is save to a file.
 
-The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to us "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. Signal averaging is available for this mode, too.
+The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to as "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure with the master clock period at 0.6usec or faster (see the command "set clock ..."). Signal averaging is available for this mode, too.
 
 The trigger input can be configured as follows, where \<option\> can be any of rising, falling or change, pullup or nopullup, or pin \<pin-number\>.
 
@@ -472,7 +479,7 @@ Following is an example that shows the data produced with a single frame at low 
 <img src="Images/fluorescent_signalaveraging_N1_N100_annotated.jpg" width="60%">
 </p>
 
-The program and class library **DataReader.py** can be used to work the offline data.  The command line accepts python language statements and can produce graphs.  Setting variables x, y, y2, etc., generates a 2-d graph.  Setting surface or image generates a 3d surface or heatmap.
+The program and class library **DataReader.py** can be used to work with the offline data.  The command line accepts python language statements and can produce graphs.  Setting variables x, y, y2, yscatter, etc., generates a 2-d graph.  Setting surface or image generates a 3d surface or heatmap.
 
 The following example generates a simple 2-d graph of electron counts divided by exposure time. Omitting --output sends the graph to the screen.  More examples are included in the bash scripts in the distribution.
        
@@ -494,9 +501,9 @@ The data files are in ASCII and human readable.  If you wish, you can  work with
  ***
 ## On Linearity and reproducibility in CCD spectrometers (with data)
 
-In this section we discuss linearity and reproducibility in a practical sense, as it relates to CCD spectrometers. After defining terms and concepts, we show data comparing the present design and a widely used commercial instrument.  These illustrate the basic concepts and establish in a small way the "facts on the ground".
+In this section we discuss linearity and reproducibility, in a practical sense, as related to CCD spectrometers. After defining terms and concepts, we show data comparing the present design and a widely used commercial instrument.  These illustrate the basic concepts and establish in a small way the "facts on the ground".
 
-Linear response, for a spectrometer, means that the  measured response S is proportional to the number of photons P impinging on the detector. For a change in intensity at pixel "n", we expect that ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant.  
+Linear response for a spectrometer means that the  measured response S is proportional to the number of photons P impinging on the detector. For a change in intensity at pixel "n", we expect that ΔS<sub>n</sub> = c<sub>n</sub> ΔP<sub>n</sub> where c<sub>n</sub> is a constant.  
 
 When a system is linear we should see that (a) spectra collected with different exposure times agree with each other  (S<sub>1</sub>/t<sub>1</sub> = S<sub>2</sub>/t<sub>2</sub>), (b) ratios of peak heights are constant (S<sub>λ<sub>a</sub></sub>/S<sub>λ<sub>b</sub></sub> at t<sub>1</sub> = S<sub>λ<sub>a</sub></sub>/S<sub>λ<sub>b</sub></sub> at t<sub>2</sub>), and when summed the result agrees with that obtained by a single measurement with the combined exposure time S = S<sub>t1</sub> + S<sub>t2</sub> = S<sub>t1+t2</sub>.
 
@@ -506,7 +513,7 @@ That said, there are a few ways in which spectrometer response can be non-linear
 
 However, some non-linearities involve bandwidth or line shape. And while a valid correction might exist, it is most often far easier and far more reliable to start with an instrument that has linear response.
 
-So far we have talked about linear reproducible response to the signal produced by the sensor. We will next show some examples, give mention to another class of behaviours associated with the physics of moving charge within the sensor, and then finish with some further discussion of [linearity and electrical characteristics of signals in spectroscopy](#on-origins-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers). Detailed discussion of anomalies associated with charge distribution, is included at the end of the section on [gate and clock drivers](#gate-driver-and-analog-signal-integrity).
+So far we have talked about linear reproducible response to the signal produced by the sensor. We will next show some examples, give mention to another class of behaviours associated with the physics of moving charge within the sensor, and then finish with some further discussion of [linearity and electrical characteristics of signals in spectroscopy](#on-origins-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers). Detailed discussion of anomalies associated with charge distribution and effects of timing on linearity are included at the end of the README beginning with the section on [gate drivers and analog integrity](#gate-driver-and-analog-signal-integrity).
 
 Let's look at some data.
 
@@ -523,11 +530,11 @@ Fluorescent lamp spectrum, (a) new sensor and (b) commercial instrument.
 </p>
 </p>
 
-This seems like a simple test.  But some care is appropriate.  One way to alter the spectrum is to simply misalign the sensor.  But then the effect should be systematic.  In this instance the intensities of the other lines seem inconsistent with the large difference in the 436nm line.
+This seems like a simple test.  But some care is appropriate.  One way to alter the spectrum is to simply misalign the sensor.  But then the effect should be systematic.  In this instance the intensities of the other lines in the commercial instrument seem inconsistent with the large difference in the 436nm line.
 
 The following shows the spectrum from the new instrument with the y axis expanded so that we can see the structure in the region around 590nm. We see that the lines are a little sharper compared to the commercial instrument.
 <p align="center" >
-<img src="Images/Desklamp_ND0700_0.025sec.zoom.jpg" width="35%">
+<img src="Images/Desklamp_ND0700_0.025sec.zoom.jpg" width="40%">
 <br>
 <p align="center" style="margin-left:5em;margin-right:5em">
 <i>Spectrum from the new instrument with expanded intensity scale to show detail around 590nm and 615nm.
@@ -536,9 +543,9 @@ The following shows the spectrum from the new instrument with the y axis expande
 </p>
 
 ### Intensity
-The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra for the present design and the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.  The vertical scale for the present design is volts.
+The following shows the raw intensities versus exposure time for  four of the peaks that appear in the above spectra from the present design and from the commercial instrument.  We select the strongest two lines, at 435nm and 546nm, and the smaller peak at 542nm and the wider peak at 487nm.
 
-In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. With the new sensor (a), the curves are indeed straight lines from near the origin until near  saturation. For the commercial instrument, most of the range is not linear.  We will see more explicitly how this effects relative peak heights.
+In a linear instrument, all of these intensities should rise linearly with exposure time or overall intensity. For the new sensor (a), the curves are indeed straight lines from near the origin until near  saturation. For the commercial instrument, most of the range is not linear.  We will see more explicitly how this effects relative peak heights.
 
 <p align="center" >
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_peaks_1sec.jpg" width="90%">
@@ -551,9 +558,9 @@ Intensity versus exposure time for four spectral lines for (a) the present desig
 </p>
 
 ### Consistency and practical reproducibility
-A simple test for consistency and practical reproducibility is to collect a few intensities of the light source, or by moving the source farther or closer, or by simply changing exposure.  Any of these will vary the number of photons and hence the number of electronics registered in each pixel.  When the sensor system is linear, we should be able to scale by exposure time (or power, or R<sup>2</sup>) and obtain the identical spectrum apart from the difference in signal to noise ratio.
+A simple test for consistency and practical reproducibility is to collect spectra at a different exposure times or with the light source at a few different distances with source and aperture aligned on a rail.  Either of these methods will vary the number of photons and hence the number of electronics registered in each pixel.  When the sensor system is linear, we should be able to scale by exposure time (or R<sup>2</sup>) and obtain the identical spectrum apart from the difference in signal to noise ratio.
 
-Here is the result varying the exposure time, for the new sensor (the present design) and the commercial instrument.  As we noted in the introduction, the spectra produced by the new sensor are neawrly identical apart from noise.
+Here is the result varying exposure time for the new sensor (the present design) and for the commercial instrument.  As we noted in the introduction, the spectra produced by the new sensor are nearly identical apart from noise.
 
 <p align="center" >
 <img src="Images/Comparison_TCD1304_ND1200_Flame-S_ND1500_overlays.jpg" width="90%">
@@ -564,7 +571,7 @@ Spectra normalized to exposure time for the (a) the present design and (b) the c
 </p>
 </p>
 
-We refer to this as practical reproducibility for the simple reason that even though we might reproduce the spectra by exactly reproducing the exposure conditions in the original experiment, unless there is a way to correct the data (solve the inverse problem) it says very  little about the thing being studied.  And in these sorts of non-linearities the inverse problem might not be tractable.
+For the present design, spectra are demonstrated to be linear, reproducible and consistent across a wide range in intensity.  For the commercial the spectra are clearly not consistent. Perhaps, if we could reproduce exposure conditions exactly we might see the same spectrum twice but it would have no meaning. For the commercial instrument we have no feasible solution for the inverse problem to convert it data back to any sort of radiometric truth.  To be able to say something that is meaningful, we need to have data that is linear, reproducible and consistent over a realistic range of experimental conditions.  We refer to this criterion as **practical reproducibility**.
 
 ### Peak height ratios
 We reasonably expect that in a reliable instrument ratios of intensity should not change when we change intensity or exposure time. 
@@ -667,7 +674,7 @@ First derivative (dV/dt) of the fluorescent lamp spectrum.
 </p>
 </p>
 
-There are a number of ways in which circuits can be slew-limited, though current starving the sample and hold capacitor in an ADC is perhaps one of the more popular methods.  Choosing an OPAMP with too small a maximum slew is another.   And a well abused emitter follow is a third method that seems popular in the DIY ecosystem.  As we will see the difference in cost to do this correctly is small.
+There are a number of ways in which circuits can be slew-limited. Current-starving the sample and hold capacitor in an ADC is perhaps one of the more popular methods.  Choosing an OPAMP with too small a maximum slew is another.   And a well-abused emitter follow is a third method that seems popular in the DIY ecosystem.  As we will see the difference in cost to do this correctly is small.
 
 For the purposes of a scientific instrument, true linearity must be maintained across the full range of observable line shapes—from broad fluorescence to nearly-delta-function atomic lines. Achieving this requires more than just high-speed components; it requires a design that accounts for the dynamic load of the ADC and the specific current-sourcing needs of the signal path. We discuss the hardware implementation and the critical role of slew-rate margins in the [Section on Electrical Design](#electrical-design).
 
@@ -676,7 +683,7 @@ However, raw speed is only half of the equation. Even with a perfect analog fron
 ---
 ## Setup for linearity testing
 
-The equipment list for our linearity study is as follows.  Construction of the spectrometer is described [here](#spectrometer-construction)
+The equipment list for our linearity study is as follows.  Construction of the spectrometer is described below.
 
 <ol>
 <li> Spectrometer</li>
@@ -693,7 +700,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 Once set up and aligned, the mechanical configuration remains fixed through the duration of the measurements.  The ND filter wheel is adjusted and left in a fixed setting for each dataset, each comprising a set of exposure settings.  
 
 ## Spectrometer Design and Construction
-The following describes a simple approach to designing a spectrometer, and in particular the instrument that we used to test the new sensor device.  We will see that the choice of lenses and grating emerge in a simple way from the choice of spectral range and the size and pixel density of the sensor.
+The following describes a simple approach to designing a spectrometer, and in particular the instrument that we used to test the new sensor device.  We offer a formalism in which the choice of lenses and grating emerge in a simple way from the choice of spectral range and the size and pixel density of the sensor.
 
 For our design, we use a transmission grating rather than a reflecting grating and folded geometry. The transmission geometry is simpler and provides good performance with reasonable cost. The following pictures show (a) the inside of the instrument, sometimes referred to as the "optical bench" and (b) the cover which is constructed of black opaque plastic.  The base is aluminum plate.  The sensor can be seen mounted after the second lens and the controller can be seen at the top rear of the cover with a blue USB cable running to the computer.  For the present design we chose a center wavelength at 500nm.  The wavelength range is 450nm. Optical resolution is about 0.5nm with a 50um slit.
 
@@ -828,7 +835,7 @@ After settling on the parameters and digging through our box of lenses and grati
 ## Electrical design
 
 We now describe some of the elements of circuit design for a CCD based spectrometer (or imaging system).
-This will be something of a tutorial.  The idea is to support open science.  That includes being open about what you need to know to design something like this for yourself. We assume some basic knowledge of electronics.  The "attentive reader" will note that we make extensive use of SPICE models.  A set of these is provided the [SPICE subdirectory](SPICE/).  These form the basis of many of the illustrations shown in this README.
+This will be something of a tutorial.  The idea is to support open science.  That includes being open about what you need to know to design something like this for yourself. We assume some basic knowledge of electronics.  The "attentive reader" will note that we make extensive use of SPICE models.  A set of these is provided in the [SPICE subdirectory](SPICE/).  These form the basis of many of the illustrations shown in this README.
 
 We start with characteristics of the TCD1304DG and then proceed through signal conditioning, interfacing to the ADC, the gate drivers, and the power architecture.  Our description of the sensor are initially at a level sufficient to develop the basic electrical design.  Later we will revisit these devices in more detail, drawing from a classic paper in the literature of the CCD detector, and develop the final touch that gets us to metrologic performance with $\lt 0.2\\%$ INL. However for that we need some context in the basics for reading and operating a CCD and interfacing to an ADC.
 
@@ -853,7 +860,7 @@ TCD1304DG timing diagrams, (a) coherent shutter and exposure, (b) "electronic sh
 
 As depicted, exposure begins and ends on the trailing end of pulses asserted on the SH pin, readout begins following assertion of SH and ICG together, and thereafter, data is clocked out at 1 pixel per four cycles of the master clock ΦM.
 
-A table of capacitances for these pins is found on page 5. Without going into the details of how CCDs are constructed [(see here](https://www.chronix.co.jp/chronixjp/material/pdf/chronix/CCD-Image-Sensor-English.pdf)), we can infer that the large capacitance of the SH and ICG pins are consistent with these playing an important role in harvesting charge in the device. Four clock cycles per pixel readout further indicates a 4 cycle type CCD register. 
+A table of capacitances for these pins is found on page 5. Without going into the details of how CCDs are constructed [(see here](https://www.chronix.co.jp/chronixjp/material/pdf/chronix/CCD-Image-Sensor-English.pdf)), we can infer that the large capacitance of the SH and ICG pins are consistent with these playing an important role in harvesting charge in the device. Four clock cycles per pixel readout further indicates a 4 cycle type CCD analog shift register. 
 
 We discuss how to drive the gates, and in particular the shift gate [here](#gate-driver-and-analog-signal-integrity).  The present discussion focuses on the analog signal conditioning part of the design.
 
@@ -882,7 +889,7 @@ Dark noise vs exposure time in the new sensor device.
 </p>
 </p>
 
-Removing the chip from the board, the electrical noise is about 14uV. So it seems that the dark noise signal at 0.6mV really does originate in sensor chip.
+Removing the chip from the board, the electrical noise is about 14uV. So it seems that the dark noise signal at 0.6mV really does originate in the sensor chip.
 
 Dark noise is known to be related to temperature with the usual Boltzmann dependence.
 Some have reported reductions in noise by a factor of 4 with modest cooling to around 4C.
@@ -910,7 +917,7 @@ We use the following approach for 16 bit precision.  Similar to the above, the f
 </p>
 
 #### A don't-do DIY circuit
-The following shows a design that appears from time to time in DIY postings.  The inventor typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
+The following shows a design that appears from time to time in DIY postings.  The "inventor" typically omits the voltage-follower and instead goes straight to the inverting amplifier.  This of course makes the sensor part of the gain equation, G = R<sub>2</sub>/(R<sub>1</sub>+R<sub>sensor</sub>).  But the sensor impedance as we noted above, varies from 500Ω to 1kΩ.  If the inventor is aware of the issue, they might make R<sub>1</sub> very large to drown out the contribution from the sensor.  But to have gain, R<sub>2</sub> has to be even larger, typically 2 to 5 times R<sub>1</sub>.  Now come the problems. 
 
 <p align="center">
 <img src="Images/CCD_singleopamp_problems.jpg" alt="CCD signal conditioning" width="50%"> off.
@@ -941,9 +948,9 @@ and the emitter current I<sub>E</sub> varies with the output voltage,
 <p align="center">
 I<sub>E</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/R<sub>E</sub>
 </p>
-The quantities V<sub>T</sub> for the thermal voltage (\~25meV @RT) and I<sub>S</sub> for the saturation current (10<sup>-15</sup>-10<sup>-12</sup>A), are both temperature dependent.  All of this comes to about 1-2\% variation in gain, if not for the next issue.
+The quantities V<sub>T</sub> for the thermal voltage (\~25meV @RT) and I<sub>S</sub> for the saturation current (10<sup>-15</sup>-10<sup>-12</sup>A), are both temperature dependent.  All of this comes to about 1-2\% variation in gain, if not for the next issue.<br>
 
-The more serious issue arises in the proviso that the  base-emitter is "on".  Consider the following in which we model the emitter follower with 1k resistors for the emitter resistor and load.  Note that without the transistor, the voltage at the node connecting R1 and R2 would be 1/2 of the supply voltage.  We can operate the emitter follower to this voltage and no higher. Below this voltage current flows into the emitter.  When the output reaches this voltage the emitter current is zero and we can go no further. Increasing the input voltage only further reverse biases the diode.
+The more serious issue, and classic for the emitter follower, arises in the proviso that the  base-emitter is "on".  Consider the following in which we model the emitter follower with 1k resistors for the emitter resistor and load.  Note that without the transistor, the voltage at the node connecting R1 and R2 would be 1/2 of the supply voltage.  We can operate the emitter follower to this voltage and no further. Below this voltage current flows into the emitter.  When the output reaches this voltage the emitter current is zero. Increasing the input voltage only further reverse biases the diode.
 <p align="center">
 <img src="Images/PNP-EF-R-model6V.jpg" alt="NP follower Rload" width="50%">
 <p align="center" style="margin-left:5em;margin-right:5em">
@@ -961,10 +968,13 @@ PNP and NPN followers driving the ADC sampling capacitor.
 </p>
 
 The PNP(NPN) works very well as a current sink(source), i.e. for the falling(rising) side of the waveform.  On the other side, the maximum slew rate is current limited.  Provided the current required ΔV/R<sub>L</sub> is less than the quiescent emitter current, the maximum slew rate in this part of the response is
+
 <p align="center">
 (dV/dt)<sub>max</sub> = I<sub>E</sub>/C<sub>L</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/R<sub>E</sub>C<sub>L</sub>
 </p>
+
 For larger ΔV/R<sub>L</sub>, the slew rate drops further to
+
 <p align="center">
 (dV/dt)<sub>max</sub> = (V<sub>EE</sub> - V<sub>out</sub>)/(R<sub>E</sub>+R<sub>L</sub>)C<sub>L</sub>
 </p>
@@ -973,23 +983,22 @@ Recall that accuracy in an ADC depends on the sampling capacitor being able to r
 
 For 16 bits of accuracy and a 0.5usec sampling window, we need a maximum slew of at least 16 x ln(2) x 0.6V/0.5usec =  14V/usec (or 10V/usec for 12 bits).  In practice we should use a circuit with a significantly larger maximum slew to avoid the roll-off region.
 
-Lets consider a 16 bit ADC, with C<sub>L</sub> = 30pf, R<sub>L</sub> = 1K and V<sub>EE</sub> = 3.3V from a low noise LDO rather than the USB power line. Our maximum slew with the emitter follower is 6V/usec.  But,  with a 12 bit ADC 10pf and 2K, the maximum slew would be 10V/usec.  If we go for 10 bits, then we might avoid the roll of region for slew.  The issue with that is that there is still the non-linearity in the response and the precision is not sufficient for the dynamic range of the detector.
+Lets consider a 16 bit ADC, with C<sub>L</sub> = 30pf, R<sub>L</sub> = 1K and V<sub>EE</sub> = 3.3V from a low noise LDO rather than the USB power line. Our maximum slew with the emitter follower is 6V/usec.  But,  with a 12 bit ADC 10pf and 2K, the maximum slew would be 10V/usec.  If we go for 10 bits, then we might avoid the roll-off region for slew.  The issue with that is that there is still the non-linearity in the response and the precision is not sufficient for the dynamic range of the detector.
 
-So, the approach with a single transistor follower is marginal at best for these parameters.  There are ways to make it better, but at that point you will have come close to reinventing the opamp.  The cost for a dual ADA4807 which is rail-to-rail, very linear and has a slew rate of 225V/usec, is only <span>$</span>5.
-
+So, the approach with a single transistor follower is marginal at best for these parameters.  There are ways to make it better, but at that point you will have come close to reinventing the opamp.  The cost for a dual ADA4807 which is rail-to-rail, and very linear and has a slew rate of 225V/usec, is only <span>$</span>5.
 <br>
 
 ### Interfacing to an ADC
 The present application requires analog to digital conversion at rates from 200KSPS to 1MSPS and between 12 and 16 bit precision depending on your specific needs. This put us in the domain of the SAR type ADC (successive approximation register) [see here](https://www.analog.com/en/resources/analog-dialogue/articles/the-right-adc-architecture.html).  There are some important details to using a SAR type ADC and moreso for our application.  This involves some nuance, so we start from the basics.
 
 #### Spice model for ADC input
-The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.   In a simplified sense, it looks something like the following but with the switch driven by a clock.
+The SAR architecture comprises a sample and hold (S-H) circuit followed by a comparator and DAC which are operated by internal logic to implement the successive approximation algorithm.  The S-H circuit is seen by the driving circuitry as the input to the ADC.   In a simplified sense, it can be modeled like the following but with the switch driven by a clock.
 
 <p align="center">
 <img src="Images/SimpleSamplingSAR.jpg" width="50%"><br>
 </p>
 
-We can implement this in a SPICE model as follows. For purposes of illustration, we include an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
+We implement this in a SPICE model as follows. For purposes of illustration, we include an ideal voltage source as the input.  C1 is the sampling capacitor, S1 is the switch that connects C1 to the input, and S1 is controlled by the clock V1.  When S1 opens, the voltage on C1 is converted to a digital representation by the SAR engine.  The time during which S1 is closed, is called the sampling window.
 (Values for the internal resistance (Ron) and capacitance (C1) for a given ADC are usually available in its datasheet.)
 <p align="center">
 <img src="Images/Sampling_ADC_Bare_circuit.jpg" width="75%"><br>
@@ -1008,7 +1017,7 @@ Voltage noise of a capacitor is <i>v<sub>c</sub></i> = √(kT/C).
 For n bits of precision, we need <i>v<sub>c</sub></i> < Vfs/2<sup>n</sup>.
 The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV.
 
-When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit for the input in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
+When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
 
 #### ADC kickback
 Kickback describes what happens when the switch closes to connect the input to the driving circuit.
@@ -1044,7 +1053,7 @@ ADC model with recommended driver, charge reservoir C2.<br> Green = out, turquoi
 The charge reservoir and series resistor together look like a low pass filter, but the components are chosen a little differently.
 C2 needs to be large compared to C1 and R1 needs to be tuned between the current capacity of the OPAMP and allowing C2 to track the input. We make extensive use of SPICE modeling to check designs for response and precision.
 
-#### dV/dt versus charge reservoir
+#### Spectral line meets charge reservoir
 
 You may recall our discussion about dV/dt and sharp spectra lines near the top of the README.  Here is what happens when a large dV/dt meets the charge reservoir that we added to support the sampling capacitor in the ADC.   The circuit in this example is a "full feature" single ended model from CCD to ADC.  The input is a pulse, and a little bit extreme with a 2ns rise time.
 
@@ -1068,8 +1077,7 @@ The following shows a method for mitigating the new kickback.  We simply slow th
  
 ### SPICE model for the 16-bit analog front-end and ADC Input
 
-In the preceding sections, we discussed some general concepts about signal conditioning and interfacing to an ADC.  We briefly mentioned that we use a differential signal path to achieve low noise in our mixed signal environment.  
-We have the analog signal from the sensor alongside the gate and clock signals for the sensor, with the analog and voltage reference input to the ADC and its digital interface to the microcontroller.  In this environment, the differential signal path is effectively a pre-requisite for meeting our performance requirements in noise and linearity.
+In the preceding sections, we discussed some general concepts about signal conditioning and interfacing to an ADC.  We briefly mentioned that we use a differential signal path to achieve low noise in our mixed signal environment. We have the analog signal from the sensor alongside the gate and clock signals for the sensor, with the analog and voltage reference input to the ADC and its digital interface to the microcontroller.  In this environment, the differential signal path is effectively a pre-requisite for meeting our performance requirements in noise and linearity.
 
 The following show our [SPICE model for our analog signal path and ADC input](SPICE/TCD1304DifferentialBuffer.asc) (follow the link to download the LTSpice<sup>TM</sup> file).
 This the circuit used in the 16 bit sensor board.
@@ -1120,12 +1128,12 @@ Blue = V(sh), Green is V(icg), Red = (V(ccb)-4.0492) x 1000, Grey = I(R6)
 </p>
 </p>
 
-Note that the trace for voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
+Note that the trace for the voltage pulse on the supply side of the gate drivers is scaled times 1,000.  Using this model we confirm that the amplitude of the pulse is well within our power supply noise budget for the analog signal path.
 
 ## Residual Charge Effects and Mitigation
-Now lets take a look at another way in which the gate driver effects performance in the analog section.  it should be noted that the issue we are going to describe now is largely mitigated away in the timing architecture that we described earlier.  However we do provide some level of control and in any case it is useful to understand something of how this works.
+Now lets take a look at another way in which the gate driver effects performance in the analog section.  The issue we are going to describe now is largely mitigated away by our timing architecture.  However we do provide some level of control, and in any case it is useful to understand something of how this works.
 
-In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photodector region and an  element of the analog shift register.  In an approximate sense, we have a three step process; (1) light produces charge in the photodetector region, (2) pulsing the shift gate moves charge to the shift register, which is then (3) shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photodector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
+In our earlier discussion of linearity we briefly described the architecture of a simplified notional pixel comprising a photo-detector region and an  element of the analog shift register.  In an approximate sense, we have a three step process; (1) light produces charge in the photo-detector region, (2) pulsing the shift gate moves charge to the shift register, which is then (3) shifted away by clocking the shift register.  But, some charge necessarily remains behind in the photo-detector region.  The quantity depends on material properties, dimensions and temperature and the voltage and duration of the pulse applied to the shift gate.
 
 <p align="center">
 <img src="Images/DeviceInternals_shiftout.gif" width="60%">
@@ -1134,7 +1142,7 @@ Charge collected in the photodetector region is moved to the analog shift regist
 </p>
 </p>
 
-Let's see at what this effect can look like in practice.  The following figure is collected with a timing generator coded into a second Teensy board.  We use the FlexPWM in this second board to generate a frame trigger for our spectrometer with the LED turned on for every other frame.  For these data we use the spectrometer design described above with our 16 bit board and Teensy 4.0 controller,  These are 20 msec exposures with the shift gate driven at 4V for 1 usec for one pulse per frame.  With the LED on for 17 msec or 4msec, we obtain a similar residual charge in the frame after the LED is off.  In other words, for both exposure levels, the first pulse on the shift gate removes the majority of the charge collected in the photodetector and leaves us with a similar level of residual charge for the next frame.
+Let's see at what this effect can look like in practice.  The following figure is collected with a timing generator coded into a second Teensy board.  We use this second board to generate a frame trigger for our spectrometer with the LED turned on for every other frame.  For these data we use the spectrometer design described above with our 16 bit board and Teensy 4.0 controller,  These are 20 msec exposures with the shift gate driven at 4V for 1 usec for one pulse per frame.  Whether the LED is on for 17 msec or 4msec, we obtain a similar residual charge in the frame after the LED is off.  In other words, for both exposure levels, the first pulse on the shift gate removes the majority of the charge collected in the photo-detector and leaves us with a similar level of residual charge for the next frame.
 
 <p align="center">
 <img src="Images/GreenLEDOnOff.jpg" width="75%">
@@ -1153,7 +1161,7 @@ Residual charge is reduced with increasing shift gate pulse width and voltage.
 </p>
 </p>
 
-Based on our conceptual model for the pixel we might expect the residual charge floor to follow a "Boltzmann" like curve in the applied voltage.  The next figure shows the floor from the above study versus the voltage of the shift gate pulse.  We see that it does indeed follow a simple exponential in voltage.  Perhaps fortuitously, the coefficient is approximately the well depth and the decay "rate" in residual charge is about 1V/e-.
+Based on our conceptual model for the pixel we might expect the residual charge floor to follow a "Boltzmann" like curve in the applied voltage.  The next figure shows the floor from the above study versus the voltage of the shift gate pulse.  We see that it does indeed follow a simple exponential in voltage.  Perhaps fortuitously, the coefficient is approximately the well depth and the "rate" constant is about 1V.
 
 <p align="center">
 <img src="Images/FloorVsVoltage.jpg" width="65%">
@@ -1162,9 +1170,9 @@ The residual charge floor following a single pulse versus shift gate voltage wit
 </p>
 </p>
 
-So far we see that the first pulse ending the exposure removes most of the charge collected in the photodector leaving a small residual charge.  We know that after a sufficiently large set of blank exposures we eventually see only baseline, i.e. dark noise.  In other words, while the charge collected in the photodector region is sufficiently large redistribution under the applied shift gate field is fast.  The self-field evidently helps remove the charge.  But then at small levels of charge we are left with a slower process.  Nonetheless, it is still diffusion under an applied field. We can derive a simple model for that process as follows.
+So far we see that the first pulse ending the exposure removes most of the charge collected in the photodector leaving a small residual charge.  We know that under dark conditions we eventually see only baseline, i.e. dark noise.  In other words, while the charge collected in the photo-detector region is sufficiently large redistribution under the applied shift gate field is fast.  The self-field evidently helps remove the charge.  But then at small levels of charge we are left with a slower process.  Nonetheless, it is still diffusion under an applied field. We can derive a simple model for that process as follows.
 
-We start with an initial residual charge $q_0$​. With the next shift gate (SH) pulse, a fraction R of that initial charge is successfully transferred ("Readout") to the analog shift register. The remaining fraction (1−R) stays in the photodetector region.
+We start with a residual charge $q_0$​. With the next shift gate (SH) pulse, a fraction R of that initial charge is successfully transferred ("Readout") to the analog shift register. The remaining fraction (1−R) stays in the photodetector region.
 
 - Charge successfully read out: $R⋅q_0​$
 - Residual charge remaining in pixel: $(1−R)q_0​$
@@ -1185,7 +1193,7 @@ However, this is not quite sufficient. We need to account for charge trapping in
 
 $$S(N)=R(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​⋅e^{−γ(N−1)}$$
 
-Let's see if the model works. We collected data sets as above using a green LED with our 16 bit sensor board and Teensy 4 controller, and varying the number of pulses to the shift gate, each pulse is 4V and 1usec.  The following figure shows the residual carry over versus the number of pulses to the shift gate for different values of the LED "on" time and different periods of the shift gate.  We fit each of these to our model.  We see that the curves are largely insensitive to the initial intensity and pulse period, R ranges from 0.44 to 0.54 and γ ranges from 0.082 to 0.10.  For these values, the residual charge carry over signal should fall below dark noise within 20 pulses of the shift gate.
+Let's see if the model works. We collected data sets as above using a green LED with our 16 bit sensor board and Teensy 4 controller, and varied the number of pulses to the shift gate, each pulse is 4V and 1usec.  The following figure shows the residual carry-over versus the number of pulses to the shift gate for different values of the LED "on" time and different periods of the shift gate.  We fit each of these to our model.  We see that the curves are largely insensitive to the initial intensity and pulse period, R ranges from 0.44 to 0.54 and γ ranges from 0.082 to 0.10.  For these values, the residual charge carry-over signal should fall below dark noise within 20 pulses of the shift gate.
 
 <p align="center">
 <img src="Images/ResidualADUsVsPulsesCLK1.0usec.png" width="65%">
@@ -1209,12 +1217,12 @@ We see that residual charge is a necessary part of the physics of the CCD detect
 
 ## Further details of CCDs and ADCs
 
-In this section we revisit the CCD and ADC to fill in some of details and implement a few tricks that enable us to achieve the metrics that we listed at the top of the README.   So far, we learned how to design an analog front end capable of linear low noise response in a mixed signal environment and interface it to an ADC, we learned how to drive the gates, and we learned how to clear residual charge.  The next part involves the stop and go operation of the ADC and the interaction between its reference system and the gate systems in the CCD.  These effects are small thanks to our use of separate power busses and cuts in the ground plane. But to get to 0.2% INL requires one more step, or actually, two.
+In this section we revisit the CCD and ADC to fill in some of details and implement a few tricks that enable us to achieve the metrics that we listed at the top of the README.   So far, we learned how to design an analog front end capable of linear low noise response in a mixed signal environment and interface it to an ADC, we learned how to drive the gates, and we learned how to clear residual charge.  The next part involves the stop and go operation of the ADC and the interaction between its reference voltage system and the gate systems in the CCD.  These effects are small thanks to our use of separate power busses and cuts in the ground plane. But to get to 0.2% INL requires one more step, or actually, two.
 
 ### CCD readout
 Let's see how the CCD readout works and what that means for our ADC.  We saw in the preceding how charges move from the pixel to the analog shift register.  Now we have to move charge along the shift register to the sensor output.  We know from the datasheet that we need to drive 4 cycles in the master clock for each pixel we read from the sensor.  So, this  is the classic 4-phase potential well shift method.  The following illustration shows how this works.
 
-In (a) the upper part of the illustration, the shift register has a pattern of four electrodes per pixel, ϕ1​,ϕ2​,ϕ3​,and ϕ4​.  The pattern repeats for every pixel along the length of the CCD shift register.  The trick is to form a well under several adjacent electrodes and advance the edges one at a time.  We see this in (b), at t1 we have the well, at t2 the left edge moves, at t3 the right edge moves, and then repeat.  The timing to accomplish this is shown in (c).  This is sometimes described as a peristaltic pump for charge.  Charge Transfer Efficiency (CTE) along the array is very high even after repeating this 3694 times to read the entire array.
+In (a) the upper part of the illustration, the shift register has a pattern of four electrodes per pixel, ϕ1​,ϕ2​,ϕ3 and ϕ4​.  The pattern repeats for every pixel along the length of the CCD shift register.  The trick is to form a well under several adjacent electrodes and advance the edges one at a time.  We see this in (b), at t1 we have the well under three electrodes, at t2 the left edge moves, at t3 the right edge moves, and then repeat.  The timing to accomplish this is shown in (c).  This is sometimes described as a peristaltic pump for charge.  Charge Transfer Efficiency (CTE) along the array is very high even after repeating this 3694 times to read the entire array.
 
 <p align="center">
 <img src="Images/CCD-4cycle-diagram-annotated.jpg" width=60%>
@@ -1224,7 +1232,7 @@ Homework #1:  What is the next pattern at t4 in (b).  Homework #2: Show how (c) 
 </p>
 </p>
 
-At end of the CCD charge shift register, we have to hold the charge for four clock cycles and convert it to a voltage.  The classic circuit for this is shown in the following [as described in the classic paper by  j R Janesick et al, Opt Eng 26(8) pp 692-714 (1987)].  (Toshiba shows this is a black box with a 0.5K resistor in series with the output.)  Negative charge carriers (blue) come from the end of the shift register on to the capacitor.  An N-MOSFET follower then gives us a voltage at the output pin.  The other MOSFET resets the capacitor to $V_{os}$ between pixels.  The output waveform from the datasheet is shown in the lower right corner and we now understand why the output is a negative going voltage.
+At end of the CCD charge shift register, we have to hold the charge for four clock cycles on a sample and hold capacitor and convert it to a voltage.  The classic circuit for this is shown in the following [as described in the classic paper by J R Janesick et al, Opt Eng 26(8) pp 692-714 (1987)].  (Toshiba shows this as a black box with a 0.5K resistor in series with the output.)  Negative charge carriers (blue) come from the end of the shift register on to the capacitor.  An N-MOSFET follower then gives us a voltage at the output pin.  The other MOSFET resets the capacitor to $V_{os}$ between pixels.  The output waveform from the datasheet is shown in the lower right corner and we now understand why the output is a negative going voltage from a positive $V_{os}$.
 
 <p align="center">
 <img src="Images/CCD-output-stage-with-output.jpg" width=50%>
@@ -1233,13 +1241,13 @@ Classic CCD sensor output stage, dual mosfet follow and reset.
 </p>
 </p>
 
-For convenience, here is a sketch the first stage in our analog front end circuit where we convert the sensor output to a differential pair.  We use two OPAMPs (or a dual package) with one configured as a follower and the second as a shift and invert.
+For convenience, here is a sketch of the first stage in our analog front end circuit where we convert the sensor output to a differential pair.  We use two OPAMPs (or a dual package) with one configured as a follower and the second as a shift and invert.
 
 <p align="center">
 <img src="Images/AFE-single-differential-conversion.jpg" width="40%">
 </p>
 
-Now let's look at the timing for reading the CCD output.  The following scope trace shows the master clock (CLK) on channel 1 (yellow), the integration clear gate (ICG) on channel 2 (blue), the positive copy of the CCD output signal on channel 3 (purple) and the conversion start (CNVST) signal to the ADC on channel 4 (green).  This is four channel scope so we don't have a lead for the shift gate. But, it is the combined SH & ICG that starts the readout. As described above, we have a new pixel at the leading edge of every fourth clock pulse. The CNVST is timed to start the SAR at just 100nsecs before the next clock at end of the pixel.  We will see why this is important in the next section.
+Now let's look at the timing for reading the CCD output.  The following scope screen shows the master clock (CLK) on channel 1 (yellow), the integration clear gate (ICG) on channel 2 (blue), the positive copy of the CCD output signal on channel 3 (purple) and the conversion start (CNVST) signal to the ADC on channel 4 (green).  This is a four channel scope so we don't have a lead for the shift gate. But, it is the combined SH & ICG that starts the readout. As described above, we have a new pixel at the leading edge of every fourth clock pulse. The CNVST is timed to start the SAR at just 100nsecs before the next clock at end of the pixel.  We will see why this is important in the next section.
 
 <p align="center">
 <img src="Images/TCD1304_Timings_Output_2.jpg" width=50%>
@@ -1250,7 +1258,7 @@ Scope trace, inverted-shifted sensor output purple, CNVST green, ICG blue, and m
 
 ### ADC internals
 
-Now, let's take a look at what is happening inside the ADC and learn why the CNVST timing that we just described in the preceding section is important.  Here is a model for what is inside of a typical SAR type ADC.  Whereas earlier we showed an equivalent circuit with a single sampling capacitor, the actual circuit for an b-bit SAR involves a bank of capacitors of values $C_0$ through $C_n = 2^{n-1} C_0$. The sampling switch is still with us, and labeled "S" in the diagram but it also involves switches on each of the capacitors.
+Now, let's take a look at what is happening inside the ADC and learn why the CNVST timing that we just described in the preceding section is important.  Here is a model for what is inside of a typical SAR type ADC.  Whereas earlier we showed an equivalent circuit with a single sampling capacitor, the actual circuit for an n-bit SAR involves a bank of capacitors of values $C_0$ through $C_n = 2^{n-1} C_0$. The sampling switch is still with us, and labeled "S" in the diagram but it also involves switches on each of the capacitors.
 
 <p align="center">
 <img src="Images/ADC-DAC.jpg" width=50%>
@@ -1261,13 +1269,13 @@ SKetch of ADC internals with DAC and successive approximation engine.
 
  Here is how it works.
 
-- Step 1: "S" is closed and all of the capacitors are switched onto $V_{in}$.  The capacitors charge up to a total $Q = C_{total} \times V_{in}$.  The top plate is at ground and so the charge is actually -Q.
+- Step 1: "S" is closed and all of the capacitors are switched onto $V_{in}$.  The capacitors charge up to a total $Q = C_{total} \times V_{in}$.  The top plate is at ground and so the charge is actually $-Q$.
 - Step 2: At the conversion start signal, "S" opens and the negative charge is trapped on the top plate.
 - Step 3: The SAR logic begins, the bottom plate switches are flipped one by one to $V_{ref}$.  At each step the voltage on the top plate becomes $V_{+} = -V_in + V_{ref}\sum a_{m}/2^m$,  where $a_m = 1,0$ depending on the switch position.  The comparator detects this as greater than or less than 0, leaves the switch set or not accordingly, and moves to the next switch.
 
-(The above is sufficient for the present discussion. As an exercise, the reader try to invent a scheme to accomplish this with a single ended supply or a differential input.)
+(The above is sufficient for the present discussion. As an exercise, the reader can try to invent a scheme to accomplish this with a single ended supply or a differential input.)
 
-For a 4 bit ADC, the process might look something like this.  Notice that the internal clock for the ADC SAR engine has to run at n times the number of bits times the sample rate.
+For a 4 bit ADC, the process might look something like this.  Notice that the internal clock for the ADC SAR engine has to run at least as fast as the number of bits n times the sample rate.
 
 <p align="center">
 <img src="Images/Successive-approximation_ADC_example_working_value_1.jpg" width=50%>
@@ -1278,9 +1286,9 @@ From https://en.wikipedia.org/wiki/File:Successive-approximation_ADC_example_wor
 </p>
 
 ### Voltage reference stability: Virtual buffering
-It is easy to see that the output from the SAR is going to depend on the $V_{ref}$, and that can be a sizable kickback in the circuit that supplies $V_{ref}$ especially when the switch closes to connect $V_{ref}$ to that first capacitor (the largest one in the array).  Added to that, some ADCs go into standby or power down and then wake up when they are used.  That is a less ideal situation for our case involving a CCD where we alternate between exposure and readout.  Buffering the reference voltage would provide some mitigation for this.  But a more complete solution - idling the CNVST between readouts - can act as a virtual buffer to provide electrical as well as thermal stability with the ADC in its ready to go state.
+It is easy to see that the output from the SAR is going to depend on the $V_{ref}$, and that there can be a sizable kickback in the circuit that supplies $V_{ref}$ especially when the switch closes to connect $V_{ref}$ to thr first capacitor (the largest one in the array).  Added to that, some ADCs go into standby or power down and then wake up on the first CNVST pulse.  That is a less ideal situation for our case involving a CCD where we alternate between exposure and readout.  Buffering the reference voltage would provide some mitigation for this.  But a more complete solution - idling the CNVST between readouts - can act as a virtual buffer to provide electrical as well as thermal stability with the ADC in its ready to go state.
 
-Proof is in the pudding.  Here is the before and after implementing a CNVST idle engine.  This is the ADC output converted to voltage scale at the sensor for easy comparison to our noise data, and the x axis being time as pixel number x clk/4.   Without idling the CNVST, we see ringing.  When we idle the CNVST, the ringing disappears.  We will come back to this when we present the timing engine.
+Proof is in the pudding.  Here is the "before and after" implementing a CNVST idle engine.  This is the ADC output converted to voltage scale at the sensor for easy comparison to our noise data. The x axis is time as pixel number $n \times 4 \times  \text{clock period}$. Without idling the CNVST, we see ringing.  When we idle the CNVST, the ringing disappears.  We will come back to this when we present the timing engine.
 
 <p align="center">
 <img src="Images/RingingResolution.jpg" width=60%>
@@ -1290,7 +1298,7 @@ Wakeup ringing in the ADC is resolved by idling the CNVST. (a) Ringing appears o
 </p>
 
 ### CCD-ADC interaction: When to SAR and when not to SAR
-In the above we see that moving charge along the CCD register to the output entail driving four sets of gates times 3694 pixels.  The input is the master clock but this is a logic input, internally the device is driving four large capacitances.  They are driven in pairs, ϕ1 goes high when ϕ3 goes low, and etc.  But nonetheless and unavoidably some of this appears on the power and ground planes.  And that is a path to effect the result produced by the SAR if it is in the midst of a conversion when the next shift gate happens. Again "proof is in the pudding".
+In the above we see that moving charge along the CCD register to the output entails driving four sets of gates times 3694 pixels.  The input is the master clock but this is a logic input, internally the device is driving four large capacitances.  They are driven in pairs, ϕ1 goes high when ϕ3 goes low, and etc.  But nonetheless and unavoidably some of this appears on the power and ground planes.  And that is a path to effect the result produced by the SAR if it is in the midst of a conversion when the next shift gate happens. Again "proof is in the pudding".
 
 The following shows the residuals from fitting a series of intensities and exposures times from a comparatively stable green LED, under two settings for the timing of the CNVST relative to the clock, -100nsec and -300nsec. The SAR runs until 700 nsecs following the CNVST pulse and we are running the CCD from a 600nsec clock.
 
