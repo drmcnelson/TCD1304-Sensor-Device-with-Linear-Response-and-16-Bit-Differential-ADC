@@ -13,11 +13,11 @@ By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Li
 
 This repository provides the open-sourced hardware, firmware and documentation for a low noise high-precision Linear CCD instrument.
 The present 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
-The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 $\mu$sec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
+The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
 
 ## System Performance and Validation
 
-The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/$\mu$s capability vs. 7.5V/$\mu$s demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
+The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
 
@@ -189,7 +189,7 @@ Strategic use of latencies and timing windows for the above preserves critical t
 ## Metrological Validation
 The efficacy of the hardware-locked timing and differential front-end is supported by the following characterization data.
 
-* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.2% over five orders of magnitude (10 $\mu$sec to 0.5 sec) in exposure and up to 95% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
+* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.2% over five orders of magnitude (10 μsec to 0.5 sec) in exposure and up to 95% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
 * **Noise Floor & Signal Integrity:** Characterization of the AD4807/THS4521 front-end confirms an electronic noise floor of ~1 LSB (quantization limited) isolated from the sensor. With the TCD1304 integrated, the total system noise floor is ~0.6 mV. Pairwise frame subtraction in PTC analysis confirms residual variance is dominated by sensor noise rather than electronic artifacts.
 * **Charge Transfer Integrity:** Hardware-locked SH idling is validated by direct methods.   However, it is also seen simply comparing PIT and PLM operating modes. Activating the PIT clearing pulse engine results in a decisive intensity drop and brings measurements into alignment with PLM benchmarks thus confirming effective flushing of the shift register.
 
@@ -279,7 +279,7 @@ As noted, reproducibility is vitally important for any instrument and for a spec
 ### Construction of the spectrometer used for testing
 
 Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
-We use a 1200/mm grating and 200$\mu$m entrance slit with a focal length of 2 1/4".
+We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
 Total cost of materials for the spectrometer is under <span>$</span>400, including the electronics (this repo), optics and mechanical parts.
 
 ### Controller
@@ -450,7 +450,7 @@ The first form collects "back-to-back" frames with exposure time congruent with 
 Dark noise has a minimum at about 10-20 msecs.
 There is no effective upper limit on exposure time in this mode, apart from the increase in registering cosmic rays. Signal averaging can be done on line (see **add**) or after data is save to a file.
 
-The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to us "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;$\mu$secs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. Signal averaging is available for this mode, too.
+The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to us "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. Signal averaging is available for this mode, too.
 
 The trigger input can be configured as follows, where \<option\> can be any of rising, falling or change, pullup or nopullup, or pin \<pin-number\>.
 
@@ -682,7 +682,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 <li> Spectrometer</li>
 <li> Fluorescent lamp</li> 
 <li> Neutral density wheel filter for attentuation (individual filters can be used instead)
-<li> 200$\mu$m optical fiber
+<li> 200μm optical fiber
 <li> Miscellaneous mechanicals to hold the lamp, ND filter and fiber.
 </ol>
 
@@ -707,7 +707,7 @@ The parts list for the above is:
 
 <ol>
 <li>Grating, 1200 grooves/mm, Thorlabs GT50-12, $250</li>
-<li>200$\mu$m entrance slit, DIY-Optics.com, ~$30</li>
+<li>200μm entrance slit, DIY-Optics.com, ~$30</li>
 <li>Plano Convex lenses (50mm to 70mm bfl), ebay, ~$20</li>
 <li>SMA905 fitting, Amazon, Digikey, Mouser, Ebay ~$15</li>
 <li>Aluminum plate, OnlineMetals.com or Amazon</li>
@@ -896,7 +896,7 @@ For best performance we want to match the output of the TCD1304DG to the input r
 </p>
 
 #### Single ended signal conditioning
-The following shows a reasonable approach for a simple shift, flip and amplify while accommodating the wide variation in output impedance of the sensor.  We use a dual OPAMP, the ADA4807-2, slew 225$\mu$V/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.  We use this approach for our 12 bit systems including the "all-in-one" and analog boards.
+The following shows a reasonable approach for a simple shift, flip and amplify while accommodating the wide variation in output impedance of the sensor.  We use a dual OPAMP, the ADA4807-2, slew 225μV/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.  We use this approach for our 12 bit systems including the "all-in-one" and analog boards.
 
 <p align="center">
 <img src="Images/CCD_input_sketch.jpg" alt="CCD signal conditioning" width="80%">
@@ -1006,7 +1006,7 @@ Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1
 
 Voltage noise of a capacitor is <i>v<sub>c</sub></i> = √(kT/C). 
 For n bits of precision, we need <i>v<sub>c</sub></i> < Vfs/2<sup>n</sup>.
-The 30 pF sampling cap shown in the model produces about 11$\mu$V of noise and 1/2<sup>16</sup> = 15$\mu$V.
+The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV.
 
 When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit for the input in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
 
