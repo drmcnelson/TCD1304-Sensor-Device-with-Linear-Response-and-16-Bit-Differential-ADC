@@ -13,33 +13,11 @@ By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Li
 
 This repository provides the open-sourced hardware, firmware and documentation for a low noise high-precision Linear CCD instrument.
 The present 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
-The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
+The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 $\mu$sec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
 
-#### Table of Contents
-- [Introduction](#introduction)
-	- [SPI Instrumentation Project](#-the-spi-instrumentation-project---open-instruments-for-open-science)
-	- [Permissions](#-permissions-no-warranty-or-guarantee-and-etc)
-- [High-level description of the hardware-firmware-software architecture](#high-level-description-of-the-hardware-firmware-software-architecture)
-- [Getting it all up and running](#getting-it-all-up-and-running)
-	- [Assembling or obtaining boards](#assembling-or-obtaining-boards)
-	- [USB connection](#usb-connection)
-	- [Loading the firmware](#loading-the-firmware)
-	- [Setting up and running the python codes](#setting-up-and-running-the-python-codes)
-- [On Linearity and reproducibility in CCD spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data)
-- [Setup for linearity testing](#setup-for-linearity-testing)
-- [Spectrometer design and construction](#spectrometer-design-and-construction)
-- [Electrical design (a tutorial)](#electrical-design)
-	+ [TCD1304DG electrical characteristics](#tcd1304dg-electrical-characteristics)
-	+ [Signal conditioning](#signal-conditioning)
-	+ [Interfacing to an ADC](#interfacing-to-an-adc)
-	+ [SPICE model for the 16 bit sensor board](#spice-models-for-the-16-bit-sensor-board)
-	- [Gate driver and analog signal integrity](#gate-driver-and-analog-signal-integrity)
-- [Residual charge effects and mitigation](#residual-charge-effects-and-mitigation)
-- [Appendix A - quick command list](#appendix-a-quick-command-list)
+## System Performance and Validation
 
-## Introduction
-
-The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($< 0.0015\%$ error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin ($225\text{ V/µs}$ capability vs. $7.5\text{ V/µs}$ demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
+The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($< 0.0015\%$ error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin ($225\text{ V/$\mu$s}$ capability vs. $7.5\text{ V/$\mu$s}$ demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
 
@@ -122,7 +100,65 @@ Stability and linearity are the physical prerequisites for reproducibility in sc
 </p>
 <br>
 
-### Hardware Strategy
+## Background and Project Mission
+
+This repository offers a linear-CCD sensor system based on the TCD1304DG, designed specifically for stable, reproducible, and linear response. In precision spectrometry, stable linear response is a physical prerequisite for reproducibility. If an instrument fails to maintain fidelity at the hardware level, the resulting data is fundamentally compromised.
+
+Achieving this requires a holistic, science-centric design that insists on metrological integrity at the source. Our approach addresses the foundational physics of the sensor and the signal chain simultaneously, ensuring that the instrument is responsive to real spectral line shapes, high-gradient imaging features, and holographic fringes.
+
+### The Challenge: "Black Box" Instrumentation
+
+Perhaps surprisingly, foundational issues—non-linearity, slew-rate limitations, and baseline instability—often go unaddressed in commercial hardware. These artifacts are typically handled in ways including:
+
+- Numerical Patching: Using post-readout mathematical "corrections" to hide hardware flaws.
+
+- Log-Transform Dismissal: Claiming linearity is secondary because data is eventually log-transformed into absorption units.
+
+We believe that relying on software and numerical slight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with entry-level commercial units (e.g., Ocean Optics), a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
+
+### A Definitive Design for the TCD1304
+
+Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by baseline instability and "ghosting" (residual charge transfer).
+
+The goal of this project was to finally and fully resolve these issues by utilizing a hardware-locked timing architecture (via the i.MX RT1062 FlexPWM) and a ground up design for the analog front end, pulse driver system and power architecture. This definitive design provides a level of confidence in linearity and reproducibility that allows researchers to publish their data with confidence. Our aim is to "set a new bar" for what can be achieved with open-source scientific instrumentation.
+
+## <font color="blue"> The SPI Instrumentation Project - Open Instruments for Open Science</font>
+The contents of this repo are part of our effort in ***Open Instrumentation for Open Science***.  
+
+We believe that access to doing great science should not be limited to those privileged in funding and affiliation nor held ransom to the extractive practices of the market in scientific instruments. And anyway, you may feel better served by instruments developed by other scientists who actually use them and have decades of experience designing professional instrumentation. The designs we provide can often be built at about 1/10 of the cost of the commercial instrument.  In our own research, we are typically able to do more with these boards than we can with the expensive commercial instruments.
+
+At this writing, we have received requests and helped scientists working in Europe, Africa, India, Canada and the USA.
+
+One very important way that you can help underfunded scientists is by clicking the "Sponsor" button at the top of this repo.   The funds go to helping to make more instruments more available to more scientists around the world.
+
+If you would like to sponsor or receive boards, please contact me.
+
+### <font color="blue"> *Permissions, no warranty or guarantee, and etc.*</font>
+Permission is hereby granted for you to build and use these boards and codes in your lab and for your personal use.
+Please cite appropriately if you use these in your published work.
+
+Portions of the hardware-locked timing architecture and other aspects of the design, are subject to pending patent protection.
+
+Please contact me if you need/want:
+<ul>
+<li>
+Pre-assembled boards
+</li>
+<li>
+Customization, advice, etc.
+</li>
+<li>
+Permission for use in a product or other commercial effort
+</li>
+</ul>
+
+And of course, no warranty or guarantee is given whatsoever.  We did our best.
+
+If you have questions, please feel free to contact me.  And of course, don't forget to click the "Sponsor" button (or contact me directly).
+
+
+
+## Hardware Strategy
 The hardware architecture is engineered to provide reliable operation and high-precision linear transfer of spectra and holographic frames while isolating the system from electrical and mechanical noise.
 
 * **Differential Analog Front-End (AFE):** A fully differential signal path utilizing the **ADA4807** and **THS4521** ensures maximum common-mode rejection. The AFE is significantly over-specified for slew rate and bandwidth, ensuring that sharp features in spectra and images settle completely within the sampling window.
@@ -137,7 +173,7 @@ The hardware architecture is engineered to provide reliable operation and high-p
     * **Two-Card Architecture:** The sensor, AFE, pulse drivers, and ADC reside on a dedicated instrument card, separate from the MCU.
     * **Cable Strain Isolation:** This isolates the MCU from the analog subsystems and ensures that the mechanical stress of connecting USB or synchronization cables to the Teensy does not translate to the sensor card, preserving optical alignment.
 
-#### Firmware Strategy - Asynchronous State Machine
+## Firmware Strategy - Asynchronous State Machine
 The 2026 timing architecture utilizes three independent but coordinated submodules (plus a fourth as the master clock) of a single FlexPWM on the i.MXRT1062 to manage charge transfer and readout. This approach replaces sequential software loops with a phase-locked hardware state machine.
 
 **Three Logic Engines** are implemented in the interrupt states of the three submodules.
@@ -150,29 +186,28 @@ The 2026 timing architecture utilizes three independent but coordinated submodul
 
 Strategic use of latencies and timing windows for the above preserves critical timings in gate and ADC operations, both of which are important in noise and linearity performance.  The CNVST idle acts as a virtual buffer for the ADC reference voltage system. The SH idle runs on a fast clock to ensure residual charge clearance in the sensor subsystem. The read engine implements a zero copy system that leaves data frames on the ring buffer for asynchronous transfer to the host computer.
 
-#### Metrological Validation
+## Metrological Validation
 The efficacy of the hardware-locked timing and differential front-end is supported by the following characterization data.
 
-* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.2% over five orders of magnitude (10 μsec to 0.5 sec) in exposure and up to 95% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
+* **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.2% over five orders of magnitude (10 $\mu$sec to 0.5 sec) in exposure and up to 95% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
 * **Noise Floor & Signal Integrity:** Characterization of the AD4807/THS4521 front-end confirms an electronic noise floor of ~1 LSB (quantization limited) isolated from the sensor. With the TCD1304 integrated, the total system noise floor is ~0.6 mV. Pairwise frame subtraction in PTC analysis confirms residual variance is dominated by sensor noise rather than electronic artifacts.
 * **Charge Transfer Integrity:** Hardware-locked SH idling is validated by direct methods.   However, it is also seen simply comparing PIT and PLM operating modes. Activating the PIT clearing pulse engine results in a decisive intensity drop and brings measurements into alignment with PLM benchmarks thus confirming effective flushing of the shift register.
 
 
-### Background and contents of this repository
+## Repository Contents
 
-This repository offers a linear-CCD sensor system based on the TCD1304DG designed specifically for **stable, reproducible, and linear response**. In precision spectrometry, stability and linearity are the physical prerequisites for reproducibility; if an instrument fails to maintain fidelity, the resulting data is fundamentally compromised. Achieving this requires a holistic, science-centric approach to design that simultaneously addresses electrical linearity, slew (dV/dt), and settling time alongside detector-level device physics and residual charge mitigation. Perhaps surprisingly, these foundational issues often go unaddressed in commercial instruments—either tacitly acknowledged through the use of post-readout 'numerical corrections' or dismissed by claims that linearity only matters within the context of log-transformed absorption data. We believe that relying on mathematical transforms to obscure underlying physical non-linearity is an unacceptable state for any scientific instrument. The correct solution, and the approach taken here, is to **prioritize and insist on metrological integrity at the source**.
+This project is part of a larger mission to provide Open Instruments for Open Science, supporting researchers and under-resourced labs globally. This repository contains the complete ecosystem required to build and validate the system:
 
-We describe here how to obtain and work with the sensor system and software and in the following sections we provide as much information as much as we feasibly can about how the design works. The present design and write-up are part of our project to make available Open Instruments that support Open Science and under-resourced scientists.  You can help through the "Support" button at the top of the page.
+- Hardware: Fab files and BOMs for three versions: 16-bit Differential ADC (high-end), 12-bit, and Analog-out.
 
-Since their inception in the late 1980's, CCD spectrometers with their "all at once" spectral capability and low cost, have been looked to as a potentially important contribution to the scientist's toolbox.
-But as most of us who have worked with these since that time are well aware, there have always been issues (c.f. non-linearity, baseline instability, ghosting, etc., mentioned above).
-The goal of this project was to finally and fully address all of the issues and produce a definitive design for the TCD1304 that provides data that is linear and highly reproducible and that we can use with confidence when we publish our research.  Hopefully the present design will "set a new bar" for CCD based spectrometers.
+- Firmware: An Arduino-compatible "sketch" and a high-performance header-only C++ library.
 
-This repo provides (a) fab files and BOM for making the boards, (b) firmware as an Arduino "sketch" and a header-only C++ library, (c) host software in Python that can be used as a class library or command line interface with realtime graphics, (d) this README with test results and tutorials for electrical and optical design, and (e) a collection of SPICE models as referred to in the text and including those we used to develop and test the design. 
+- Host Software: Python-based CLI and class libraries with real-time graphics and offline data processing.
 
-The sensor device is offered in three versions (high-end 16 bit, or lower cost 12 bit, or analog), along with firmware ("sketch" file and header-only library), a user interface program (with graphics) and class library (Python) and an offline data processing program and class library (Python) to read and graph the ASCII files saved by the controller.  All three versions of the hardware, when used with the provided firmware and a Teensy 4.x, are able to provide reproducible linear response.  With the 16 bit system we have obtained linear reproducible results over 5 orders of magnitude in exposure time (from 10usec) in clocked and triggered data collection.
+- Validation: Technical tutorials (this document) for optical/electrical design and a collection of SPICE models used to test and refine the signal chain.
 
-We begin with a summary of what is contained in the rest of the readme and repo.
+- Performance Benchmarks: Documented results showing linear, reproducible response over 5 orders of magnitude in exposure time (from 10 μs).
+
 
 ### Implementations
 
@@ -244,7 +279,7 @@ As noted, reproducibility is vitally important for any instrument and for a spec
 ### Construction of the spectrometer used for testing
 
 Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
-We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
+We use a 1200/mm grating and 200$\mu$m entrance slit with a focal length of 2 1/4".
 Total cost of materials for the spectrometer is under <span>$</span>400, including the electronics (this repo), optics and mechanical parts.
 
 ### Controller
@@ -271,39 +306,6 @@ A tutorial on electrical design for CCD sensors and spectroscopy is included [he
 The fab files and code provided in this repo, and in the controller repo, plus some cabling and a host computer, should be sufficient to assemble the boards and get your detector system up and running.  Feel free to contact me for consultation or pre-assembled boards (time permitting).  And needless to say, donations are very much appreciated, please find and "click" the sponsorship button above.
 
 
-### <font color="blue"> The SPI Instrumentation Project - Open Instruments for Open Science</font>
-The contents of this repo are part of our effort in ***Open Instrumentation for Open Science***.  
-
-We believe that access to doing great science should not be limited to those privileged in funding and affiliation nor held ransom to the extractive practices of the market in scientific instruments. And anyway, you may feel better served by instruments developed by other scientists who actually use them and have decades of experience designing professional instrumentation. The designs we provide can often be built at about 1/10 of the cost of the commercial instrument.  In our own research, we are typically able to do more with these boards than we can with the expensive commercial instruments.
-
-At this writing, we have received requests and helped scientists working in Europe, Africa, India, Canada and the USA.
-
-One very important way that you can help underfunded scientists is by clicking the "Sponsor" button at the top of this repo.   The funds go to helping to make more instruments more available to more scientists around the world.
-
-If you would like to sponsor or receive boards, please contact me.
-
-### <font color="blue"> *Permissions, no warranty or guarantee, and etc.*</font>
-Permission is hereby granted for you to build and use these boards and codes in your lab and for your personal use.
-Please cite appropriately if you use these in your published work.
-
-Portions of the hardware-locked timing architecture and other aspects of the design, are subject to pending patent protection.
-
-Please contact me if you need/want:
-<ul>
-<li>
-Pre-assembled boards
-</li>
-<li>
-Customization, advice, etc.
-</li>
-<li>
-Permission for use in a product or other commercial effort
-</li>
-</ul>
-
-And of course, no warranty or guarantee is given whatsoever.  We did our best.
-
-If you have questions, please feel free to contact me.  And of course, don't forget to click the "Sponsor" button (or contact me directly).
 
  ***
 ## High-level description of the hardware-firmware-software architecture
@@ -448,7 +450,7 @@ The first form collects "back-to-back" frames with exposure time congruent with 
 Dark noise has a minimum at about 10-20 msecs.
 There is no effective upper limit on exposure time in this mode, apart from the increase in registering cosmic rays. Signal averaging can be done on line (see **add**) or after data is save to a file.
 
-The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to us "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;μsecs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. Signal averaging is available for this mode, too.
+The second form collects fast "frame sets" with short exposure times using a timing architecture we refer to us "pulse loop mode". The exposure time in this mode can be as short as 10&nbsp;$\mu$secs depending on pulse widths.  The frame interval needs to be at least the readout time plus the exposure time, c.f. 10msec for a 1msec exposure. Signal averaging is available for this mode, too.
 
 The trigger input can be configured as follows, where \<option\> can be any of rising, falling or change, pullup or nopullup, or pin \<pin-number\>.
 
@@ -609,8 +611,12 @@ Fluorescent lamp spectrum.<br>
 In studies of dynamic phenomenon, we are interested in the intensity registered in the detector during the time of a particular exposure.
 In CCD detectors there is always some residual charge that is carried over to the next frame. The magnitude of this carry-over effect depends on how the shift gate is driven.  A detailed discussion is included at the end of the section on [Residual Charge and Mitigation](#residual-charge-effects-and-mitigation).
 
-### A potential source of non-linearity in CCD spectrometers
-The following provides some insight into how the above phenomena may emerge in a CCD spectrometer (or imaging system) and how this can be addressed.  For simplicity of exposition, we can think in terms of a simplified notional CCD sensor architecture. (The TCD1304 architecture is described further in a later section.)
+### The Time-Domain Challenge: An Introduction to CCD Readout 
+An important point for the present discussion is that the CCD sensor records a discrete pattern of light in space (or wavelength), and on readout, this spatial map is converted into a discrete series of voltages in time. Accordingly, a sharp spectral line—an abrupt spatial gradient—becomes a high-speed pulse in the time domain.
+
+This transformation is what separates spectroscopy from general signal acquisition. While an audio or RF circuit might tolerate slight phase shifts or non-linearities near its Nyquist limit, a CCD spectrometer must render a full-scale voltage step from one pixel to the next with absolute fidelity. If the analog front-end lacks the bandwidth or slew rate to settle within that pixel's timing window, the 'wavelength' data is irrecoverably smeared.
+
+The following provides an introduction to how a spectrum or image is acquired from a CCD detector. Later we describe how the detector works in more detail and connect the several aspects of its operation to measures needed to reduce noise and achieve good linearity.
 
 The following depicts a circuit model for our simplified linear CCD, an array of pixels each compromising a photodiode and capacitor connected by a switch to one element of an analog shift register.
 
@@ -621,7 +627,7 @@ The following depicts a circuit model for our simplified linear CCD, an array of
 </p>
 </p>
 
-The following shows a pixel in our simplified notional CCD, pink indicates n-doping. The shift gate (SH) opens a channel and biases the shift register to harvest charge from the photodiode.  The electrode labeled φ belongs to the readout register.
+The following shows the structure of a pixel in our simplified notional CCD, pink indicates n-doping. The shift gate (SH) opens a channel and biases the shift register to harvest charge from the photodiode.  The electrode labeled φ belongs to the readout register.
 
 <p align="center">
 <img src="Images/DeviceInternals_pixel.jpg" alt="CCD Readout" width="25%">
@@ -663,8 +669,10 @@ First derivative (dV/dt) of the fluorescent lamp spectrum.
 
 There are a number of ways in which circuits can be slew-limited, though current starving the sample and hold capacitor in an ADC is perhaps one of the more popular methods.  Choosing an OPAMP with too small a maximum slew is another.   And a well abused emitter follow is a third method that seems popular in the DIY ecosystem.  As we will see the difference in cost to do this correctly is small.
 
-For purposes of a scientific instrument, we require linearity over the full range of line shapes that we might observe.  We will discuss how to accomplish this and a surprising previously unappreciated challenge, in the [section on electrical design](#electrical-design).
- 
+For the purposes of a scientific instrument, true linearity must be maintained across the full range of observable line shapes—from broad fluorescence to nearly-delta-function atomic lines. Achieving this requires more than just high-speed components; it requires a design that accounts for the dynamic load of the ADC and the specific current-sourcing needs of the signal path. We discuss the hardware implementation and the critical role of slew-rate margins in the [Section on Electrical Design](#electrical-design).
+
+However, raw speed is only half of the equation. Even with a perfect analog front-end, the internal device physics of the CCD—specifically the transport of charge through the silicon lattice—introduces subtle non-linearities and 'memory effects' on a finer scale. To achieve metrology-grade results, these detector-level artifacts must be mitigated through precise timing and thermal stability. We take up these subjects in the final sections of this documentation, after establishing the necessary electrical prerequisites.
+
 ---
 ## Setup for linearity testing
 
@@ -674,7 +682,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 <li> Spectrometer</li>
 <li> Fluorescent lamp</li> 
 <li> Neutral density wheel filter for attentuation (individual filters can be used instead)
-<li> 200μm optical fiber
+<li> 200$\mu$m optical fiber
 <li> Miscellaneous mechanicals to hold the lamp, ND filter and fiber.
 </ol>
 
@@ -699,7 +707,7 @@ The parts list for the above is:
 
 <ol>
 <li>Grating, 1200 grooves/mm, Thorlabs GT50-12, $250</li>
-<li>200μm entrance slit, DIY-Optics.com, ~$30</li>
+<li>200$\mu$m entrance slit, DIY-Optics.com, ~$30</li>
 <li>Plano Convex lenses (50mm to 70mm bfl), ebay, ~$20</li>
 <li>SMA905 fitting, Amazon, Digikey, Mouser, Ebay ~$15</li>
 <li>Aluminum plate, OnlineMetals.com or Amazon</li>
@@ -820,13 +828,9 @@ After settling on the parameters and digging through our box of lenses and grati
 ## Electrical design
 
 We now describe some of the elements of circuit design for a CCD based spectrometer (or imaging system).
-This will be something of a tutorial.  The idea is to support open science.  That includes being open about what you need to know to design something like this for yourself. We assume some basic knowledge of electronics.  The "attentive reader" will note that we make extensive use of SPICE models.
+This will be something of a tutorial.  The idea is to support open science.  That includes being open about what you need to know to design something like this for yourself. We assume some basic knowledge of electronics.  The "attentive reader" will note that we make extensive use of SPICE models.  A set of these is provided the [SPICE subdirectory](SPICE/).  These form the basis of many of the illustrations shown in this README.
 
-We include a set of SPICE models in the [SPICE subdirectory](SPICE/).  These form the basis of most of the illustrations shown in this README.
-
-We start with characteristics of the TCD1304DG and then proceed through signal conditioning to the ADC, gate drivers, and power architecture.
-
-The reader may also be interested in reading the description in our repo for the original "All-In-One" board, [here](https://github.com/drmcnelson/Linear-CCD-with-LTSpice-KiCAD-Firmware-and-Python-Library).
+We start with characteristics of the TCD1304DG and then proceed through signal conditioning, interfacing to the ADC, the gate drivers, and the power architecture.  Our description of the sensor are initially at a level sufficient to develop the basic electrical design.  Later we will revisit these devices in more detail, drawing from a classic paper in the literature of the CCD detector, and develop the final touch that gets us to metrologic performance with $\lt 0.2\\%$ INL. However for that we need some context in the basics for reading and operating a CCD and interfacing to an ADC.
 
 ### TCD1304DG electrical characteristics and operation
 The TCD1304DG datasheet can be downloaded [here](https://toshiba.semicon-storage.com/us/semiconductor/product/linear-image-sensors/detail.TCD1304DG.html).
@@ -892,7 +896,7 @@ For best performance we want to match the output of the TCD1304DG to the input r
 </p>
 
 #### Single ended signal conditioning
-The following shows a reasonable approach for a simple shift, flip and amplify while accommodating the wide variation in output impedance of the sensor.  We use a dual OPAMP, the ADA4807-2, slew 225μV/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.  We use this approach for our 12 bit systems including the "all-in-one" and analog boards.
+The following shows a reasonable approach for a simple shift, flip and amplify while accommodating the wide variation in output impedance of the sensor.  We use a dual OPAMP, the ADA4807-2, slew 225$\mu$V/s, input noise 3.1nV/√Hz, 0.1pA/√Hz, and input capacitance 1pf. The first unit is configured as a voltage follower to take care of the large variation in source impedance and the second is setup as an inverting amplifier with offset.  This gives us reproducible gain and it provides linear response with good noise performance.  We use this approach for our 12 bit systems including the "all-in-one" and analog boards.
 
 <p align="center">
 <img src="Images/CCD_input_sketch.jpg" alt="CCD signal conditioning" width="80%">
@@ -1002,7 +1006,7 @@ Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1
 
 Voltage noise of a capacitor is <i>v<sub>c</sub></i> = √(kT/C). 
 For n bits of precision, we need <i>v<sub>c</sub></i> < Vfs/2<sup>n</sup>.
-The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV.
+The 30 pF sampling cap shown in the model produces about 11$\mu$V of noise and 1/2<sup>16</sup> = 15$\mu$V.
 
 When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit for the input in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
 
@@ -1062,13 +1066,14 @@ The following shows a method for mitigating the new kickback.  We simply slow th
 </p>
 <br>
  
-### SPICE models for the 16 bit sensor board
+### SPICE model for the 16-bit analog front-end and ADC Input
 
-The following are screens from two of the spice models that we used in designing the sensor board.
+In the preceding sections, we discussed some general concepts about signal conditioning and interfacing to an ADC.  We briefly mentioned that we use a differential signal path to achieve low noise in our mixed signal environment.  
+We have the analog signal from the sensor alongside the gate and clock signals for the sensor, with the analog and voltage reference input to the ADC and its digital interface to the microcontroller.  In this environment, the differential signal path is effectively a pre-requisite for meeting our performance requirements in noise and linearity.
 
-#### Differential signal path and ADC
-This is the [SPICE model for the analog signal path with ADC](SPICE/TCD1304DifferentialBuffer.asc).
-The input is configured as a short pulse to stress the kickback management.  The second graph shows the voltage on the sampling capacitor converging to the input voltage within the sampling window.  Convergence is better than 1 part in 16 bits.
+The following show our [SPICE model for our analog signal path and ADC input](SPICE/TCD1304DifferentialBuffer.asc) (follow the link to download the LTSpice<sup>TM</sup> file).
+This the circuit used in the 16 bit sensor board.
+For purposes of "worst case" modeling, we setup the input signal as a short pulse. Calculating and then hand tuning the values for the passives in the charge reservoir system and the FDA feedback loop, we are able to manage the kickback while still achieving convergence to better than 1 part in 16 bits.
 
 <p align="center">
 <img src="Images/TCD1304DifferentialBuffer.jpg" width="65%">
@@ -1200,6 +1205,166 @@ Residual charge clearance following a full scale, as above (a) LED on and (b) th
 
 
 We see that residual charge is a necessary part of the physics of the CCD detector device and features multiple regimes for shifting charge withing the device.  We can mitigate the residual charge effect to prevent "ghosting" in our data by driving the shift gate with adequate voltage, current and time, combined with pulsing or idling the shift gate between exposures.  Both idling in PLM mode and clearing in PIT mode are implemented in our firmware in a way that preserves deterministic timing for both timed and interrupt driven operation - as evidenced in the reported performance metrics.  
+
+
+## Further details of CCDs and ADCs
+
+In this section we revisit the CCD and ADC to fill in some of details and implement a few tricks that enable us to achieve the metrics that we listed at the top of the README.   So far, we learned how to design an analog front end capable of linear low noise response in a mixed signal environment and interface it to an ADC, we learned how to drive the gates, and we learned how to clear residual charge.  The next part involves the stop and go operation of the ADC and the interaction between its reference system and the gate systems in the CCD.  These effects are small thanks to our use of separate power busses and cuts in the ground plane. But to get to 0.2% INL requires one more step, or actually, two.
+
+### CCD readout
+Let's see how the CCD readout works and what that means for our ADC.  We saw in the preceding how charges move from the pixel to the analog shift register.  Now we have to move charge along the shift register to the sensor output.  We know from the datasheet that we need to drive 4 cycles in the master clock for each pixel we read from the sensor.  So, this  is the classic 4-phase potential well shift method.  The following illustration shows how this works.
+
+In (a) the upper part of the illustration, the shift register has a pattern of four electrodes per pixel, ϕ1​,ϕ2​,ϕ3​,and ϕ4​.  The pattern repeats for every pixel along the length of the CCD shift register.  The trick is to form a well under several adjacent electrodes and advance the edges one at a time.  We see this in (b), at t1 we have the well, at t2 the left edge moves, at t3 the right edge moves, and then repeat.  The timing to accomplish this is shown in (c).  This is sometimes described as a peristaltic pump for charge.  Charge Transfer Efficiency (CTE) along the array is very high even after repeating this 3694 times to read the entire array.
+
+<p align="center">
+<img src="Images/CCD-4cycle-diagram-annotated.jpg" width=60%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+4-Cycle CCD charge shift register; (a) electrode pattern, (b) "peristaltic" charge transfer and (c) clocking sequence.
+Homework #1:  What is the next pattern at t4 in (b).  Homework #2: Show how (c) gives rise to (b).
+</p>
+</p>
+
+At end of the CCD charge shift register, we have to hold the charge for four clock cycles and convert it to a voltage.  The classic circuit for this is shown in the following [as described in the classic paper by  j R Janesick et al, Opt Eng 26(8) pp 692-714 (1987)].  (Toshiba shows this is a black box with a 0.5K resistor in series with the output.)  Negative charge carriers (blue) come from the end of the shift register on to the capacitor.  An N-MOSFET follower then gives us a voltage at the output pin.  The other MOSFET resets the capacitor to $V_{os}$ between pixels.  The output waveform from the datasheet is shown in the lower right corner and we now understand why the output is a negative going voltage.
+
+<p align="center">
+<img src="Images/CCD-output-stage-with-output.jpg" width=50%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Classic CCD sensor output stage, dual mosfet follow and reset. 
+</p>
+</p>
+
+For convenience, here is a sketch the first stage in our analog front end circuit where we convert the sensor output to a differential pair.  We use two OPAMPs (or a dual package) with one configured as a follower and the second as a shift and invert.
+
+<p align="center">
+<img src="Images/AFE-single-differential-conversion.jpg" width="40%">
+</p>
+
+Now let's look at the timing for reading the CCD output.  The following scope trace shows the master clock (CLK) on channel 1 (yellow), the integration clear gate (ICG) on channel 2 (blue), the positive copy of the CCD output signal on channel 3 (purple) and the conversion start (CNVST) signal to the ADC on channel 4 (green).  This is four channel scope so we don't have a lead for the shift gate. But, it is the combined SH & ICG that starts the readout. As described above, we have a new pixel at the leading edge of every fourth clock pulse. The CNVST is timed to start the SAR at just 100nsecs before the next clock at end of the pixel.  We will see why this is important in the next section.
+
+<p align="center">
+<img src="Images/TCD1304_Timings_Output_2.jpg" width=50%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Scope trace, inverted-shifted sensor output purple, CNVST green, ICG blue, and master clock yellow.  A new pixel arrives at every fourth clock. CNVST is timed to start the SAR  just before the next clock.
+</p>
+</p>
+
+### ADC internals
+
+Now, let's take a look at what is happening inside the ADC and learn why the CNVST timing that we just described in the preceding section is important.  Here is a model for what is inside of a typical SAR type ADC.  Whereas earlier we showed an equivalent circuit with a single sampling capacitor, the actual circuit for an b-bit SAR involves a bank of capacitors of values $C_0$ through $C_n = 2^{n-1} C_0$. The sampling switch is still with us, and labeled "S" in the diagram but it also involves switches on each of the capacitors.
+
+<p align="center">
+<img src="Images/ADC-DAC.jpg" width=50%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+SKetch of ADC internals with DAC and successive approximation engine.
+</p>
+</p>
+
+ Here is how it works.
+
+- Step 1: "S" is closed and all of the capacitors are switched onto $V_{in}$.  The capacitors charge up to a total $Q = C_{total} \times V_{in}$.  The top plate is at ground and so the charge is actually -Q.
+- Step 2: At the conversion start signal, "S" opens and the negative charge is trapped on the top plate.
+- Step 3: The SAR logic begins, the bottom plate switches are flipped one by one to $V_{ref}$.  At each step the voltage on the top plate becomes $V_{+} = -V_in + V_{ref}\sum a_{m}/2^m$,  where $a_m = 1,0$ depending on the switch position.  The comparator detects this as greater than or less than 0, leaves the switch set or not accordingly, and moves to the next switch.
+
+(The above is sufficient for the present discussion. As an exercise, the reader try to invent a scheme to accomplish this with a single ended supply or a differential input.)
+
+For a 4 bit ADC, the process might look something like this.  Notice that the internal clock for the ADC SAR engine has to run at n times the number of bits times the sample rate.
+
+<p align="center">
+<img src="Images/Successive-approximation_ADC_example_working_value_1.jpg" width=50%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+SAR engine stepwise determination of a digital representation.<br>
+From https://en.wikipedia.org/wiki/File:Successive-approximation_ADC_example_working_value_1.svg<br>Public Domain via CC0 1.0.
+</p>
+</p>
+
+### Voltage reference stability: Virtual buffering
+It is easy to see that the output from the SAR is going to depend on the $V_{ref}$, and that can be a sizable kickback in the circuit that supplies $V_{ref}$ especially when the switch closes to connect $V_{ref}$ to that first capacitor (the largest one in the array).  Added to that, some ADCs go into standby or power down and then wake up when they are used.  That is a less ideal situation for our case involving a CCD where we alternate between exposure and readout.  Buffering the reference voltage would provide some mitigation for this.  But a more complete solution - idling the CNVST between readouts - can act as a virtual buffer to provide electrical as well as thermal stability with the ADC in its ready to go state.
+
+Proof is in the pudding.  Here is the before and after implementing a CNVST idle engine.  This is the ADC output converted to voltage scale at the sensor for easy comparison to our noise data, and the x axis being time as pixel number x clk/4.   Without idling the CNVST, we see ringing.  When we idle the CNVST, the ringing disappears.  We will come back to this when we present the timing engine.
+
+<p align="center">
+<img src="Images/RingingResolution.jpg" width=60%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Wakeup ringing in the ADC is resolved by idling the CNVST. (a) Ringing appears on exiting standby. (b) No ringing with the CNVST pin idling to maintain stability in the voltage reference system. Then CNVST is re-synchronized to the master clock during the ICG pulse.
+</p>
+</p>
+
+### CCD-ADC interaction: When to SAR and when not to SAR
+In the above we see that moving charge along the CCD register to the output entail driving four sets of gates times 3694 pixels.  The input is the master clock but this is a logic input, internally the device is driving four large capacitances.  They are driven in pairs, ϕ1 goes high when ϕ3 goes low, and etc.  But nonetheless and unavoidably some of this appears on the power and ground planes.  And that is a path to effect the result produced by the SAR if it is in the midst of a conversion when the next shift gate happens. Again "proof is in the pudding".
+
+The following shows the residuals from fitting a series of intensities and exposures times from a comparatively stable green LED, under two settings for the timing of the CNVST relative to the clock, -100nsec and -300nsec. The SAR runs until 700 nsecs following the CNVST pulse and we are running the CCD from a 600nsec clock.
+
+In the first graph the CNVST pulse occurs at 100 nsecs prior to the next clock at the end of the pixel's 4 clock cycle.  The last bits in the SAR conversion may overlap the second clock pulse, but the lower bits are also closer to the noise floor. So we refrain from drawing conclusions from the rise at low intensity.
+
+In the second condition, the CNVST pulse is positioned 300 nsec prior to the clock.  Here we do see a significant hump in the residuals and it is easy to imagine how it might reflect a disturbance from the CCD clock.  We find that this is a repeatable result.
+
+<p align="center">
+<img src="Images/CNVST_Timing_INL_6e-07sec_4000_well.jpg" width=50%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Residual error as a function of well usage, with CNVST at -100nsec and -300nsec relative to the pixel transition.
+</p>
+</p>
+
+## Orchestration and the "Idling Engine" State Machine
+To achieve nanosecond-level determinism, eliminate the “ghosting” artifacts common in CCD systems, and achieve stable linear response in the complete path from sensor to ADC, this architecture—rather than relying on simple software-triggered loops—instead utilizes a Hardware-Locked State Machine based on the i.MX RT1062’s FlexPWM modules.
+
+### Deterministic Execution vs. Software Latency
+
+In traditional microcontroller-based spectrometers, the timing of the conversion start (CNVST) and the CCD gate signals (SH, ICG) is often subject to interrupt latency or firmware "jitter." This results in inconsistent pixel-to-pixel integration times and baseline drift.
+
+Our approach utilizes the "Idling Engine" concept: the timing engines run continuously. When a capture is initiated, rather than starting a "cold" set of clocks, the system transitions from a virtual buffer and high-speed charge-clearing state to a phase-locked readout sequence. This ensures:
+
+- Thermal and Electrical Equilibrium: The system remains in a constant state, avoiding the "first pixel" and "first frame" transients common in systems that start/stop clocks intermittently.
+
+- Phase-Locked Sampling: Sampling occurs with a constant phase relationship relative to the shift clock. This allows the signal to settle reliably to within 1 LSB while ensuring the ADC conversion avoids contamination by switching transients.
+
+- Precise Exposure Control: Exposure timing is hardware-locked and tightly controlled across the full dynamic range of the instrument.
+    
+### Implementation
+
+The system utilizes four submodules of a single FlexPWM module to implement the CLK, SH, ICG, and CNVST signals, with dedicated state engines managing the transitions. The following flowcharts document the initiation and hand-off logic for these engines.
+
+<p align="center">
+<img src="Images/Start-logic_flowchart.jpg" width=90%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+Start logic supports command triggered initiation.
+</p>
+</p>
+
+<p align="center">
+<img src="Images/SH_ISR_flowchart.jpg" width=40%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+The shift gate ISR serves as the exposure and SH idle controller with hand-off to ICG to initiate readout.
+</p>
+</p>
+
+<p align="center">
+<img src="Images/ICG_ISR_flowchart.jpg" width=40%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+The integration clear gate ISR occurs only at the end of an exposure, on the leading edge sets up the CNVST signal and readout and launches the readout on the trailing edge.
+ICG flow chart
+</p>
+</p>
+
+<p align="center">
+<img src="Images/CNVST_ISR_flowchart.jpg" width=90%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+The conversion start ISR fires for each pixel to assert the CNVST pin and command a 16 bit read over SPI, and implements the logic and actions for end of frame and end of frameset.
+</p>
+</p>
+
+The resulting idle patterns are shown in the following. Note the resynchronization of the CNVST signal (green) prior to start of readout initiated from the ICG (blue) and the idle pattern in SH (purple) suspended during exposure and again during readout.  The clock signal (yellow) runs on the scale of MHz while the display on the scale of 100KHz.
+
+<p align="center">
+<img src="Images/TCD1304_Timings_Idling_2.jpg" width=40%>
+<p align="center" style="margin-left:5em;margin-right:5em">
+CNVST and SH idle signals maintained by the FlexPWM and state engines.
+</p>
+</p>
+
+
+
+
 
 
 ***
