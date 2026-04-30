@@ -557,7 +557,7 @@ Intensity versus exposure time for four spectral lines for (a) the present desig
 </p>
 </p>
 
-### The Myth of Global Polynomial Correction
+#### The Myth of Global Polynomial Correction
 
 The linear response observed on the left is the standard to which every instrument should aspire; it should be a baseline expectation in scientific measurement. We will digress briefly to address the common methods vendors use to gloss over the non-linear response seen on the right.
 
@@ -573,8 +573,6 @@ The results are stark: the narrow, sharper peak requires second- and third-order
 
 <div align="center">
 <table style="width: 60%">
-<style>
-</style>
 <thead style="border-bottom: 2px solid grey;">
 <tr>
 <th style="font-weight: 600">Spectral Line</th>
