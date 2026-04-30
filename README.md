@@ -557,6 +557,53 @@ Intensity versus exposure time for four spectral lines for (a) the present desig
 </p>
 </p>
 
+### The Myth of Global Polynomial Correction
+
+The linear response observed on the left is the standard to which every instrument should aspire; it should be a baseline expectation in scientific measurement. We will digress briefly to address the common methods vendors use to gloss over the non-linear response seen on the right.
+
+There is a widespread practice in commercial spectroscopy to claim that hardware non-linearity can be corrected through the pixel-wise application of a global polynomial:
+
+$$S(A_n​)=a_0​+a_1​A_n​+a_2​A_n^2​+a_3​A_n^3​+\ldots$$
+
+where $A_n$​ is the raw intensity of pixel $n$ and the coefficients $a_i​$ are assumed to be constant across the array. In nearly every case, this is a metrological myth. Such a model is fundamentally out of sync with the reality of any instrument where response is limited by bandwidth or slew. In those systems, the non-linear response is not a static property of an individual pixel, but a dynamic function of the signal’s geometry across a set of pixels.
+
+To demonstrate this failure, we evaluated the polynomial coefficients required to linearize the response of the commercial instrument shown in (b) for two specific mercury (Hg) lines: 435nm and 546nm.
+
+The results are stark: the narrow, sharper peak requires second- and third-order coefficients that are nearly triple those of the broader peak. This proves that the required "correction" is a direct function of the **steepness** (the dV/dt) of the spectral line. For a slew-limited instrument, the claim that data can be corrected by a simple, pixel-wise polynomial is mathematically irreconcilable with the physical behavior of the sensor.
+
+<div align="center">
+<table style="width: 60%">
+<style>
+</style>
+<thead style="border-bottom: 2px solid grey;">
+<tr>
+<th style="font-weight: 600">Spectral Line</th>
+<th style="font-weight: 600">a<sub>0</sub>(x<sup>0</sup>)</th>
+<th style="font-weight: 600">a<sub>1</sub>(x<sup>1</sup>)</th>
+<th style="font-weight: 600">a<sub>2</sub>(x<sup>2</sup>)</th>
+<th style="font-weight: 600">a<sub>3</sub>(x<sup>3</sup>)</th>
+</tr>
+</thead>
+<tr>
+<td>Broad peak (546nm)</td>
+<td>-0.011</td>
+<td>1.169</td>
+<td>-0.616</td>
+<td>0.6320</td>
+</tr>
+<tr>
+<td>Narrow peak (435nm)</td>
+<td>-0.034</td>
+<td>1.56</td>
+<td>-2.04</td>
+<td>1.78</td>
+</tr>
+</table>
+</div>
+<br>
+
+With a moments consideration of the above, it can be appreciated that the non-linearity of the commercial instrument is not numerically correctable in any practical way.  Do not be fooled by the canard of "polynomial correction".
+
 ### Consistency and practical reproducibility
 A simple test for consistency and practical reproducibility is to collect spectra at a different exposure times or with the light source at a few different distances with source and aperture aligned on a rail.  Either of these methods will vary the number of photons and hence the number of electronics registered in each pixel.  When the sensor system is linear, we should be able to scale by exposure time (or R<sup>2</sup>) and obtain the identical spectrum apart from the difference in signal to noise ratio.
 
