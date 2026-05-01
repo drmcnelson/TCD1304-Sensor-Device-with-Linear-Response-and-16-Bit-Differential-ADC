@@ -114,7 +114,7 @@ Perhaps surprisingly, foundational issues—non-linearity, slew-rate limitations
 
 - Log-Transform Dismissal: Claiming linearity is secondary because data is eventually log-transformed into absorption units.
 
-We believe that relying on software and numerical slight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with entry-level commercial units (e.g., Ocean Optics), a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
+We believe that relying on software and numerical slight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
 
 ### A Definitive Design for the TCD1304
 
