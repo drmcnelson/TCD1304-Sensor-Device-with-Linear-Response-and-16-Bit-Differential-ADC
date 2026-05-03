@@ -17,7 +17,7 @@ The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentiall
 
 ## System Performance and Validation
 
-The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (AD4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
+The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (ADA4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
 
@@ -102,7 +102,7 @@ Stability and linearity are the physical prerequisites for reproducibility in sc
 
 ## Background and Project Mission
 
-This repository offers a linear-CCD sensor system based on the TCD1304DG, designed specifically for stable, reproducible, and linear response. In precision spectrometry, stable linear response is a physical prerequisite for reproducibility. If an instrument fails to maintain fidelity at the hardware level, the resulting data is fundamentally compromised.
+This repository offers a linear-CCD sensor system based on the TCD1304DG, designed specifically for stable, reproducible and linear response. In precision spectrometry, stable linear response is a physical prerequisite for reproducibility. If an instrument fails to maintain fidelity at the hardware level, the resulting data is fundamentally compromised.
 
 Achieving this requires a holistic, science-centric design that insists on metrological integrity at the source. Our approach addresses the foundational physics of the sensor and the signal chain simultaneously, ensuring that the instrument is responsive to real spectral line shapes, high-gradient imaging features, and holographic fringes.
 
@@ -110,15 +110,14 @@ Achieving this requires a holistic, science-centric design that insists on metro
 
 Perhaps surprisingly, foundational issues—non-linearity, slew-rate limitations, and baseline instability—often go unaddressed in commercial hardware. These artifacts are typically handled in ways including:
 
-- Numerical Patching: Using post-readout mathematical "corrections" to hide hardware flaws.
-
+- Numerical Patching: Using dubious post-readout mathematical "corrections" to hide hardware flaws.
 - Log-Transform Dismissal: Claiming linearity is secondary because data is eventually log-transformed into absorption units.
 
 We believe that relying on software and numerical slight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
 
 ### A Definitive Design for the TCD1304
 
-Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by baseline instability and "ghosting" (residual charge transfer).
+Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by nonlinearity, baseline instability and "ghosting" (residual charge transfer).
 
 The goal of this project was to finally and fully resolve these issues by utilizing a hardware-locked timing architecture (via the i.MX RT1062 FlexPWM) and a ground up design for the analog front end, pulse driver system and power architecture. This definitive design provides a level of confidence in linearity and reproducibility that allows researchers to publish their data with confidence. Our aim is to "set a new bar" for what can be achieved with open-source scientific instrumentation.
 
@@ -129,7 +128,7 @@ We believe that access to doing great science should not be limited to those pri
 
 At this writing, we have received requests and helped scientists working in Europe, Africa, India, Canada and the USA.
 
-One very important way that you can help underfunded scientists is by clicking the "Sponsor" button at the top of this repo.   The funds go to helping to make more instruments more available to more scientists around the world.
+One very important way that you can help under-resourced scientists is by clicking the "Sponsor" button at the top of this repo.   The funds go to helping to make more instruments more available to more scientists around the world.
 
 If you would like to sponsor or receive boards, please contact me.
 
@@ -217,7 +216,7 @@ In the following we provide a high level description of each of the three implem
 <span>$</span>40 and <span>$</span>24 respectively
 and the PCB which generally runs around <span>$</span>18 per board in small quantities (including tariffs).
 
-Note that the performance metrics achieved by the design are a function of both the hardware and firmware.
+Note that the performance metrics achieved by the design are a function of both the hardware and firmware and are reported for the 16 bit implementation only.
 
 #### Two board system, 16 bit sensor board and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The ribbon cable carries logic signals and power for the SPI interface (1.7V-5.1V).  The two wire connection (red and black) is 5V power. Internally, there are separate low noise power circuits and ground planes for the analog section and gate drivers. We observe 0.6mV dark noise, electrical noise is more than 10 times lower (less than 1 LSB with the sensor removed). And the board is able to linearly follow peaks to full scale in one pixel.  Fiduciary marks on both sides of the sensor board facilitate optical alignment.
@@ -601,6 +600,15 @@ The results are stark: the narrow, sharper peak requires second- and third-order
 <br>
 
 With a moments consideration of the above, it can be appreciated that the non-linearity of the commercial instrument is not numerically correctable in any practical way.  Do not be fooled by the canard of "polynomial correction".
+
+### Slew or bandwidth?
+Considering the roll-off in the commercial instrument we have to conclude that the commercial instrument suffers from inadequate slew -the attenuation is a function of intensity and width togther rather than a band width problem where the attenuation is a function of width only.
+
+In spectroscopy we often have fixed spectral line widths $d\lambda$.  Therefore, when intensity I increases, the quantity $I/d\lambda$ increases with it.  On readout $I/d\lambda$ become $dV/dt$.  This quantity is called slew in an electrical design.  When confronted with a sharp line and increasing intensity, at some point the signal chain may begin to fall behind and we see roll-off as demonstrated in the data on the right.
+
+This is different from a normal bandwidth or low pass filter. The the attenuation is a function of dt only,  A spectral line with fixed width sees constant attenuation and the response in the signal is weakened but linear. The data shows clear that the commercial instrument as a function of intensity and width and not just intensity itself nor just width by itself.
+
+We will take this up again in the section on electrical design.
 
 ### Consistency and practical reproducibility
 A simple test for consistency and practical reproducibility is to collect spectra at a different exposure times or with the light source at a few different distances with source and aperture aligned on a rail.  Either of these methods will vary the number of photons and hence the number of electronics registered in each pixel.  When the sensor system is linear, we should be able to scale by exposure time (or R<sup>2</sup>) and obtain the identical spectrum apart from the difference in signal to noise ratio.
