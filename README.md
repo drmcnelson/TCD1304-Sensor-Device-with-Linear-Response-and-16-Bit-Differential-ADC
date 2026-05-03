@@ -601,14 +601,14 @@ The results are stark: the narrow, sharper peak requires second- and third-order
 
 With a moments consideration of the above, it can be appreciated that the non-linearity of the commercial instrument is not numerically correctable in any practical way.  Do not be fooled by the canard of "polynomial correction".
 
-### Slew or bandwidth?
-Considering the roll-off in the commercial instrument we have to conclude that the commercial instrument suffers from inadequate slew -the attenuation is a function of intensity and width togther rather than a band width problem where the attenuation is a function of width only.
+### Aside, why is this about slew rather than bandwidth?
+Considering the roll-off in the commercial instrument we have to conclude that the commercial instrument suffers from inadequate slew because the attenuation is non-linear;  it is a function of intensity and width together rather than a function of only intensity or only width.
 
-In spectroscopy we often have fixed spectral line widths $d\lambda$.  Therefore, when intensity I increases, the quantity $I/d\lambda$ increases with it.  On readout $I/d\lambda$ become $dV/dt$.  This quantity is called slew in an electrical design.  When confronted with a sharp line and increasing intensity, at some point the signal chain may begin to fall behind and we see roll-off as demonstrated in the data on the right.
+In spectroscopy we often have fixed spectral line widths $d\lambda$.  Therefore, when intensity I increases, the quantity $I/d\lambda$ increases with it.  On readout $I/d\lambda$ become $dV/dt$ (as we will discuss in a moment).  This means that as the signal increases we are asking the signal chain for greater "slew".  For the narrower spectral lines, the signal chain on the right is not able to deliver this and begins to fall behind.  We see that as roll-off.
 
-This is different from a normal bandwidth or low pass filter. The the attenuation is a function of dt only,  A spectral line with fixed width sees constant attenuation and the response in the signal is weakened but linear. The data shows clear that the commercial instrument as a function of intensity and width and not just intensity itself nor just width by itself.
+This is different from a bandwidth limited signal chain, or one with a low pass filter. There the attenuation is a function of dt only (i.e., not dV/dt),  For a given spectral line with a fixed width, the attenuation is constant.  The response of the instrument is weakened, but it is still linear.   When the limitation is bandwidth only, we see linear response until something else saturates.
 
-We will take this up again in the section on electrical design.
+We see from the data on the left that the sensor by itself is linear over almost of its range from noise to full well.  Therefore the roll-off on the right is in the signal chain and it is most likely to due to a slew type of non-linearity.  We will take this up again in the section on electrical design.
 
 ### Consistency and practical reproducibility
 A simple test for consistency and practical reproducibility is to collect spectra at a different exposure times or with the light source at a few different distances with source and aperture aligned on a rail.  Either of these methods will vary the number of photons and hence the number of electronics registered in each pixel.  When the sensor system is linear, we should be able to scale by exposure time (or R<sup>2</sup>) and obtain the identical spectrum apart from the difference in signal to noise ratio.
