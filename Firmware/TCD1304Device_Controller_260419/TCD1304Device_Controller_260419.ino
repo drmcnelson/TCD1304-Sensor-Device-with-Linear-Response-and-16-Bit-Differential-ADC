@@ -154,7 +154,7 @@ char sndbuffer[SNDLEN];
    TCD1304 SPI Device
 */
 
-const char versionstr[] = "TCD1304Device vers 0.6 " __DATE__;
+const char versionstr[] = "TCD1304Device vers 0.7 " __DATE__;
 const char authorstr[] =  "Patents Pending and (c) 2020, 2023, 2025, 2026 by Mitchell C. Nelson, Ph.D. ";
 const char srcfilestr[] = __FILE__ ;
 
