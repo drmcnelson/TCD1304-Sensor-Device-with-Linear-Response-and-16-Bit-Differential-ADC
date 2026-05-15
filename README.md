@@ -113,7 +113,7 @@ Perhaps surprisingly, foundational issues—non-linearity, slew-rate limitations
 - Numerical Patching: Using dubious post-readout mathematical "corrections" to hide hardware flaws.
 - Log-Transform Dismissal: Claiming linearity is secondary because data is eventually log-transformed into absorption units.
 
-We believe that relying on software and numerical slight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
+We believe that relying on software and numerical sleight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
 
 ### A Definitive Design for the TCD1304
 
@@ -190,7 +190,7 @@ The efficacy of the hardware-locked timing and differential front-end is support
 
 * **Linearity and Dynamic Range:** The system maintains an Integral Non-Linearity (INL) of <0.2% over five orders of magnitude (10 μsec to 0.5 sec) in exposure and up to 95% of the sensor's physical saturation ceiling. Radiometric accuracy is preserved across high-gradient spectral transitions over the full dynamic range.
 * **Noise Floor & Signal Integrity:** Characterization of the AD4807/THS4521 front-end confirms an electronic noise floor of ~1 LSB (quantization limited) isolated from the sensor. With the TCD1304 integrated, the total system noise floor is ~0.6 mV. Pairwise frame subtraction in PTC analysis confirms residual variance is dominated by sensor noise rather than electronic artifacts.
-* **Charge Transfer Integrity:** Hardware-locked SH idling is validated by direct methods.   However, it is also seen simply comparing PIT and PLM operating modes. Activating the PIT clearing pulse engine results in a decisive intensity drop and brings measurements into alignment with PLM benchmarks thus confirming effective flushing of the shift register.
+* **Charge Transfer Integrity:** Hardware-locked SH idling is validated by direct methods.   However, it is also seen by simply comparing PIT and PLM operating modes. Activating the PIT clearing pulse engine results in a decisive intensity drop and brings measurements into alignment with PLM benchmarks thus confirming effective flushing of the shift register.
 
 
 ## Repository Contents
@@ -207,16 +207,61 @@ This project is part of a larger mission to provide Open Instruments for Open Sc
 
 - Performance Benchmarks: Documented results showing linear, reproducible response over 5 orders of magnitude in exposure time (from 10 μs).
 
+A careful reading of this README provides background to understand the design and how issues are addressed to achieve linearity and reproducibility with a CCD based detector.
 
 ### Implementations
 
-We provide three implementations of the sensor system hardware (see the following figures); (a) a two board implementation comprising the [sensor board](TCD1304_SPI_Rev2EB/) and our [Teensy 4 based instrument controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3), (b) a single board ["All-In-One"](TCD1304_All-In-One_FlexPWM/) implementation with sensor and MCU on back and front of the same board, and (c) an [Analog board](TCD1304_Analog) with the sensor, signal conditioning circuit and gate drivers with analog output of the inverted and amplified sensor signal.
+We provide three implementations of the sensor system hardware, all supported by a unified firmware architecture and each supporting a specific range of use cases;
 
-In the following we provide a high level description of each of the three implementations  For each we also describe the cost and choice to build or buy.  The costs listed with each implementation include the sensor and microcontroller which are currently running at
-<span>$</span>40 and <span>$</span>24 respectively
-and the PCB which generally runs around <span>$</span>18 per board in small quantities (including tariffs).
+<ul>
 
-Note that the performance metrics achieved by the design are a function of both the hardware and firmware and are reported for the 16 bit implementation only.
+<li>
+<b>Flagship 16-Bit SPI</b>  -- Performance metrics maxed out to the intrinsic limits of the TCD1304 silicon for linearity (<0.2% INL), noise and gain uniformity. Features a fully differential signal path, dedicated 16-bit ADC, fast high current gate drivers with isolated power and grounds, all isolated from the controller which resides on a separate card interconnected by SPI. Estimated BOM <span>$</span>200.
+</li>
+
+<li>
+<b>All-in-One (AIO)</b> -- Cost effective integrated implementation for general spectroscopy with dedicated gate drivers and LDO isolation for the analog section, updated from earlier designs to take advantage of the new hardware locked timing and state machine. Single ended signal chain interfaces to the internal 12 bit analog input of the MCU (0.62% INL). Estimated BOM <span>$</span>80 - <span>$</span>110
+</li>
+
+<li><b>Analog Output (TCD1304 Peripheral)</b> -- Reference design provides the high-speed signal chain, gate drivers and power architecture lacking in many DIY designs (c.f. examples in the Allmon/Rossel/Curious Scientist lineage).  Estimated BOM <span>$</span>60 - <span>$</span>80
+</li>
+</ul>
+
+The following tabulated comparison is offered to help you decide whether you want the 16 bit pro version or the AIO might be good enough.
+
+<div style="width: 90%; margin-left: auto; margin-right: auto; font-size: 14px;">
+  <table style="width: 100%; border-collapse: collapse; text-align: left;">
+    <thead>
+      <tr>
+        <th style="padding: 8px; border: 1px solid #000; width: 12%; text-align: left;">Tier</th>
+        <th style="padding: 8px; border: 1px solid #000; text-align: left;">Name</th>
+        <th style="padding: 8px; border: 1px solid #000; text-align: left;">Architecture</th>
+        <th style="padding: 8px; border: 1px solid #000; text-align: left;">Use Cases</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #000;">Tier 1</td>
+        <td style="padding: 8px; border: 1px solid #000;">16-Bit SPI (PIT)</td>
+        <td style="padding: 8px; border: 1px solid #000;">External 16-bit Digitizer</td>
+        <td style="padding: 8px; border: 1px solid #000;">Quantitative Research & Metrology, 0.19% Intrinsic Silicon INL</td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #000;">Tier 2</td>
+        <td style="padding: 12px; border: 1px solid #000;">All-in-One (AIO)</td>
+        <td style="padding: 8px; border: 1px solid #000;">Integrated 12-bit input</td>
+        <td style="padding: 8px; border: 1px solid #000;">Rapid Prototyping, 0.62% Measured INL, </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px; border: 1px solid #000;">Tier 3</td>
+        <td style="padding: 8px; border: 1px solid #000;">Analog-Only</td>
+        <td style="padding: 8px; border: 1px solid #000;">Isolated AFE and gate drivers</td>
+        <td style="padding: 8px; border: 1px solid #000;">Cross-Platform Validation & DAQ</td>
+    </tbody>
+  </table>
+</div>
+
+In the following we provide further description of each of the three implementations with costs and comments related to build-or-buy.
 
 #### Two board system, 16 bit sensor board and controller
 The high end sensor system, shown here, is a two board system comprising sensor board and controller. It offers very low electrical noise with a 16 bit 1MSPS ADC and good mechanical isolation of the sensor from the controller.  The ribbon cable carries logic signals and power for the SPI interface (1.7V-5.1V).  The two wire connection (red and black) is 5V power. Internally, there are separate low noise power circuits and ground planes for the analog section and gate drivers. We observe 0.6mV dark noise, electrical noise is more than 10 times lower (less than 1 LSB with the sensor removed). And the board is able to linearly follow peaks to full scale in one pixel.  Fiduciary marks on both sides of the sensor board facilitate optical alignment.
@@ -231,7 +276,7 @@ TCD1304 Sensor system, (a) sensor board bottom showing sensor and fiduciary mark
 </i>
 </p>
 </p>
-Component costs for the high end 16-bit system are currently <span>$</span>110 for the sensor board and <span>$</span>88 for the controller, or <span>$</span>198 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
+Component costs for the high end 16-bit system are currently <span>$</span>110 for the sensor board and <span>$</span>90 for the controller, or <span>$</span>200 for the set, plus the time it takes to do the assembly work.  The passives are generally 0603, some are 0402 and two of the ICs are 0.5mm pitch.  It takes us a few hours per board for hand assembly, or about one day per board set.
 
 
 We recently switched to using a PCBA service for the SMT parts.  Normally this would bring our costs to <span>$</span>290.
