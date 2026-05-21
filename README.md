@@ -17,7 +17,7 @@ The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentiall
 
 ## System Performance and Validation
 
-The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (ADA4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, the design ensures that the variances observed in our Photon Transfer Curve (PTC) methodology are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics.
+The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (ADA4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, the design ensures that the variances observed by Photon Transfer Curve (PTC) analysis are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
 
@@ -42,13 +42,13 @@ The following table summarizes the performance metrics achieved in the present d
     </tr>
     <tr>
       <td><b>Read Noise Floor (σ)</b></td>
-      <td><b>52.2</b>e<sup>-</sup>, temporal stability <b>σ=6.8</b>e<sup>-</sup></td>
-      <td>Derived from photon transfer curve (PTC) analysis over an 810-frame dark ensemble with pairwise subtraction to isolate Fixed Pattern Noise (FPN).</td>
+      <td><b>60</b>e<sup>-</sup> (typ), uniformity <b>σ=2</b>e<sup>-</sup></td>
+      <td>Photon transfer curve (PTC) analysis with pairwise subtraction to isolate Fixed Pattern Noise (FPN).</td>
     </tr>
     <tr>
       <td><b>Gain (K)</b></td>
-      <td><b>0.812</b>e<sup>-</sup>/ADU, uniformity  <b>σ=0.0755</b>e<sup>-</sup>/ADU </td>
-      <td>Calculated via the inverse slope from the PTC method.</td>
+      <td><b>0.6</b>e<sup>-</sup>/ADU (typ), uniformity <b>σ=0.01</b>e<sup>-</sup>/ADU </td>
+      <td>Calculated via the inverse slope from the PTC analysis.</td>
     </tr>
     <tr>
       <td><b>Timing Stability (Jitter)</b></td>
@@ -70,25 +70,37 @@ The following table summarizes the performance metrics achieved in the present d
 
 <br>
 
-The following figures provide representative validation of the system's metrological integrity, demonstrating the high spatial uniformity and linear response achieved through hardware-locked timing.
+The following figures provide representative validation of the system's metrological integrity, demonstrating the high linearity and spatial uniformity achieved through fast low noise high precision AFE and hardware-locked timing. 
 
-<table align="center">
-  <tr>
-    <td align="center" width="50%">
-      <b>Systematic Error (PLM Mode)</b><br>
-      <img src="Images/GreenLED_PLM_CLK6e-07sec_to_0.5sec_N110.linearity_min_adu2000_3.jpg" width="80%"><br>
-      <p align="left"><small>Residual error remains within a narrow band up to 99% of full-well capacity (0.19% INL).</small></p>
-    </td>
-    <td align="center" width="50%">
-      <b>Gain Distribution (PIT Mode)</b><br>
-      <img src="Images/DarkN810_PIT_CLK1e-06sec_CP10_3.jpg" width="80%"><br>
-      <p align="left"><small>Spatial response is highly uniform across 3,648 pixels (σ = 0.0755 e⁻/ADU).</small></p>
-    </td>
-  </tr>
-</table>
+<p align="center">
+      <img src="Images/GreenLED_PLM_CLK1e-06sec_to_0.5sec_N110.linearity_min_adu4000_3.png" width="50%"><br>
+      <p align="center" style="margin-left:5em;margin-right:5em">Green LED (532nm), Residual error of linear fit < 0.2%.</p>
+</p>
+<br>
+
+<p align="center">
+      <img src="Images/PTC_PLM_0.002sec_CLK4e-07sec_N10_global.png" width="50%">
+      <p align="center">Sunlight and ND filter, PTC shows global linearity to saturation</p>
+</p>
+<br>
+
+<p align="center">
+      <img src="Images/PTC_PLM_0.002sec_CLK1e-06sec_N100_spatial_histograms.jpg" width="80%">
+      <p align="center">Sunlight and ND filter, PTC analysis (per pixel) shows tight distribution in gain and readout noise</p>
+</p>
+<br>
+
+### The 1-d Advantage for CCD detectors
+The data above demonstrates the intrinsic linearity of the TCD1304, illustrating a fundamental architectural advantage of linear CCD sensors over two-dimensional detectors. In 2D arrays, Photon Transfer Curve (PTC) characterization routinely reveals intensity-dependent non-linearities commonly modeled as the 'brighter-fatter' effect, where accumulating charge alters the local electrostatic potential and causes spatial deflection. In modern linear CCDs, this artifact is structurally neutralized. Because the pixel wells are isolated laterally by heavily doped p-channel blocking structures—which form physical and electrostatic barriers wider than the operational wavelengths of the incident light—charge is strictly corralled within each geometric boundary. As demonstrated by the empirical data, when these native silicon structures are paired with a high-fidelity analog front-end and deterministic, hardware-locked firmware, the TCD1304 achieves stable radiometric linearity across its entire dynamic range.
+
+<p style="margin-left:3em; margin-right:3em">
+<i>The Photon Transfer Technique is described in Janesick, et al,"CCD Charge Collection Efficiency And The Photon Transfer Technique", Proc. SPIE 0570, Solid-State Imaging Arrays, (11 Dec 1985); https://doi.org/10.1117/12.950297
+</i>
+</p>
+<br>
 
 #### Comparative Benchmarking: A "Stare-Down" Test
-Stability and linearity are the physical prerequisites for reproducibility in scientific CCD instrumentation. The validation data above—specifically the 0.19% INL and the 0.075 e−/ADU spatial uniformity—establishes the baseline for this system. A primary test of this metrological integrity is the normalization of spectra by exposure time; in a truly linear system, these normalized plots will overlay perfectly. Because our hardware-locked architecture eliminates the 'sag' and baseline drift common in commercial drivers, we achieve a common intercept across the entire dynamic range. We invite researchers to perform these same 'stare-down' tests with commercial spectrometers to see the difference in deterministic response.
+Stability and linearity are the physical prerequisites for reproducibility in scientific CCD instrumentation. The validation data above—specifically the <0.2% INL and the 0.01 e−/ADU spatial uniformity—establishes the baseline for this system. A primary test of this metrological integrity is the normalization of spectra by exposure time; in a truly linear system, these normalized plots will overlay perfectly. Because our hardware-locked architecture eliminates the 'sag' and baseline drift common in commercial drivers, we achieve a common intercept across the entire dynamic range. We invite researchers to perform these same 'stare-down' tests with commercial spectrometers to see the difference in deterministic response.
 
 <p align="center">
 <img src="Images/TCD1304_ND1200_LinearitySummary_1sec.jpg" width="90%">
@@ -543,7 +555,7 @@ The data files are in ASCII and human readable.  If you wish, you can  work with
 
 
  ***
-## On Linearity and reproducibility in CCD spectrometers (with data)
+## On Linearity and reproducibility in CCD spectrometers 
 
 In this section we discuss linearity and reproducibility, in a practical sense, as related to CCD spectrometers. After defining terms and concepts, we show data comparing the present design and a widely used commercial instrument.  These illustrate the basic concepts and establish in a small way the "facts on the ground".
 
