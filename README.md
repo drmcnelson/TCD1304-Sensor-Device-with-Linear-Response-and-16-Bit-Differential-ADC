@@ -5,14 +5,14 @@
 </p>
 <br>
 
-By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026, Patent Pending](#LICENSE)
+By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC),  [Copyright 2020-2026, Patent Pending](LICENSE)
 
 > **Important Build Note:** To ensure performance and alignment with the validated hardware and firmware, please build only from the **[Original Repository](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC)**. 
 >
 >  For technical assistance or commercial inquiries, please contact me. I do my best to answer emails as volume allows.
 
 
-This repository provides the open-sourced hardware, firmware, and documentation for a high-precision linear CCD instrument designed for absolute radiometric fidelity. The architecture features a dual-stage differential front-end (ADA4807 and THS4521) with a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, specifically tuned to ensure signal settling to better than 16-bit precision (< 0.0015% error).
+This repository provides the open-sourced hardware, firmware, and documentation for a high-precision linear CCD instrument designed for absolute radiometric fidelity. The architecture features a dual-stage differential front-end (ADA4807 and THS4521) with a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, specifically tuned to ensure signal settling to better than 16-bit precision (&lt; 0.0015% error).
 
 Building on this foundation, the 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while also providing enhanced electrical and thermal stability.
 
@@ -78,7 +78,7 @@ The following figures provide representative validation of the system's metrolog
 
 <p align="center">
       <img src="Images/GreenLED_PLM_CLK1e-06sec_to_0.5sec_N110.linearity_min_adu4000_3.png" width="50%"><br>
-      <p align="center" style="margin-left:5em;margin-right:5em">Green LED (532nm), Residual error of linear fit < 0.2%.</p>
+      <p align="center" style="margin-left:5em;margin-right:5em">Green LED (532nm), Residual error of linear fit &lt; 0.2%.</p>
 </p>
 <br>
 
@@ -334,12 +334,12 @@ Parts costs are currently <span>$</span>65 including the TCD1304, plus <span>$</
 
 ### Linearity and reproducibility 
 
-As noted, reproducibility is vitally important for any instrument. For a spectrometer, stability and linearity are critical prerequisites for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  Included are results of our "stare-down" comparison of the present design and a widely used commercial instrument. The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
+As noted, reproducibility is vitally important for any instrument. For a spectrometer, stability and linearity are critical prerequisites for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers).  Included are results of our "stare-down" comparison of the present design and a widely used commercial instrument. The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
 
-Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-construction).
+Construction of the spectrometer used for testing the new sensor is described below [(here)](#spectrometer-design-and-construction).
 We use a 1200/mm grating and 200μm entrance slit with a focal length of 2 1/4".
 Total cost of materials for the spectrometer is under <span>$</span>450, including the electronics (this repo), optics and mechanical parts.
 
@@ -576,7 +576,7 @@ That said, there are a few ways in which spectrometer response can be non-linear
 
 However, some non-linearities involve bandwidth or line shape. And while a valid correction might exist, it is most often far easier and far more reliable to start with an instrument that has linear response.
 
-So far we have talked about linear reproducible response to the signal produced by the sensor. We will next show some examples, give mention to another class of behaviours associated with the physics of moving charge within the sensor, and then finish with some further discussion of [linearity and electrical characteristics of signals in spectroscopy](#on-origins-of-non-linearity-and-electrical-characteristics-of-ccd-spectrometers). Detailed discussion of anomalies associated with charge distribution and effects of timing on linearity are included at the end of the README beginning with the section on [gate drivers and analog integrity](#gate-driver-and-analog-signal-integrity).
+So far we have talked about linear reproducible response to the signal produced by the sensor. We will next show some examples, give mention to another class of behaviours associated with the physics of moving charge within the sensor, and then finish with some introductory remarks on [the time domain problem in reading a CCD](#the-time-domain-challenge-an-introduction-to-ccd-readout) and how this leads to certain types of non-linearity. Detailed discussion of anomalies associated with charge distribution and effects of timing on linearity are included at the end of the README beginning with the section on [gate drivers and analog integrity](#gate-driver-and-analog-signal-integrity).
 
 Let's look at some data.
 
@@ -870,7 +870,7 @@ For a CCD detector, we have a fixed number of pixels N<sub>pixels</sub> with whi
 δλ/Δλ > 5/N<sub>pixels</sub>
 </p>
 
-For the TCD1304 we have 3648 active pixels in approximately 30nm of length. Therefore we want Δλ/δλ < 729.
+For the TCD1304 we have 3648 active pixels in approximately 30nm of length. Therefore we want Δλ/δλ &lt; 729.
 
 <p style="margin-left:2em;margin-right:2em">
 
@@ -954,7 +954,7 @@ After settling on the parameters and digging through our box of lenses and grati
 We now describe some of the elements of circuit design for a CCD based spectrometer (or imaging system).
 This will be something of a tutorial.  The idea is to support open science.  That includes being open about what you need to know to design something like this for yourself. We assume some basic knowledge of electronics.  The "attentive reader" will note that we make extensive use of SPICE models.  A set of these is provided in the [SPICE subdirectory](SPICE/).  These form the basis of many of the illustrations shown in this README.
 
-We start with characteristics of the TCD1304DG and then proceed through signal conditioning, interfacing to the ADC, the gate drivers, and the power architecture.  Our description of the sensor are initially at a level sufficient to develop the basic electrical design.  Later we will revisit these devices in more detail, drawing from a classic paper in the literature of the CCD detector, and develop the final touch that gets us to metrologic performance with $\lt 0.2\\%$ INL. However for that we need some context in the basics for reading and operating a CCD and interfacing to an ADC.
+We start with characteristics of the TCD1304DG and then proceed through signal conditioning, interfacing to the ADC, the gate drivers, and the power architecture.  Our description of the sensor are initially at a level sufficient to develop the basic electrical design.  Later we will revisit these devices in more detail, drawing from a classic paper in the literature of the CCD detector, and develop the final touch that gets us to metrologic performance with &lt; 0.2% INL. However for that we need some context in the basics for reading and operating a CCD and interfacing to an ADC.
 
 ### TCD1304DG electrical characteristics and operation
 The TCD1304DG datasheet can be downloaded [here](https://toshiba.semicon-storage.com/us/semiconductor/product/linear-image-sensors/detail.TCD1304DG.html).
@@ -1131,7 +1131,7 @@ The input always has some series resistance, in this case Ron.
 Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1.  
 
 Voltage noise of a capacitor is <i>v<sub>c</sub></i> = √(kT/C). 
-For n bits of precision, we need <i>v<sub>c</sub></i> < Vfs/2<sup>n</sup>.
+For n bits of precision, we need <i>v<sub>c</sub></i> &lt; Vfs/2<sup>n</sup>.
 The 30 pF sampling cap shown in the model produces about 11μV of noise and 1/2<sup>16</sup> = 15μV.
 
 When you select an ADC, make sure to look for these parameters in the table of electrical characteristics or the equivalent circuit in the datasheet.  Also don't forget to look at the graphs for SNR.  Often the SNR quoted in the beginning of the datasheet is less than the whole story.  And don't forget to look at PSRR.  And do follow the guidelines for selecting the voltage reference and for layout.
@@ -1291,24 +1291,30 @@ So far we see that the first pulse ending the exposure removes most of the charg
 
 We start with a residual charge $q_0$​. With the next shift gate (SH) pulse, a fraction R of that initial charge is successfully transferred ("Readout") to the analog shift register. The remaining fraction (1−R) stays in the photodetector region.
 
-- Charge successfully read out: $R⋅q_0​$
-- Residual charge remaining in pixel: $(1−R)q_0​$
+- Charge successfully read out:
+$R⋅q_0​$
 
-During the next exposure interval Δt, a small charge, $q_Δ$, is integrated.
+- Residual charge remaining in pixel:
+ $(1−R)q_0​$
 
-- Total charge before 2nd readout: $q(1)=(1−R)q_0​+q_Δ​$
+During the next exposure interval $\Delta t$, a small charge, $q_\Delta$, is integrated.
+
+- Total charge before 2nd readout:
+ $q(1)=(1−R)q_0​+q_\Delta​$
 
 After readout this will be reduced by (1-R) and so for our N-th readout we have,
 
-- Total Charge before Readout N: $q(N−1)=(1−R)^{N−1}q_0​+∑^{N−2}_{n=0​}(1−R)^nq_Δ​$
+- Total Charge before Readout N:
+$q(N-1) = (1-R)^{N-1} q_0 + \Sigma_{n=0}^{N-2} (1-R)^n q_{\Delta}$
 
 Since 1-R is less than 1, we have:
 
-- Readout at large N: $S(N)=R⋅(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​$
+- Readout at large N:
+$S(N)=R⋅(1−R)^{N−1}(q_0​−q_\Delta)+q_\Delta$
 
 However, this is not quite sufficient. We need to account for charge trapping in the silicon. This is a slower process compared to the above.  For purposes of numerics, we can approximate the effect as  thermal-like decay in N.
 
-$$S(N)=R(1−R)^{N−1}(q_0​−q_Δ​)+q_Δ​⋅e^{−γ(N−1)}$$
+$$S(N)=R(1−R)^{N−1}(q_0​−q_\Delta​)+q_\Delta * e^{−\gamma(N−1)}$$
 
 Let's see if the model works. We collected data sets as above using a green LED with our 16 bit sensor board and Teensy 4 controller, and varied the number of pulses to the shift gate, each pulse is 4V and 1usec.  The following figure shows the residual carry-over versus the number of pulses to the shift gate for different values of the LED "on" time and different periods of the shift gate.  We fit each of these to our model.  We see that the curves are largely insensitive to the initial intensity and pulse period, R ranges from 0.44 to 0.54 and γ ranges from 0.082 to 0.10.  For these values, the residual charge carry-over signal should fall below dark noise within 20 pulses of the shift gate.
 
@@ -1380,7 +1386,7 @@ Now, let's take a look at what is happening inside the ADC and learn why the CNV
 <p align="center">
 <img src="Images/ADC-DAC.jpg" width=50%>
 <p align="center" style="margin-left:5em;margin-right:5em">
-SKetch of ADC internals with DAC and successive approximation engine.
+Sketch of ADC internals with DAC and successive approximation engine.
 </p>
 </p>
 
