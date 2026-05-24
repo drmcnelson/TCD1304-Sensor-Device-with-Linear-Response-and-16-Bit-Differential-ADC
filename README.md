@@ -11,13 +11,17 @@ By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Li
 >
 >  For technical assistance or commercial inquiries, please contact me. I do my best to answer emails as volume allows.
 
-This repository provides the open-sourced hardware, firmware and documentation for a low noise high-precision Linear CCD instrument.
-The present 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062's FlexPWM that provides enhanced thermal and electrical stability and strong attenuation of charge transfer residuals (ghosting).
-The resulting system achieves <0.2% Integral Non-Linearity (INL) over essentially the full dynamic range of the sensor and exposure range from 10 μsec and above.  Additionally the system maintains these performance specs with radiometric accuracy across high-gradient spectral transitions.
+
+This repository provides the open-sourced hardware, firmware, and documentation for a high-precision linear CCD instrument designed for absolute radiometric fidelity. The architecture features a dual-stage differential front-end (ADA4807 and THS4521) with a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, specifically tuned to ensure signal settling to better than 16-bit precision ($<$ 0.0015% error).
+
+Building on this foundation, the 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while providing enhanced electrical and thermal stability, and strong attenuation of charge-transfer residuals (ghosting) at the detector interface.
+
+With these advancements, we can now report that the completed system achieves $<$0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the present design successfully resolves the long-standing obstacles to utilizing the linear CCD as a rigorous scientific instrument.
 
 ## System Performance and Validation
 
-The following table summarizes the performance metrics achieved in the present design which features a physics-informed electrical architecture and hardware-locked timing system. This instrumentation focused approach prioritizes metrological stability and the elimination of electronic artifacts at the detector interface. The system utilizes a dual-stage differential front-end (ADA4807 and THS4521) specifically tuned to ensure signal settling to 16-bit precision ($<$ 0.0015% error) within the constraints of the CCD's charge-transfer physics. By maintaining a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, the design ensures that the variances observed by Photon Transfer Curve (PTC) analysis are a reflection of sensor shot noise and silicon characteristics, rather than an artifact of the readout electronics
+The following table summarizes the verified performance metrics achieved in the present design. This instrumentation-focused approach prioritizes long-term metrological stability and the systematic elimination of electronic artifacts at the detector interface. To validate these specifications, the system was characterized using a dual approach: direct precision voltage metrology to verify front-end signal integrity, and statistical Photon Transfer Curve (PTC) analysis to evaluate the sensor under optical load. These characterizations confirm performance at a level of fidelity such that observed variances correspond strictly to shot noise and behaviors intrinsic to the silicon, rather than electronic artifacts. Thus, the empirical data verifies that the digitized output directly reflects the physical reality of the optical input.
+
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
 
@@ -86,7 +90,7 @@ The following figures provide representative validation of the system's metrolog
 
 <p align="center">
       <img src="Images/PTC_PLM_0.002sec_CLK1e-06sec_N100_spatial_histograms.jpg" width="80%">
-      <p align="center">Sunlight and ND filter, PTC analysis (per pixel) shows tight distribution in gain and readout noise</p>
+      <p align="center">Sunlight and ND filter, PTC analysis (per pixel) shows tight distribution in gain and readout noise.</p>
 </p>
 <br>
 
