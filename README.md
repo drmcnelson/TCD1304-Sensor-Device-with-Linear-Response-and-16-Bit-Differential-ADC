@@ -12,18 +12,18 @@ By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Li
 >  For technical assistance or commercial inquiries, please contact me. I do my best to answer emails as volume allows.
 
 
-This repository provides the open-sourced hardware, firmware, and documentation for a high-precision linear CCD instrument designed for absolute radiometric fidelity. The architecture features a dual-stage differential front-end (ADA4807 and THS4521) with a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, specifically tuned to ensure signal settling to better than 16-bit precision ($<$ 0.0015% error).
+This repository provides the open-sourced hardware, firmware, and documentation for a high-precision linear CCD instrument designed for absolute radiometric fidelity. The architecture features a dual-stage differential front-end (ADA4807 and THS4521) with a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, specifically tuned to ensure signal settling to better than 16-bit precision (< 0.0015% error).
 
-Building on this foundation, the 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while providing enhanced electrical and thermal stability, and strong attenuation of charge-transfer residuals (ghosting) at the detector interface.
+Building on this foundation, the 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while also providing enhanced electrical and thermal stability.
 
-With these advancements, we can now report that the completed system achieves $<$0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the present design successfully resolves the long-standing obstacles to utilizing the linear CCD as a rigorous scientific instrument.
+With these advancements, we can now report that the completed system achieves <0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the present design successfully resolves the long-standing obstacles to utilizing the linear CCD as a rigorous scientific instrument.
 
 ## System Performance and Validation
 
-The following table summarizes the verified performance metrics achieved in the present design. This instrumentation-focused approach prioritizes long-term metrological stability and the systematic elimination of electronic artifacts at the detector interface. To validate these specifications, the system was characterized using a dual approach: direct precision voltage metrology to verify front-end signal integrity, and statistical Photon Transfer Curve (PTC) analysis to evaluate the sensor under optical load. These characterizations confirm performance at a level of fidelity such that observed variances correspond strictly to shot noise and behaviors intrinsic to the silicon, rather than electronic artifacts. Thus, the empirical data verifies that the digitized output directly reflects the physical reality of the optical input.
+The following table summarizes the verified performance metrics achieved in the present design. The system was characterized using a dual approach: direct precision metrology to verify front-end signal integrity, and statistical Photon Transfer Curve (PTC) analysis to evaluate the sensor under optical load. These characterizations confirm performance at a level of fidelity such that observed variances correspond strictly to shot noise and behaviors intrinsic to the silicon, rather than electronic artifacts. Thus, the empirical data verifies that the digitized output directly reflects the physical reality of the optical input.
 
 
-<h4 id="observed-performance">Validated Performance & Metrological Characteristics</h3>
+<h4 id="observed-performance">Validated Performance & Metrological Characteristics</h4>
 
 <table>
   <thead>
@@ -57,7 +57,7 @@ The following table summarizes the verified performance metrics achieved in the 
     <tr>
       <td><b>Timing Stability (Jitter)</b></td>
       <td><b>&lt; 10 ns</b></td>
-      <td>Hardware-locked synchronization using i.MX RT1062 FlexPWM and PIT modules.</td>
+      <td>Hardware-locked synchronization using i.MX RT1062 FlexPWM.</td>
     </tr>
     <tr>
       <td><b>Dynamic Range (Ensemble)</b></td>
@@ -74,7 +74,7 @@ The following table summarizes the verified performance metrics achieved in the 
 
 <br>
 
-The following figures provide representative validation of the system's metrological integrity, demonstrating the high linearity and spatial uniformity achieved through fast low noise high precision AFE and hardware-locked timing. 
+The following figures provide representative validation of the system's metrological integrity, demonstrating the high linearity and spatial uniformity achieved with the low noise high precision AFE and hardware-locked timing. 
 
 <p align="center">
       <img src="Images/GreenLED_PLM_CLK1e-06sec_to_0.5sec_N110.linearity_min_adu4000_3.png" width="50%"><br>
@@ -94,8 +94,8 @@ The following figures provide representative validation of the system's metrolog
 </p>
 <br>
 
-### The 1-d Advantage for CCD detectors
-The data above demonstrates the intrinsic linearity of the TCD1304, illustrating a fundamental architectural advantage of linear CCD sensors over two-dimensional detectors. In 2D arrays, Photon Transfer Curve (PTC) characterization routinely reveals intensity-dependent non-linearities commonly modeled as the 'brighter-fatter' effect, where accumulating charge alters the local electrostatic potential and causes spatial deflection. In modern linear CCDs, this artifact is structurally neutralized. Because the pixel wells are isolated laterally by heavily doped p-channel blocking structures—which form physical and electrostatic barriers wider than the operational wavelengths of the incident light—charge is strictly corralled within each geometric boundary. As demonstrated by the empirical data, when these native silicon structures are paired with a high-fidelity analog front-end and deterministic, hardware-locked firmware, the TCD1304 achieves stable radiometric linearity across its entire dynamic range.
+### The 1-D Advantage for CCD detectors
+The data above demonstrating the intrinsic linearity of the TCD1304, are illustrative of a fundamental architectural advantage of linear CCD sensors over two-dimensional detectors. In 2-D arrays, Photon Transfer Curve (PTC) characterization routinely reveals intensity-dependent non-linearities commonly modelled as the 'brighter-fatter' effect, where accumulating charge alters the local electrostatic potential and causes spatial deflection. In modern linear CCDs, the pixel wells are isolated laterally by heavily doped p-channel blocking structures—which form physical and electrostatic barriers so that the incident light—charge is strictly corralled within each geometric boundary. As demonstrated by the empirical data, when these native silicon structures are paired with a high-fidelity analog front-end and deterministic, hardware-locked firmware, the TCD1304 achieves stable radiometric linearity across its entire dynamic range.
 
 <p style="margin-left:3em; margin-right:3em">
 <i>The Photon Transfer Technique is described in Janesick, et al,"CCD Charge Collection Efficiency And The Photon Transfer Technique", Proc. SPIE 0570, Solid-State Imaging Arrays, (11 Dec 1985); https://doi.org/10.1117/12.950297
@@ -104,7 +104,7 @@ The data above demonstrates the intrinsic linearity of the TCD1304, illustrating
 <br>
 
 #### Comparative Benchmarking: A "Stare-Down" Test
-Stability and linearity are the physical prerequisites for reproducibility in scientific CCD instrumentation. The validation data above—specifically the <0.2% INL and the 0.01 e−/ADU spatial uniformity—establishes the baseline for this system. A primary test of this metrological integrity is the normalization of spectra by exposure time; in a truly linear system, these normalized plots will overlay perfectly. Because our hardware-locked architecture eliminates the 'sag' and baseline drift common in commercial drivers, we achieve a common intercept across the entire dynamic range. We invite researchers to perform these same 'stare-down' tests with commercial spectrometers to see the difference in deterministic response.
+Stability and linearity are the physical prerequisites for reproducibility in scientific CCD instrumentation. The validation data above—specifically the <0.2% INL and the 0.01 e−/ADU spatial uniformity—establishes the baseline for this system. A primary test of this metrological integrity is the normalization of spectra by exposure time; in a truly linear system, these normalized plots will overlay perfectly. Because our AFE and hardware-locked architecture eliminate the 'sag' and baseline drift common in commercial drivers, we achieve a common intercept and linear response across the entire dynamic range. We invite researchers to perform these same 'stare-down' tests with commercial spectrometers to see the difference in deterministic response.
 
 <p align="center">
 <img src="Images/TCD1304_ND1200_LinearitySummary_1sec.jpg" width="90%">
@@ -118,7 +118,7 @@ Stability and linearity are the physical prerequisites for reproducibility in sc
 
 ## Background and Project Mission
 
-This repository offers a linear-CCD sensor system based on the TCD1304DG, designed specifically for stable, reproducible and linear response. In precision spectrometry, stable linear response is a physical prerequisite for reproducibility. If an instrument fails to maintain fidelity at the hardware level, the resulting data is fundamentally compromised.
+This repository offers a linear-CCD sensor system based on the TCD1304DG, designed specifically for stable, reproducible, and linear response. In precision spectrometry, stable linear response is a physical prerequisite for reproducibility. If an instrument fails to maintain fidelity at the hardware level, the resulting data is fundamentally compromised.
 
 Achieving this requires a holistic, science-centric design that insists on metrological integrity at the source. Our approach addresses the foundational physics of the sensor and the signal chain simultaneously, ensuring that the instrument is responsive to real spectral line shapes, high-gradient imaging features, and holographic fringes.
 
@@ -129,18 +129,18 @@ Perhaps surprisingly, foundational issues—non-linearity, slew-rate limitations
 - Numerical Patching: Using dubious post-readout mathematical "corrections" to hide hardware flaws.
 - Log-Transform Dismissal: Claiming linearity is secondary because data is eventually log-transformed into absorption units.
 
-We believe that relying on software and numerical sleight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, not a software estimation.
+We believe that relying on software and numerical sleight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units, a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, rather than a software work-around.
 
 ### A Definitive Design for the TCD1304
 
-Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by nonlinearity, baseline instability and "ghosting" (residual charge transfer).
+Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by non-linearity, baseline instability and "ghosting" (residual charge transfer).
 
-The goal of this project was to finally and fully resolve these issues by utilizing a hardware-locked timing architecture (via the i.MX RT1062 FlexPWM) and a ground up design for the analog front end, pulse driver system and power architecture. This definitive design provides a level of confidence in linearity and reproducibility that allows researchers to publish their data with confidence. Our aim is to "set a new bar" for what can be achieved with open-source scientific instrumentation.
+The goal of this project was to finally and fully resolve these issues by utilizing a ground-up design for the analog front end, pulse driver system and power architecture, now combined with a hardware-locked timing architecture (via the i.MX RT1062 FlexPWM). This definitive design provides a level of confidence in linearity and reproducibility that allows researchers to publish their data with confidence. Our aim is to "set a new bar" for this class of instruments as well as for what can be achieved with open-source scientific instrumentation.
 
 ## <font color="blue"> The SPI Instrumentation Project - Open Instruments for Open Science</font>
 The contents of this repo are part of our effort in ***Open Instrumentation for Open Science***.  
 
-We believe that access to doing great science should not be limited to those privileged in funding and affiliation nor held ransom to the extractive practices of the market in scientific instruments. And anyway, you may feel better served by instruments developed by other scientists who actually use them and have decades of experience designing professional instrumentation. The designs we provide can often be built at about 1/10 of the cost of the commercial instrument.  In our own research, we are typically able to do more with these boards than we can with the expensive commercial instruments.
+We believe that access to doing great science should not be limited to those privileged in funding and affiliation nor held ransom to the extractive practices of the market in scientific instruments.  Moreover, researchers may feel better served by instruments developed by other scientists who actually use them and have decades of experience designing professional instrumentation. The designs we provide can often be built at about 1/10 of the cost of the commercial instrument.  In our own research, we are typically able to do more with these boards than we can with the expensive commercial instruments.
 
 At this writing, we have received requests and helped scientists working in Europe, Africa, India, Canada and the USA.
 
@@ -148,7 +148,7 @@ One very important way that you can help under-resourced scientists is by clicki
 
 If you would like to sponsor or receive boards, please contact me.
 
-### <font color="blue"> *Permissions, no warranty or guarantee, and etc.*</font>
+### <font color="blue"> *Permissions, no warranty or guarantee, etc.*</font>
 Permission is hereby granted for you to build and use these boards and codes in your lab and for your personal use.
 Please cite appropriately if you use these in your published work.
 
@@ -211,7 +211,7 @@ The efficacy of the hardware-locked timing and differential front-end is support
 
 ## Repository Contents
 
-This project is part of a larger mission to provide Open Instruments for Open Science, supporting researchers and under-resourced labs globally. This repository contains the complete ecosystem required to build and validate the system:
+This repository contains the complete ecosystem required to build and validate the system:
 
 - Hardware: Fab files and BOMs for three versions: 16-bit Differential ADC (high-end), 12-bit, and Analog-out.
 
@@ -227,7 +227,7 @@ A careful reading of this README provides background to understand the design an
 
 ### Implementations
 
-We provide three implementations of the sensor system hardware, all supported by a unified firmware architecture and each supporting a specific range of use cases;
+We provide three implementations of the sensor system hardware, all supported by a unified firmware architecture and each supporting a specific range of use cases:
 
 <ul>
 
@@ -260,7 +260,7 @@ The following tabulated comparison is offered to help you decide whether you wan
         <td style="padding: 8px; border: 1px solid #000;">Tier 1</td>
         <td style="padding: 8px; border: 1px solid #000;">16-Bit SPI (PIT)</td>
         <td style="padding: 8px; border: 1px solid #000;">External 16-bit Digitizer</td>
-        <td style="padding: 8px; border: 1px solid #000;">Quantitative Research & Metrology, 0.19% Intrinsic Silicon INL</td>
+        <td style="padding: 8px; border: 1px solid #000;">Quantitative Research & Metrology, <0.2% Intrinsic Silicon INL</td>
       </tr>
       <tr>
         <td style="padding: 8px; border: 1px solid #000;">Tier 2</td>
@@ -332,9 +332,9 @@ Parts costs are currently <span>$</span>65 including the TCD1304, plus <span>$</
 
 
 
-### On linearity and reproducibility in spectrometers 
+### Linearity and reproducibility 
 
-As noted, reproducibility is vitally important for any instrument and for a spectrometer stability and linearity are pre-requisite for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  Included following are results of our "stare-down" comparison in data collected side-by-side from the present design and a widely used commercial instrument. The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
+As noted, reproducibility is vitally important for any instrument. For a spectrometer, stability and linearity are critical prerequisites for reproducibility (as well as for basic capabilities such as signal averaging). CCD spectrometers are historically challenged by these criteria. We discuss this in the section titled [Linearity and Reproducibility in CCD Spectrometers](#on-linearity-and-reproducibility-in-ccd-spectrometers-with-data).  Included are results of our "stare-down" comparison of the present design and a widely used commercial instrument. The data illustrate the relationship between linearity, reproducibility and being able to produce meaningful data.
 
 
 ### Construction of the spectrometer used for testing
@@ -346,7 +346,7 @@ Total cost of materials for the spectrometer is under <span>$</span>450, includi
 ### Controller
 
 As noted, we operate the sensor board using our newly updated ***Instrumentation Controller*** based on the Teensy 4, with its NXP i.MXRT 1060 ARM7 MCU [(please click here)](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3).
-The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for its speed at 600MHZ, its high speed USB at 480Mhz and its multi-channel FlexPWM module.  The latter is critical to the precise timing and functionality needed to achieve high-end performance metrics and operation over five orders of magnitude in exposure time.
+The T4/NXP platform is somewhat unique among MCU boards in the Arduino ecosystem for its speed at 600MHZ, its high speed USB at 480Mhz and its multi-channel FlexPWM module with synchronized register update.  The latter is critical to the precise timing and functionality needed to achieve high-end performance metrics and operation over five orders of magnitude in exposure time.
 
 ### Firmware
 
@@ -362,10 +362,13 @@ and a collection of bash shell scripts that use DataReader.py to generate graphs
 The software design emphasizes flexible simplicity and performance, again with anticipation that scientist users can modify the Python code to their purposes.   The command "help" lists detailed help text from the controller and from the Python code.
 
 
-
 ### Electronic design
 
-A tutorial on electrical design for CCD sensors and spectroscopy is included [here](#electrical-design).  The section begins with the datasheet and characteristics of the sensor, proceeds to signal condition and driving an ADC and finishes with a section on the gate drivers.  SPICE files are included in a subdirectory of the repo.  You can modify the SPICE files to investigate your own designs.
+A tutorial on electrical design for CCD sensors and spectroscopy is included [here](#electrical-design).  The section begins with the datasheet and characteristics of the sensor, proceeds to signal conditioning and driving an ADC, and finishes with a section on the gate driver, residual charge transfer and elimination of ghosting. SPICE files are included in a subdirectory of the repo.  You can modify the SPICE files to investigate your own designs.
+
+### On charge clearance and other nuances of CCDs, ADCs and timing
+
+In the closing sections of the technical tutorial, we present two somewhat more nuanced topics and implementation of their solutions in the hardware-locked state engine.  In the section on [residual charge effects](#residual-charge-effects-and-mitigation) we describe the phenomenology of harvesting charge from the photodetector region, develop a predictive model for "ghosting" and demonstrate clearance to below noise.  In the section on [details of CCDs and ADCs](#further-details-of-ccds-and-adcs) we describe an interaction that is important in reducing non linearity to a few tenths of a percent INL. Finally, we describe the implementation of these ideas in our [hardware locked state machine](#orchestration-and-the-idling-engine-state-machine).
 
 ### Fab files (Gerber, BOM) and codes
 
@@ -376,7 +379,7 @@ The fab files and code provided in this repo, and in the controller repo, plus s
  ***
 ## High-level description of the hardware-firmware-software architecture
 
-The sensor is operated through four input pins, a clock and two gates plus a fourth for the "convert" pin of the ADC, and an SPI interface which retrieves the data from the ADC.  These connect to the controller and the controller in turn connects to the host as a serial port device over USB.  The controller also provides a trigger input and sync output and additional pins that can be used to interact with other equipment.  
+The sensor board is operated through four input pins, a clock and two gates plus a fourth for the "convert" pin of the ADC, and an SPI interface which retrieves the data from the ADC.  These connect to the controller and the controller in turn connects to the host as a serial port device over USB.  The controller also provides a trigger input and sync output and additional pins that can be used to interact with other equipment.  
 
 <p align="center">
 <img src="Images/High-Level-Architecture.jpg" width="60%">
@@ -405,7 +408,7 @@ Achieving linearity and reproducibility is to a large extent a function of hardw
 ***
 ## Getting it all up and running
 This sensor board is intended to be used with our new [Teensy 4 (T4) based controller](https://github.com/drmcnelson/Instrumentation-Controller-T4.0-Rev3). 
-The files provided here (gerbers and code) and in the controller repo, plus some trivial cabling and a host computer (we recommend Linux for the best frame rate perfomance) should be sufficient to build and operate the boards. 
+The files provided here (gerbers and code) and in the controller repo, plus some trivial cabling and a host computer (we recommend Linux for the best frame rate performance) should be sufficient to build and operate the boards. 
 
 If you are using the "All-In-One", then you have the TCD1304 and circuitry and the Teensy 4.0 all on one module. The gerbers are provided in their own directory in this repo.  There is one macro switch in the firmware that you need to uncomment to compile for the "All-In-One" board.
 
@@ -490,7 +493,7 @@ You will want to add the directory for the Python and bash scripts to your PATH.
 
     $ . pythoncodesdirectory/SetupPATH.sh
   
-After all of the above, make sure that your sensor controller is connected to your compute with a USB cable, that the cables are connected correctly if you are using the two board implementation, and then turn on the power and wait about 1/2 minute.
+After all of the above, make sure that your sensor controller is connected to your computer with a USB cable, that the cables are connected correctly if you are using the two board implementation, and then turn on the power and wait about 1/2 minute.
 
 Now you can run the controller program.
 
@@ -502,7 +505,7 @@ The controller should open a grahics window.  The desktop will look something li
 <img src="Images/Screenshot_from_2026-01-04_17-29-11.jpg" width="60%">
 </p>
 
-Notice that in the console window, we have a prompt.  This is the command line interface presented by the Python program.  The Python CLI provides commands to wait, save to disk, run commands from a file, run shell commands, and etc., and passes all other commands to the hardware.  The command **help**, produces a listing of the commands recognized by the hardware and Python CLIs.   A listing of the help output can be found in the repo [here](Python/TCD1304.help).  A summary of some of the most often used commands can be found at the [bottom of this readme](#appendix-a---quick-command-list).
+Notice that in the console window, we have a prompt.  This is the command line interface presented by the Python program.  The Python CLI provides commands to wait, save to disk, run commands from a file, run shell commands, etc., and passes all other commands to the hardware.  The command **help**, produces a listing of the commands recognized by the hardware and Python CLIs.   A listing of the help output can be found in the repo [here](Python/TCD1304.help).  A summary of some of the most often used commands can be found at the [bottom of this readme](#appendix-a---quick-command-list).
 
 **The firmware** provides commands at three levels.  The high level commands include the following to collect clocked or triggered data.
 
@@ -801,7 +804,7 @@ The equipment list for our linearity study is as follows.  Construction of the s
 
 <ol>
 <li> Spectrometer</li>
-<li> Fluorescent lamp</li> 
+<li> Fluorescent lamp and green LED</li> 
 <li> Neutral density wheel filter for attentuation (individual filters can be used instead)
 <li> 200μm optical fiber
 <li> Miscellaneous mechanicals to hold the lamp, ND filter and fiber.
@@ -1122,7 +1125,7 @@ ADC model with ideal voltage source.<br> Green = input, blue = sampling capacito
 </p>
 </p>
 
-#### Factors effecting precision
+#### Factors affecting precision
 For n bits of precision and full scale range Vfs, the voltage on C1 at the end of the sampling window has to be within 1 part in 2<sup>n</sup> of Vfs.
 The input always has some series resistance, in this case Ron.
 Therefore the sampling window has to be at least as long as n x ln(2) x Ron x C1.  
@@ -1191,7 +1194,7 @@ The following shows a method for mitigating the new kickback.  We simply slow th
  
 ### SPICE model for the 16-bit analog front-end and ADC Input
 
-In the preceding sections, we discussed some general concepts about signal conditioning and interfacing to an ADC.  We briefly mentioned that we use a differential signal path to achieve low noise in our mixed signal environment. We have the analog signal from the sensor alongside the gate and clock signals for the sensor, with the analog and voltage reference input to the ADC and its digital interface to the microcontroller.  In this environment, the differential signal path is effectively a pre-requisite for meeting our performance requirements in noise and linearity.
+In the preceding sections, we discussed some general concepts about signal conditioning and interfacing to an ADC.  We briefly mentioned that we use a differential signal path to achieve low noise in our mixed signal environment. We have the analog signal from the sensor alongside the gate and clock signals for the sensor, with the analog and voltage reference input to the ADC and its digital interface to the microcontroller.  In this environment, the differential signal path is effectively a prerequisite for meeting our performance requirements in noise and linearity.
 
 The following show our [SPICE model for our analog signal path and ADC input](SPICE/TCD1304DifferentialBuffer.asc) (follow the link to download the LTSpice<sup>TM</sup> file).
 This the circuit used in the 16 bit sensor board.
@@ -1412,7 +1415,7 @@ Wakeup ringing in the ADC is resolved by idling the CNVST. (a) Ringing appears o
 </p>
 
 ### CCD-ADC interaction: When to SAR and when not to SAR
-In the above we see that moving charge along the CCD register to the output entails driving four sets of gates times 3694 pixels.  The input is the master clock but this is a logic input, internally the device is driving four large capacitances.  They are driven in pairs, ϕ1 goes high when ϕ3 goes low, and etc.  But nonetheless and unavoidably some of this appears on the power and ground planes.  And that is a path to effect the result produced by the SAR if it is in the midst of a conversion when the next shift gate happens. Again "proof is in the pudding".
+In the above we see that moving charge along the CCD register to the output entails driving four sets of gates times 3694 pixels.  The input is the master clock but this is a logic input, internally the device is driving four large capacitances.  They are driven in pairs, ϕ1 goes high when ϕ3 goes low, etc.  But nonetheless and unavoidably some of this appears on the power and ground planes.  And that is a path to effect the result produced by the SAR if it is in the midst of a conversion when the next shift gate happens. Again "proof is in the pudding".
 
 The following shows the residuals from fitting a series of intensities and exposures times from a comparatively stable green LED, under two settings for the timing of the CNVST relative to the clock, -100nsec and -300nsec. The SAR runs until 700 nsecs following the CNVST pulse and we are running the CCD from a 600nsec clock.
 
