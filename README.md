@@ -122,18 +122,9 @@ This repository offers a linear-CCD sensor system based on the TCD1304DG, design
 
 Achieving this requires a holistic, science-centric design that insists on metrological integrity at the source. Our approach addresses the foundational physics of the sensor and the signal chain simultaneously, ensuring that the instrument is responsive to real spectral line shapes, high-gradient imaging features, and holographic fringes.
 
-### The Challenge: "Black Box" Instrumentation
-
-Perhaps surprisingly, foundational issues—non-linearity, slew-rate limitations, and baseline instability—often go unaddressed in commercial hardware. These artifacts are typically handled in ways including:
-
-- Numerical Patching: Using dubious post-readout mathematical "corrections" to hide hardware flaws.
-- Log-Transform Dismissal: Claiming linearity is secondary because data is eventually log-transformed into absorption units.
-
-We believe that relying on software and numerical sleight-of-hand to obscure physical non-linearity is unacceptable for a scientific instrument. As evidenced by our comparisons with commercial units, a lack of baseline stability and poor slew/settling management leads to spectral smearing and radiometric drift. This repository provides a "Radiometrically Honest" alternative where the data reflects physical reality, rather than a software work-around.
-
 ### A Definitive Design for the TCD1304
 
-Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by non-linearity, baseline instability and "ghosting" (residual charge transfer).
+Since their inception in the late 1980s, CCD spectrometers have promised a low-cost, "all-at-once" spectral capability. However, as many of us who have worked with these sensors for decades are aware, they have historically been plagued by non-linearity, baseline instability and "ghosting" (residual charge transfer).  As we will show, these "effects" arise in commercially motivated compromises relative to the nature of the signals produced in precision spectroscopy and behaviors such as residual charge trapping that are intrinsic to the "silicon" of the detector.
 
 The goal of this project was to finally and fully resolve these issues by utilizing a ground-up design for the analog front end, pulse driver system and power architecture, now combined with a hardware-locked timing architecture (via the i.MX RT1062 FlexPWM). This definitive design provides a level of confidence in linearity and reproducibility that allows researchers to publish their data with confidence. Our aim is to "set a new bar" for this class of instruments as well as for what can be achieved with open-source scientific instrumentation.
 
