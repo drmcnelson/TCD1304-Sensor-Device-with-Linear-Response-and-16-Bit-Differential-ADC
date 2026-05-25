@@ -1351,7 +1351,7 @@ At end of the CCD charge shift register, we have to hold the charge for four clo
 <p align="center">
 <img src="Images/CCD-output-stage-with-output.jpg" width=50%>
 <p align="center" style="margin-left:5em;margin-right:5em">
-Classic CCD sensor output stage, dual mosfet follow and reset. 
+Classic CCD sensor output stage, dual mosfet follower and reset. 
 </p>
 </p>
 
@@ -1464,7 +1464,6 @@ The shift gate ISR serves as the exposure and SH idle controller with hand-off t
 <img src="Images/ICG_ISR_flowchart.jpg" width=40%>
 <p align="center" style="margin-left:5em;margin-right:5em">
 The integration clear gate ISR occurs only at the end of an exposure, on the leading edge sets up the CNVST signal and readout and launches the readout on the trailing edge.
-ICG flow chart
 </p>
 </p>
 
