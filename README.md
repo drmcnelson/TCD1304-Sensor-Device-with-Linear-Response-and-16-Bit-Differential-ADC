@@ -1211,7 +1211,7 @@ Red = sensor, Green = adc inp, turquoise = Cs+ (sar cap).
 
 ### Gate driver and analog signal integrity
 
-Issues that require careful attention in designing the gate drivers, include the fact of the very large capacitance of the SH gate, the role of this gate in collection charge from the photodectors into the readout CCD register, and then an electrical effect in the rest of the circuit wherein noise from the gate drivers appears on the power rails.
+Issues that require careful attention in designing the gate drivers, include the fact of the very large capacitance of the SH gate, the role of this gate in collecting charge from the photodectors into the readout CCD register, and then an electrical effect in the rest of the circuit wherein noise from the gate drivers appears on the power rails.
 
 #### Current requirements for driving the gates
 
