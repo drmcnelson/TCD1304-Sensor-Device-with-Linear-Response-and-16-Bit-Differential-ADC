@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this hardware design or firmware in your research, please cite both the paper and this Zenodo archive."
+authors:
+  - family-names: "Nelson"
+    given-names: "Mitchell C"
+    orcid: "https://orcid.org/0000-0003-2918-6761"
+title: "TCD1304 Sensor Device with Linear Response and 16-Bit Differential ADC"
+version: 1.0.1
+doi: 10.5281/zenodo.20631067
+date-released: 2026-06-10
+license: CC-BY-NC-SA-4.0
+url: "https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Linear-Response-and-16-Bit-Differential-ADC"
