@@ -16,11 +16,11 @@ This repository provides the open-sourced hardware, firmware, and documentation 
 
 Building on this foundation, the 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while also providing enhanced electrical and thermal stability.
 
-With these advancements, we can now report that the completed system achieves <0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the present design successfully resolves the long-standing obstacles to utilizing the linear CCD as a rigorous scientific instrument.
+The present system achieves <0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the design resolves long-standing obstacles and enables the linear CCD as a rigorous scientific instrument.
 
 ## System Performance and Validation
 
-The following table summarizes the verified performance metrics achieved in the present design. The system was characterized using a dual approach: direct precision metrology to verify front-end signal integrity, and statistical Photon Transfer Curve (PTC) analysis to evaluate the sensor under optical load. These characterizations confirm performance at a level of fidelity such that observed variances correspond strictly to shot noise and behaviors intrinsic to the silicon, rather than electronic artifacts. Thus, the empirical data verifies that the digitized output directly reflects the physical reality of the optical input.
+The following table summarizes performance metrics achieved in the present design. The system was characterized using a dual approach: direct precision metrology to verify front-end signal integrity, and statistical Photon Transfer Curve (PTC) analysis to evaluate the sensor under optical load. These characterizations confirm performance at a level of fidelity such that observed variances correspond strictly to shot noise and behaviors intrinsic to the silicon, rather than electronic artifacts.
 
 
 <h4 id="observed-performance">Validated Performance & Metrological Characteristics</h4>
@@ -93,9 +93,6 @@ The following figures provide representative validation of the system's metrolog
       <p align="center">Sunlight and ND filter, PTC analysis (per pixel) shows tight distribution in gain and readout noise.</p>
 </p>
 <br>
-
-### The 1-D Advantage for CCD detectors
-The data above demonstrating the intrinsic linearity of the TCD1304, are illustrative of a fundamental architectural advantage of linear CCD sensors over two-dimensional detectors. In 2-D arrays, Photon Transfer Curve (PTC) characterization routinely reveals intensity-dependent non-linearities commonly modelled as the 'brighter-fatter' effect, where accumulating charge alters the local electrostatic potential and causes spatial deflection. In modern linear CCDs, the pixel wells are isolated laterally by heavily doped p-channel blocking structures—which form physical and electrostatic barriers so that the incident light—charge is strictly corralled within each geometric boundary. As demonstrated by the empirical data, when these native silicon structures are paired with a high-fidelity analog front-end and deterministic, hardware-locked firmware, the TCD1304 achieves stable radiometric linearity across its entire dynamic range.
 
 <p style="margin-left:3em; margin-right:3em">
 <i>The Photon Transfer Technique is described in Janesick, et al,"CCD Charge Collection Efficiency And The Photon Transfer Technique", Proc. SPIE 0570, Solid-State Imaging Arrays, (11 Dec 1985); https://doi.org/10.1117/12.950297
