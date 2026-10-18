@@ -14,9 +14,9 @@ By [Dr M. C. Nelson](https://github.com/drmcnelson/TCD1304-Sensor-Device-with-Li
 
 This repository provides the open-sourced hardware, firmware, and documentation for a high-precision linear CCD instrument designed for absolute radiometric fidelity. The architecture features a dual-stage differential front-end (ADA4807 and THS4521) with a 30:1 slew rate margin (225V/μs capability vs. 7.5V/μs demand) and electrical noise below 1 LSB, specifically tuned to ensure signal settling to better than 16-bit precision (&lt; 0.0015% error).
 
-Building on this foundation, the 2026 upgrade introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while also providing enhanced electrical and thermal stability.
+Building on this foundation, the accompanying firmware introduces a hardware-locked timing architecture utilizing the i.MX RT1062’s FlexPWM module. This deterministic timing subsystem addresses the critical challenge of charge-transfer physics while also providing enhanced electrical and thermal stability.
 
-The present system achieves <0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the design resolves long-standing obstacles and enables the linear CCD as a rigorous scientific instrument.
+The present system achieves <0.2% Integral Non-Linearity (INL) and attenuates residual charge-transfer effects to baseline. Thus, the design resolves long-standing obstacles and enables the linear CCD as a rigorous photometric scientific instrument.
 
 ## System Performance and Validation
 
